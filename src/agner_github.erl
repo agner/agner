@@ -16,7 +16,7 @@ repositories() ->
 			Error;
 		{struct, Object} ->
 			Repositories = proplists:get_value(<<"repositories">>, Object),
-			lists:all(fun (invalid) ->
+			lists:filter(fun (invalid) ->
 							  false;
 						  (_) ->
 							  true
