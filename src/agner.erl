@@ -16,8 +16,13 @@ stop() ->
 	inets:stop(),
 	ssl:stop().
 
-main(_) ->
+main(["spec"|Args]) ->
+    OptSpec = [
+               {package, undefined, undefined, string, "Package name"}
+              ],
 	start(),
+    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+    io:format("~p~n",[spec(proplists:get_value(package, Opts))]),
 	stop().
 
 %%%===================================================================
