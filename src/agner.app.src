@@ -1,0 +1,14 @@
+{application, agner,
+ [
+  {description, ""},
+  {vsn, "0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+				  inets
+                 ]},
+  {env, [{github_accounts, ["agner"]}]},
+  {mod, { agner_app, []}},
+  {env, []}
+ ]}.

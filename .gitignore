@@ -1,0 +1,5 @@
+ebin/*.beam
+ebin/*.app
+agner
+scripts
+deps
