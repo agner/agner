@@ -66,20 +66,20 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 -type agner_call_spec() :: {spec, agner_spec_name(), agner_spec_version()}.
+-type agner_call_index() :: index.
 
--spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) ->
-						 gen_server_async_reply(agner_spec()).
+-spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()) ;
+                 (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())).
 						 
 handle_call({spec, Name, Version}, From, #state{}=State) ->
 	spawn_link(fun () ->
-					   Indeces =
-						   case application:get_env(indeces) of
-							   {ok, Val} ->
-								   Val;
-							   undefined ->
-								   []
-						   end,
-					   handle_spec(Name, Version, From, Indeces)
+					   handle_spec(Name, Version, From, indices())
+			   end),
+	{noreply, State};
+
+handle_call(index, From, #state{}=State) ->
+	spawn_link(fun () ->
+					   handle_index(From, indices())
 			   end),
 	{noreply, State}.
 
@@ -163,5 +163,26 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
 			gen_server:reply(From, Data)
 	end.
 
+-spec handle_index(gen_server_from(), list(tuple())) -> any().
+handle_index(From,[]) ->
+	gen_server:reply(From, {error, not_found});
+handle_index(From, [Mod0|Rest]) ->
+	Mod = index_module(Mod0),
+	case Mod:repositories() of
+		{error, not_found} ->
+			handle_index(From, Rest);
+		Repos ->
+			gen_server:reply(From, Repos)
+	end.
+
+
 index_module({github, Account}) ->
 	{agner_github, Account}.
+
+indices() ->
+    case application:get_env(indices) of
+        {ok, Val} ->
+            Val;
+        undefined ->
+            []
+    end.

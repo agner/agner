@@ -3,7 +3,7 @@
 -export([start/0,stop/0]).
 -export([main/1]).
 %% API
--export([spec/1, spec/2]).
+-export([spec/1, spec/2, index/0]).
 
 start() ->
 	inets:start(),
@@ -24,6 +24,14 @@ main(["spec"|Args]) ->
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
     io:format("~p~n",[spec(proplists:get_value(package, Opts))]),
+	stop();
+
+main(["list"|Args]) ->
+    OptSpec = [
+              ],
+	start(),
+    {ok, {_Opts, _}} = getopt:parse(OptSpec, Args),
+    io:format("~p~n",[index()]),
 	stop().
 
 %%%===================================================================
@@ -40,3 +48,8 @@ spec(Name, Version) when is_atom(Name) ->
 
 spec(Name, Version) ->
 	gen_server:call(agner_server, {spec, Name, Version}).
+
+-spec index() -> list(agner_spec_name()).
+
+index() ->
+    gen_server:call(agner_server, index).
