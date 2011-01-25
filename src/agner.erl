@@ -12,6 +12,7 @@ start() ->
 	application:start(agner).
 
 stop() ->
+    error_logger:delete_report_handler(error_logger_tty_h),
 	application:stop(agner),
 	inets:stop(),
 	ssl:stop().
