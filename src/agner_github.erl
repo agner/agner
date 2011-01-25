@@ -1,21 +1,73 @@
 -module(agner_github, [Account]).
--export([list_all_repos/0,
-		 list_tags/1,
-		 list_branches/1,
-		 blob/3
+-behaviour(agner_index).
+-include_lib("agner.hrl").
+-include_lib("agner_index.hrl").
+
+-export([repositories/0,
+		 repository/1,
+		 tags/1,
+		 branches/1,
+		 spec/2
 		]).
 
-list_all_repos() ->
-	request("https://github.com/api/v2/json/repos/show/" ++ Account).
+repositories() ->
+	case request("https://github.com/api/v2/json/repos/show/" ++ Account)  of
+		{error, _Reason} = Error ->
+			Error;
+		{struct, Object} ->
+			Repositories = proplists:get_value(<<"repositories">>, Object),
+			lists:all(fun (invalid) ->
+							  false;
+						  (_) ->
+							  true
+					  end,
+					  lists:map(fun ({struct, RepObject}) ->
+										repo_name(proplists:get_value(<<"name">>, RepObject))
+								end, Repositories))
+	end.
+
+repository(Name) ->
+	case request("https://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++ ".agner")  of
+		{error, _Reason} = Error ->
+			Error;
+		{struct, Object} ->
+			{struct, Repo} = proplists:get_value(<<"repository">>, Object),
+			Repo
+	end.
 	
-list_tags(Name) ->
-	request("http://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++  "/tags").
+	
+tags(Name) ->
+	case request("http://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++  ".agner/tags") of
+		{struct, Object} ->
+			{struct, Tags} = proplists:get_value(<<"tags">>, Object),
+			lists:map(fun({Tag, SHA1}) ->
+							  {binary_to_list(Tag),
+							   binary_to_list(SHA1)}
+					  end, Tags)
+	end.
 
-list_branches(Name) ->
-	request("http://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++  "/branches").
 
-blob(Name, SHA1, Path) ->
-	request("http://github.com/api/v2/json/blob/show/" ++ Account ++  "/" ++ Name ++  "/" ++ SHA1 ++ "/" ++ Path).
+branches(Name) ->
+	case request("http://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++  ".agner/branches") of
+		{error, _Reason} = Error ->
+			Error;
+		{struct, Object} ->
+			{struct, Branches} = proplists:get_value(<<"branches">>, Object),
+			lists:map(fun({Branch, SHA1}) ->
+							  {binary_to_list(Branch),
+							   binary_to_list(SHA1)}
+					  end, Branches)
+	end.
+
+spec(Name, SHA1) ->
+	case request("http://github.com/api/v2/json/blob/show/" ++ Account ++  "/" ++ Name ++  ".agner/" ++ SHA1 ++ "/agner.config") of
+		{error, _Reason} = Error ->
+			Error;
+		{struct, Object} ->
+			{struct, Blob} = proplists:get_value(<<"blob">>, Object),
+			binary_to_list(proplists:get_value(<<"data">>, Blob))
+	end.
+
 
 %%%
 
@@ -31,5 +83,20 @@ httpc_request_1(URL, Opts) ->
 				  [{timeout, 60000}],
 				  Opts,
 				  agner).
-parse_response({ok, {{"HTTP/1.1",200,_},_Header,Body}}) ->
-	mochijson2:decode(Body).
+
+parse_response({ok, {{"HTTP/1.1",200,_},_Headers,Body}}) ->
+	mochijson2:decode(Body);
+parse_response({ok, {{"HTTP/1.1",404,_},_Headers,_Body}}) ->
+	{error, not_found}.
+
+%%%
+
+repo_name(B) when is_binary(B) ->
+	S = binary_to_list(B),
+	case string:tokens(S,".") of
+		[Name,"agner"] ->
+			Name;
+		_ ->
+			invalid
+	end.
+		 

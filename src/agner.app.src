@@ -8,7 +8,7 @@
                   stdlib,
 				  inets
                  ]},
-  {env, [{indexes, [{github, "agner"}]}]},
+  {env, [{indeces, [{github, "agner"}]}]},
   {mod, { agner_app, []}},
   {env, []}
  ]}.

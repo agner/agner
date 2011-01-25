@@ -23,8 +23,8 @@ main(_) ->
 %%%===================================================================
 %%% API
 %%%===================================================================
--spec spec(agner_spec_name()) -> agner_spec().
--spec spec(agner_spec_name(), agner_spec_version()) -> agner_spec().
+-spec spec(agner_spec_name()) -> agner_spec() | not_found_error().
+-spec spec(agner_spec_name(), agner_spec_version()) -> agner_spec() | not_found_error().
 
 spec(Name) ->
 	spec(Name, master).

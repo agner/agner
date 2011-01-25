@@ -70,21 +70,16 @@ init([]) ->
 -spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) ->
 						 gen_server_async_reply(agner_spec()).
 						 
-handle_call({spec, Name0, Version}, From, #state{}=State) ->
-	Name = Name0 ++ ".agner",
+handle_call({spec, Name, Version}, From, #state{}=State) ->
 	spawn_link(fun () ->
-					   SHA1 = 
-					   case Version of
-						   master ->
-							   {struct, [{<<"branches">>, {struct, PL}}]} = agner_github:list_branches(Name),
-							   binary_to_list(proplists:get_value(<<"master">>, PL));
-						   _ ->
-							   {struct, [{<<"tags">>, {struct, PL}}]} = agner_github:list_tags(Name),
-							   binary_to_list(proplists:get_value(list_to_binary(Name), PL))
-					   end,
-					   {struct, [{<<"blob">>, {struct, PL1}}]} = agner_github:blob(Name, SHA1, "agner.config"),
-					   Data = proplists:get_value(<<"data">>, PL1),
-					   gen_server:reply(From, Data)
+					   Indeces =
+						   case application:get_env(indeces) of
+							   {ok, Val} ->
+								   Val;
+							   undefined ->
+								   []
+						   end,
+					   handle_spec(Name, Version, From, Indeces)
 			   end),
 	{noreply, State}.
 
@@ -146,3 +141,27 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+-spec handle_spec(agner_spec_name(), agner_spec_version(), gen_server_from(), list(tuple())) -> any().
+handle_spec(_,_,From,[]) ->
+	gen_server:reply(From, {error, not_found});
+handle_spec(Name, Version, From, [Mod0|Rest]) ->
+	Mod = index_module(Mod0),
+	case Mod:repository(Name) of
+		{error, not_found} ->
+			handle_spec(Name, Version, From, Rest);
+		_ ->
+			SHA1 = 
+				case Version of
+					master ->
+						Branches = Mod:branches(Name),
+						proplists:get_value("master", Branches);
+					_ ->
+						Tags = Mod:tags(Name),
+						proplists:get_value(Version, Tags)
+				end,
+			Data = Mod:spec(Name, SHA1),
+			gen_server:reply(From, Data)
+	end.
+
+index_module({github, Account}) ->
+	{agner_github, Account}.
