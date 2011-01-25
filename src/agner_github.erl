@@ -65,7 +65,19 @@ spec(Name, SHA1) ->
 			Error;
 		{struct, Object} ->
 			{struct, Blob} = proplists:get_value(<<"blob">>, Object),
-			binary_to_list(proplists:get_value(<<"data">>, Blob))
+			S = binary_to_list(proplists:get_value(<<"data">>, Blob)),
+            {ok, Tokens, _ } = erl_scan:string(S),
+            lists:map(fun (Term) ->
+                              {ok, T} = erl_parse:parse_term(lists:reverse(Term)),
+                              T
+                      end,
+                      tl(lists:foldl(fun ({dot, _}=Dot,[Term|Terms]) ->
+                                          [[]|[[Dot|Term]|Terms]];
+                                         (Token, [Term|Terms]) ->
+                                             [[Token|Term]|Terms];
+                                         (Token, []) ->
+                                             [[Token]]
+                                     end, [], Tokens)))
 	end.
 
 
