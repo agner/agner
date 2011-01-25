@@ -27,7 +27,7 @@ repositories() ->
 	end.
 
 repository(Name) ->
-	case request("https://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++ ".agner")  of
+	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name))  of
 		{error, _Reason} = Error ->
 			Error;
 		{struct, Object} ->
@@ -37,7 +37,7 @@ repository(Name) ->
 	
 	
 tags(Name) ->
-	case request("http://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++  ".agner/tags") of
+	case request("http://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/tags") of
 		{struct, Object} ->
 			{struct, Tags} = proplists:get_value(<<"tags">>, Object),
 			lists:map(fun({Tag, SHA1}) ->
@@ -48,7 +48,7 @@ tags(Name) ->
 
 
 branches(Name) ->
-	case request("http://github.com/api/v2/json/repos/show/" ++ Account ++ "/" ++ Name ++  ".agner/branches") of
+	case request("http://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/branches") of
 		{error, _Reason} = Error ->
 			Error;
 		{struct, Object} ->
@@ -60,7 +60,7 @@ branches(Name) ->
 	end.
 
 spec(Name, SHA1) ->
-	case request("http://github.com/api/v2/json/blob/show/" ++ Account ++  "/" ++ Name ++  ".agner/" ++ SHA1 ++ "/agner.config") of
+	case request("http://github.com/api/v2/json/blob/show/" ++ proper_repo_name(Name) ++  "/" ++ SHA1 ++ "/agner.config") of
 		{error, _Reason} = Error ->
 			Error;
 		{struct, Object} ->
@@ -80,6 +80,16 @@ spec(Name, SHA1) ->
                                      end, [], Tokens)))
 	end.
 
+
+%%%
+
+proper_repo_name(Name) ->
+    case string:tokens(Name,"/") of
+        [_, _]=L ->
+            string:join(L,"/") ++ ".agner";
+        [Name] ->
+            string:join([Account, Name],"/") ++ ".agner"
+    end.
 
 %%%
 
