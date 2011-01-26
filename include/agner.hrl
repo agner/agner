@@ -16,3 +16,5 @@
 -type agner_indices() :: list(agner_index()).
 
 -type not_found_error() :: {error, not_found}.
+
+-type directory() :: string().

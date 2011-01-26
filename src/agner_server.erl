@@ -67,9 +67,11 @@ init([]) ->
 %%--------------------------------------------------------------------
 -type agner_call_spec() :: {spec, agner_spec_name(), agner_spec_version()}.
 -type agner_call_index() :: index.
+-type agner_call_fetch() :: {fetch, agner_spec_name(), agner_spec_version(), directory()}.
 
 -spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()|{error, bad_version}) ;
-                 (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())).
+                 (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())) ;
+                 (agner_call_fetch(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok | {error, any()}).
 						 
 handle_call({spec, Name, Version}, From, #state{}=State) ->
 	spawn_link(fun () ->
@@ -81,7 +83,14 @@ handle_call(index, From, #state{}=State) ->
 	spawn_link(fun () ->
 					   handle_index(From, indices())
 			   end),
+	{noreply, State};
+
+handle_call({fetch, Name, Version, Directory}, From, #state{}=State) ->
+	spawn_link(fun () ->
+					   handle_fetch(Name, Version, Directory, From)
+			   end),
 	{noreply, State}.
+
 
 %%--------------------------------------------------------------------
 %% @private
@@ -150,19 +159,10 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
 		{error, not_found} ->
 			handle_spec(Name, Version, From, Rest);
 		_ ->
-			SHA1 = 
-				case Version of
-					{branch, Branch} ->
-						Branches = Mod:branches(Name),
-						proplists:get_value(Branch, Branches);
-					{tag, Tag} ->
-						Tags = Mod:tags(Name),
-						proplists:get_value(Tag, Tags)
-				end,
-            case SHA1 of
+            case sha1(Mod, Name, Version) of
                 undefined ->
                     gen_server:reply(From, {error, bad_version});
-                _ ->
+                SHA1 ->
                     Data = Mod:spec(Name, SHA1),
                     gen_server:reply(From, Data)
             end
@@ -179,6 +179,29 @@ handle_index(From, [Mod0|Rest]) ->
 		Repos ->
 			gen_server:reply(From, Repos)
 	end.
+
+-spec handle_fetch(agner_spec_name(), agner_spec_version(), directory(), gen_server_from()) -> any().
+handle_fetch(Name, Version, Directory, From) ->
+    case agner:spec(Name, Version) of
+        {error, _} = Error ->
+            gen_server:reply(From, Error);
+        Spec ->
+            URL = proplists:get_value(url, Spec),
+            agner_download:fetch(URL, Directory),
+            gen_server:reply(From, ok)
+    end.
+
+-spec sha1(agner_index(), agner_spec_name(), agner_spec_version()) -> sha1().
+                  
+sha1(Mod, Name, Version) ->
+    case Version of
+        {branch, Branch} ->
+            Branches = Mod:branches(Name),
+            proplists:get_value(Branch, Branches);
+        {tag, Tag} ->
+            Tags = Mod:tags(Name),
+            proplists:get_value(Tag, Tags)
+    end.
 
 
 index_module({github, Account}) ->
