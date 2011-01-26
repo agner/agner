@@ -68,10 +68,12 @@ init([]) ->
 -type agner_call_spec() :: {spec, agner_spec_name(), agner_spec_version()}.
 -type agner_call_index() :: index.
 -type agner_call_fetch() :: {fetch, agner_spec_name(), agner_spec_version(), directory()}.
+-type agner_call_versions() :: {versions, agner_spec_name()}.
 
 -spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()|{error, bad_version}) ;
                  (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())) ;
-                 (agner_call_fetch(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok | {error, any()}).
+                 (agner_call_fetch(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok | {error, any()}) ;
+                 (agner_call_versions(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_version()) | not_found_error()).
 						 
 handle_call({spec, Name, Version}, From, #state{}=State) ->
 	spawn_link(fun () ->
@@ -89,8 +91,13 @@ handle_call({fetch, Name, Version, Directory}, From, #state{}=State) ->
 	spawn_link(fun () ->
 					   handle_fetch(Name, Version, Directory, From)
 			   end),
-	{noreply, State}.
+	{noreply, State};
 
+handle_call({versions, Name}, From, #state{}=State) ->
+	spawn_link(fun () ->
+					   handle_versions(Name, From, indices())
+			   end),
+	{noreply, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -190,6 +197,22 @@ handle_fetch(Name, Version, Directory, From) ->
             agner_download:fetch(URL, Directory),
             gen_server:reply(From, ok)
     end.
+
+-spec handle_versions(agner_spec_name(), gen_server_from(), agner_indices()) -> any().
+handle_versions(_,From,[]) ->
+	gen_server:reply(From, {error, not_found});
+handle_versions(Name, From, [Mod0|Rest]) ->
+	Mod = index_module(Mod0),
+	case Mod:repository(Name) of
+		{error, not_found} ->
+			handle_versions(Name, From, Rest);
+		_ ->
+            Branches = lists:map(fun({Branch, _}) -> {branch, Branch} end,
+                                  Mod:branches(Name)),
+            Tags = lists:map(fun({Tag, _}) -> {tag, Tag} end,
+                                  Mod:tags(Name)),
+            gen_server:reply(From, Branches ++ Tags)
+	end.
 
 -spec sha1(agner_index(), agner_spec_name(), agner_spec_version()) -> sha1().
                   

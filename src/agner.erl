@@ -3,7 +3,7 @@
 -export([start/0,stop/0]).
 -export([main/1]).
 %% API
--export([spec/1, spec/2, index/0, fetch/2, fetch/3]).
+-export([spec/1, spec/2, index/0, fetch/2, fetch/3, versions/1]).
 
 start() ->
 	inets:start(),
@@ -25,6 +25,18 @@ main(["spec"|Args]) ->
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
     io:format("~p~n",[spec(proplists:get_value(package, Opts),proplists:get_value(version, Opts))]),
+	stop();
+
+main(["versions"|Args]) ->
+    OptSpec = [
+               {package, undefined, undefined, string, "Package name"}
+              ],
+	start(),
+    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+    io:format("~s",[lists:map(fun (Version) ->
+                                        io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
+                                end,
+                                versions(proplists:get_value(package, Opts)))]),
 	stop();
 
 main(["list"|Args]) ->
@@ -57,7 +69,7 @@ spec(Name) ->
 	spec(Name, {branch, "master"}).
 
 spec(Name, Version) when is_list(Version) ->
-    spec(Name, agner_spec:version(Version));
+    spec(Name, agner_spec:list_to_version(Version));
 
 spec(Name, Version) when is_atom(Name) ->
 	spec(atom_to_list(Name),Version);
@@ -77,9 +89,13 @@ fetch(Name, Directory) ->
     fetch(Name, {branch, "master"}, Directory).
 
 fetch(Name, Version, Directory) when is_list(Version) ->
-    fetch(Name, agner_spec:version(Version), Directory);
+    fetch(Name, agner_spec:list_to_version(Version), Directory);
 fetch(Name, Version, Directory) ->
     gen_server:call(agner_server, {fetch, Name, Version, Directory}).
 
+-spec versions(agner_spec_name()) -> list(agner_spec_version()).
 
+versions(Name) ->
+    gen_server:call(agner_server, {versions, Name}).
+                      
                    
