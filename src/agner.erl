@@ -54,7 +54,10 @@ main(["list"|Args]) ->
               ],
 	start(),
     {ok, {_Opts, _}} = getopt:parse(OptSpec, Args),
-    io:format("~p~n",[index()]),
+    io:format("~s",[lists:map(fun (Name) ->
+                                        io_lib:format("~s~n",[Name])
+                                end,index())
+                     ]),
 	stop();
 
 main(["fetch"|Args]) ->
