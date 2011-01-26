@@ -14,8 +14,14 @@ fetch({git, URL, Ref}, Directory) ->
 
 %%
 
-git_checkout(Ref, Directory) ->
+git_checkout({branch, Ref}, Directory) when is_list(Ref)->
     PortCheckout = git(["checkout","-q","origin/" ++ Ref],[{cd, Directory}]),
+    process_port(PortCheckout, fun () -> ok end);
+git_checkout({tag, Ref}, Directory) when is_list(Ref) ->
+    PortCheckout = git(["checkout","-q",Ref],[{cd, Directory}]),
+    process_port(PortCheckout, fun () -> ok end);
+git_checkout(Ref, Directory) when is_list(Ref) ->
+    PortCheckout = git(["checkout","-q",Ref],[{cd, Directory}]),
     process_port(PortCheckout, fun () -> ok end).
     
 git(Args) ->
