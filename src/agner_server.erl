@@ -68,7 +68,7 @@ init([]) ->
 -type agner_call_spec() :: {spec, agner_spec_name(), agner_spec_version()}.
 -type agner_call_index() :: index.
 
--spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()) ;
+-spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()|{error, bad_version}) ;
                  (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())).
 						 
 handle_call({spec, Name, Version}, From, #state{}=State) ->
@@ -152,15 +152,20 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
 		_ ->
 			SHA1 = 
 				case Version of
-					master ->
+					{branch, Branch} ->
 						Branches = Mod:branches(Name),
-						proplists:get_value("master", Branches);
-					_ ->
+						proplists:get_value(Branch, Branches);
+					{tag, Tag} ->
 						Tags = Mod:tags(Name),
-						proplists:get_value(Version, Tags)
+						proplists:get_value(Tag, Tags)
 				end,
-			Data = Mod:spec(Name, SHA1),
-			gen_server:reply(From, Data)
+            case SHA1 of
+                undefined ->
+                    gen_server:reply(From, {error, bad_version});
+                _ ->
+                    Data = Mod:spec(Name, SHA1),
+                    gen_server:reply(From, Data)
+            end
 	end.
 
 -spec handle_index(gen_server_from(), list(tuple())) -> any().

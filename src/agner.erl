@@ -19,11 +19,12 @@ stop() ->
 
 main(["spec"|Args]) ->
     OptSpec = [
-               {package, undefined, undefined, string, "Package name"}
+               {package, undefined, undefined, string, "Package name"},
+               {version, $v, "version", {string, "@master"}, "Version"}
               ],
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
-    io:format("~p~n",[spec(proplists:get_value(package, Opts))]),
+    io:format("~p~n",[spec(proplists:get_value(package, Opts),proplists:get_value(version, Opts))]),
 	stop();
 
 main(["list"|Args]) ->
@@ -38,10 +39,13 @@ main(["list"|Args]) ->
 %%% API
 %%%===================================================================
 -spec spec(agner_spec_name()) -> agner_spec() | not_found_error().
--spec spec(agner_spec_name(), agner_spec_version()) -> agner_spec() | not_found_error().
+-spec spec(agner_spec_name(), agner_spec_version() | string()) -> agner_spec() | not_found_error().
 
 spec(Name) ->
-	spec(Name, master).
+	spec(Name, {branch, "master"}).
+
+spec(Name, Version) when is_list(Version) ->
+    spec(Name, agner_spec:version(Version));
 
 spec(Name, Version) when is_atom(Name) ->
 	spec(atom_to_list(Name),Version);
