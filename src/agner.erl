@@ -24,7 +24,12 @@ main(["spec"|Args]) ->
               ],
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
-    io:format("~p~n",[spec(proplists:get_value(package, Opts),proplists:get_value(version, Opts))]),
+    case proplists:get_value(package, Opts) of
+        undefined ->
+            io:format("ERROR: Package name required.~n");
+        Package ->
+            io:format("~p~n",[spec(Package,proplists:get_value(version, Opts))])
+    end,
 	stop();
 
 main(["versions"|Args]) ->
@@ -33,10 +38,15 @@ main(["versions"|Args]) ->
               ],
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
-    io:format("~s",[lists:map(fun (Version) ->
-                                        io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
-                                end,
-                                versions(proplists:get_value(package, Opts)))]),
+    case proplists:get_value(package, Opts) of
+        undefined ->
+            io:format("ERROR: Package name required.~n");
+        Package ->
+            io:format("~s",[lists:map(fun (Version) ->
+                                              io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
+                                      end,
+                                      versions(Package))])
+    end,
 	stop();
 
 main(["list"|Args]) ->
@@ -55,9 +65,21 @@ main(["fetch"|Args]) ->
               ],
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
-    io:format("~p~n",[fetch(proplists:get_value(package, Opts),proplists:get_value(version, Opts),
-                            proplists:get_value(directory, Opts, proplists:get_value(package, Opts)))]),
-	stop().
+    case proplists:get_value(package, Opts) of
+        undefined ->
+            io:format("ERROR: Package name required.~n");
+        Package ->
+            io:format("~p~n",[fetch(Package,proplists:get_value(version, Opts),
+                                    proplists:get_value(directory, Opts, Package))])
+    end,
+	stop();
+
+main(_) ->
+    OptSpec = [
+               {command, undefined, undefined, string, "Command to be executed (e.g. spec)"}
+               ],
+    getopt:usage(OptSpec, "agner", "[options ...]").
+
 
 %%%===================================================================
 %%% API
