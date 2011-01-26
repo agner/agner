@@ -140,8 +140,8 @@ code_change(_OldVsn, State, _Extra) ->
 
 %%%===================================================================
 %%% Internal functions
-%%%===================================================================
--spec handle_spec(agner_spec_name(), agner_spec_version(), gen_server_from(), list(tuple())) -> any().
+%%%===================================================================                 
+-spec handle_spec(agner_spec_name(), agner_spec_version(), gen_server_from(), agner_indices()) -> any().
 handle_spec(_,_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
 handle_spec(Name, Version, From, [Mod0|Rest]) ->
