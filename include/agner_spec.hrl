@@ -14,6 +14,7 @@
 -type agner_spec_property_license() :: {license, string(), file()} |
                                        {license, string()}.
 -type agner_spec_property_erlang_versions() :: {erlang_versions, list(atom())}.
+-type agner_spec_property_applications() :: {applications, list(atom())}.
 -type agner_spec_property_url() :: {url, 
                                     {git, url(), git_ref()} |
                                     {hg, url(), hg_rev()}}.
@@ -27,6 +28,7 @@
                                agner_spec_property_rebar_compatible() |
                                agner_spec_property_license() |
                                agner_spec_property_erlang_versions() |
+                               agner_spec_property_applications() |
                                agner_spec_property_url().
 
 -type agner_spec() :: list(agner_spec_property()).
