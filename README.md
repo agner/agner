@@ -8,7 +8,7 @@ Essentially, Agner is an index of Erlang packages with some extra
 capabilities such as versioning, downloads and so on.
 
 Agner is a shorthand for *A Giant Nebula of Erlang Repositories*. It
-also pays homage to the Danish statistician "Agner Krarup Erlang".
+also pays homage to the Danish statistician Agner Krarup Erlang.
 
 Motivation
 ----------
