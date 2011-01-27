@@ -5,3 +5,6 @@ deps:
 
 compile: deps
 	@./rebar compile
+
+install:
+	@install ./agner /usr/local/bin
