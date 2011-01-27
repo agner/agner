@@ -163,7 +163,7 @@ Or in a more generic way:
     {description, ProjectDescription}.
     {homepage, ProjectHomepage}.
     {rebar_compatible, IsRebarCompatible}.
-    {license, LicenseType, LicenseFile}.
+    {license, LicenseType [, LicenseFile]}.
     {erlang_versions, [OTPAtom]}.
     {url, UrlSpec}.
 
@@ -182,7 +182,7 @@ Or in a more generic way:
   strings. The first one specifies the general license type of the
   project and the second string explains where the license is to be
   found from the top level directory (usually file-names like
-  `COPYING` or `LICENSE` are used for this).
+  `COPYING` or `LICENSE` are used for this). Please note that `LicenseFile` is optional.
 * `[OTPAtom] :: [otp_rXXb | otp_rXXbYY]` - A list of what OTP versions
   the project can be used with. the `XX` is a major release number in
   Erlang/OTP (12,13,14,...) and `YY` is a minor release number (01,
