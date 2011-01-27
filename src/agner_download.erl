@@ -9,6 +9,19 @@ fetch({git, URL, Ref}, Directory) ->
         true -> %% existing repo (or something else)
             PortFetch = git(["fetch","origin"]),
             process_port(PortFetch, fun() -> git_checkout(Ref, Directory) end)
+    end;
+
+fetch({hg, URL, Rev}, Directory) ->
+    case filelib:is_dir(Directory) of
+        false -> %% new
+            PortClone = hg(["clone", "-U", URL, Directory]),
+            process_port(PortClone, fun () -> 
+                                            PortUpdate = hg(["update", Rev]),
+                                            process_port(PortUpdate, fun () -> ok end)
+                                    end);
+        true -> %% existing
+            PortClone = hg(["pull", "-u", "-r", Rev],[{cd, Directory}]),
+            process_port(PortClone, fun () -> ok end)
     end.
                                        
 
@@ -31,6 +44,14 @@ git(Args, Opts) ->
     Git = os:find_executable("git"),
     open_port({spawn_executable, Git},[{args, Args},
                                        exit_status|Opts]).
+
+hg(Args) ->
+    hg(Args,[]).
+
+hg(Args, Opts) ->
+    Hg = os:find_executable("hg"),
+    open_port({spawn_executable, Hg},[{args, Args},
+                                      exit_status|Opts]).
 
 process_port(Port, Fun) ->
     receive 
