@@ -3,7 +3,7 @@
 -export([start/0,stop/0]).
 -export([main/1]).
 %% API
--export([spec/1, spec/2, index/0, fetch/2, fetch/3, versions/1]).
+-export([spec/1, spec/2, spec_url/1, spec_url/2, index/0, fetch/2, fetch/3, versions/1]).
 
 start() ->
 	inets:start(),
@@ -20,6 +20,7 @@ stop() ->
 main(["spec"|Args]) ->
     OptSpec = [
                {package, undefined, undefined, string, "Package name"},
+               {browser, $b, "browser", boolean, "Show specification in the browser"},
                {version, $v, "version", {string, "@master"}, "Version"}
               ],
 	start(),
@@ -28,7 +29,15 @@ main(["spec"|Args]) ->
         undefined ->
             io:format("ERROR: Package name required.~n");
         Package ->
-            io:format("~p~n",[spec(Package,proplists:get_value(version, Opts))])
+            Version = proplists:get_value(version, Opts),
+            case proplists:get_value(browser, Opts) of
+                true ->
+                    agner_utils:launch_browser(spec_url(Package, Version));
+                false ->
+                    ignore
+            end,
+                        
+            io:format("~p~n",[spec(Package,Version)])
     end,
 	stop();
 
@@ -108,6 +117,24 @@ spec(Name, Version) when is_list(Version) ->
 
 spec(Name, Version) ->
 	gen_server:call(agner_server, {spec, Name, Version}).
+
+-spec spec_url(agner_spec_name()) -> url() | not_found_error().
+-spec spec_url(agner_spec_name(), agner_spec_version() | string()) -> url() | not_found_error().
+
+spec_url(Name) ->
+	spec_url(Name, {branch, "master"}).
+
+spec_url(Name, Version) when is_atom(Name) ->
+	spec_url(atom_to_list(Name),Version);
+
+spec_url(Name, Version) when is_list(Version) ->
+    spec_url(Name, agner_spec:list_to_version(Name, Version));
+
+spec_url(Name, Version) ->
+	gen_server:call(agner_server, {spec_url, Name, Version}).
+
+
+
 
 -spec index() -> list(agner_spec_name()).
 

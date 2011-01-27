@@ -70,6 +70,7 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 -type agner_call_spec() :: {spec, agner_spec_name(), agner_spec_version()}.
+-type agner_call_spec_url() :: {spec_url, agner_spec_name(), agner_spec_version()}.
 -type agner_call_index() :: index.
 -type agner_call_fetch() :: {fetch, agner_spec_name(), agner_spec_version(), directory()}.
 -type agner_call_versions() :: {versions, agner_spec_name()}.
@@ -77,6 +78,7 @@ init([]) ->
 -type agner_internal_call_pushed_at() :: {pushed_at, agner_spec_name()}.
 
 -spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()|{error, bad_version}) ;
+                 (agner_call_spec_url(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(url()|{error, bad_version}) ;
                  (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())) ;
                  (agner_call_fetch(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok | {error, any()}) ;
                  (agner_call_versions(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_version()) | not_found_error());
@@ -87,6 +89,12 @@ init([]) ->
 handle_call({spec, Name, Version}, From, #state{}=State) ->
 	spawn_link(fun () ->
 					   handle_spec(Name, Version, From, indices())
+			   end),
+	{noreply, State};
+
+handle_call({spec_url, Name, Version}, From, #state{}=State) ->
+	spawn_link(fun () ->
+					   handle_spec_url(Name, Version, From, indices())
 			   end),
 	{noreply, State};
 
@@ -198,6 +206,23 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
                     handle_spec(Name, Version, From, Rest);
                 Data ->
                     gen_server:reply(From, Data)
+            end;
+        _ ->
+            gen_server:reply(From, {error, bad_version})
+    end.
+
+-spec handle_spec_url(agner_spec_name(), agner_spec_version(), gen_server_from(), agner_indices()) -> any().
+handle_spec_url(_,_,From,[]) ->
+	gen_server:reply(From, {error, not_found});
+handle_spec_url(Name, Version, From, [Mod0|Rest]) ->
+	Mod = index_module(Mod0),
+    case sha1(Mod, Name, Version) of
+        SHA1 when is_list(SHA1) ->
+            case Mod:spec_url(Name, SHA1) of
+                {error, not_found} ->
+                    handle_spec_url(Name, Version, From, Rest);
+                URL ->
+                    gen_server:reply(From, URL)
             end;
         _ ->
             gen_server:reply(From, {error, bad_version})

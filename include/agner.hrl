@@ -15,4 +15,6 @@
 
 -type directory() :: string().
 
+-type url() :: string().
+
 -include_lib("agner_spec.hrl").

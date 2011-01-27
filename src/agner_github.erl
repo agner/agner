@@ -7,7 +7,8 @@
 		 repository/1,
 		 tags/1,
 		 branches/1,
-		 spec/2
+		 spec/2,
+         spec_url/2
 		]).
 
 repositories() ->
@@ -106,7 +107,8 @@ spec_1(Name, SHA1, AtFilename) ->
             S
     end.
 
-
+spec_url(Name, SHA1) ->
+    "https://github.com/" ++ proper_repo_name(Name) ++ "/blob/" ++ SHA1 ++ "/agner.config".
 
 %%%
 

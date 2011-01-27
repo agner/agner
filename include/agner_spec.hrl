@@ -1,5 +1,3 @@
--type url() :: string().
-
 -type git_ref() :: sha1() |
                    {branch, string()} |
                    {tag, string()}.

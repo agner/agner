@@ -65,12 +65,15 @@ Will list all agner-packages. With the `-d` or `--descriptions`
 option, it will also print out the descriptions of the packages, for
 easy grepping to find relevant packages.
 
-    agner spec PACKAGE [-v/--version package_version]
+    agner spec PACKAGE [-v/--version package_version] [-b/--browser]
 
 Will print a specification of a given package on stdout. If the
 optional version constraint is given (for example `agner spec gproc -v
 @release`) then the output is of that version. By default, the
 `@master` flavour is chosen.
+
+If `-b` or `--browser` is used, it will also open browser with the specification 
+file in its respective `.agner` repository.
 
     agner fetch PACKAGE [DESTDIR] [-v/--version package_version]
 
