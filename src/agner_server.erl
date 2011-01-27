@@ -177,7 +177,7 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
 
 -spec handle_index(gen_server_from(), list(agner_spec_name()), list(tuple())) -> any().
 handle_index(From, Acc, []) ->
-	gen_server:reply(From, lists:usort(lists:reverse(Acc)));
+	gen_server:reply(From, lists:reverse(Acc));
 handle_index(From, Acc, [Mod0|Rest]) ->
 	Mod = index_module(Mod0),
 	case Mod:repositories() of
