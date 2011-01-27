@@ -50,4 +50,4 @@ You can also specify your own indices:
 Contributing
 ------------
 
-Please read at the (wiki)[https://github.com/agner/agner/wiki/Contributing].
+Please read at the [wiki](https://github.com/agner/agner/wiki/Contributing).
