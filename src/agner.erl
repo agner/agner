@@ -34,14 +34,14 @@ main(["spec"|Args]) ->
             case proplists:get_value(browser, Opts) of
                 true ->
                     agner_utils:launch_browser(spec_url(Package, Version));
-                false ->
+                _ ->
                     ignore
             end,
             Spec = spec(Package,Version),
             case proplists:get_value(homepage, Opts) of
                 true ->
                     agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/?q=" ++ Package));
-                false ->
+                _ ->
                     ignore
             end,
             io:format("~p~n",[Spec])
