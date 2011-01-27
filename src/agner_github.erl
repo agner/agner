@@ -37,7 +37,7 @@ repository(Name) ->
 	
 	
 tags(Name) ->
-	case request("http://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/tags") of
+	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/tags") of
 		{struct, Object} ->
 			{struct, Tags} = proplists:get_value(<<"tags">>, Object),
 			lists:map(fun({Tag, SHA1}) ->
@@ -48,7 +48,7 @@ tags(Name) ->
 
 
 branches(Name) ->
-	case request("http://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/branches") of
+	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/branches") of
 		{error, _Reason} = Error ->
 			Error;
 		{struct, Object} ->
