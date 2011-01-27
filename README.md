@@ -56,6 +56,34 @@ This section introduces the terminology of Agner:
   track the development branch of a package and the *@release*
   flavour, used to track the latest release of the package.
 
+Command invocation
+------------------
+
+    agner list [-d/--descriptions]
+
+Will list all agner-packages. With the `-d` or `--descriptions`
+option, it will also print out the descriptions of the packages, for
+easy grepping to find relevant packages.
+
+    agner spec PACKAGE [-v/--version package_version]
+
+Will print a specification of a given package on stdout. If the
+optional version constraint is given (for example `agner spec gproc -v
+@release`) then the output is of that version. By default, the
+`@master` flavour is chosen.
+
+    agner fetch PACKAGE [DESTDIR] [-v/--version package_version]
+
+Fetch a given `PACKAGE` to either the current directory or,
+optionally, to the `DESTDIR` directory. The version constraint is as
+were the case for `agner spec`.
+
+    agner versions PACKAGE
+
+List the versions of the given `PACKAGE`
+
+Packaging
+=========
 
 Package organization
 --------------------
@@ -196,33 +224,6 @@ Or in a more generic way:
   configuration file lies.
 * `UrlSpec :: {hg, URL, HgRev}` - Specifies where to fetch the
   project. `HgSpec` has type `string()` and  points to either string-based revision representation
-
-Commands
---------
-
-    agner list [-d/--descriptions]
-
-Will list all agner-packages. With the `-d` or `--descriptions`
-option, it will also print out the descriptions of the packages, for
-easy grepping to find relevant packages.
-
-    agner spec PACKAGE [-v/--version package_version]
-
-Will print a specification of a given package on stdout. If the
-optional version constraint is given (for example `agner spec gproc -v
-@release`) then the output is of that version. By default, the
-`@master` flavour is chosen.
-
-    agner fetch PACKAGE [DESTDIR] [-v/--version package_version]
-
-Fetch a given `PACKAGE` to either the current directory or,
-optionally, to the `DESTDIR` directory. The version constraint is as
-were the case for `agner spec`.
-
-    agner versions PACKAGE
-
-List the versions of the given `PACKAGE`
-
 
 Rebar
 -----
