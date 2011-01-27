@@ -32,7 +32,7 @@ Commands
 Rebar
 -----
 
-Agner-compatible rebar is available at [agner branch](https://github.com/agner/rebar/tree/agner) of [agner/rebar](https://github.com/agner/rebar). Or you can download ready-made rebar from https://github.com/agner/agner/raw/master/rebar.
+Agner-compatible rebar is available at [agner branch](https://github.com/agner/rebar/tree/agner) of [agner/rebar](https://github.com/agner/rebar). Or you can download ready-made rebar from [agner itself](https://github.com/agner/agner/raw/master/rebar).
 
 Using it with rebar is fairly simple, it uses rebar's deps feature:
 
