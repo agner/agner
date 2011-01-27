@@ -41,7 +41,7 @@ Using it with rebar is fairly simple, it uses rebar's deps feature:
               {getopt, "0.3.0", {agner, "getopt"}}
            ]}.
 
-You can also specify your own indeces:
+You can also specify your own indices:
 
     {agner_indices, [{github, "yourgithubusername"},{github,"agner"}].
 
