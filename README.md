@@ -22,9 +22,7 @@ Commands
 
     agner list [-d/--descriptions]
 
-
     agner spec [package name] [-v/--version package_version]
-
 
     agner fetch [package name] [destination directory] [-v/--version package_version]
 
