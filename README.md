@@ -47,3 +47,7 @@ You can also specify your own indices:
 
     {agner_indices, [{github, "yourgithubusername"},{github,"agner"}].
 
+Contributing
+------------
+
+Please read at the (wiki)[https://github.com/agner/agner/wiki/Contributing].
