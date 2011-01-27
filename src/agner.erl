@@ -21,6 +21,7 @@ main(["spec"|Args]) ->
     OptSpec = [
                {package, undefined, undefined, string, "Package name"},
                {browser, $b, "browser", boolean, "Show specification in the browser"},
+               {homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
                {version, $v, "version", {string, "@master"}, "Version"}
               ],
 	start(),
@@ -36,8 +37,14 @@ main(["spec"|Args]) ->
                 false ->
                     ignore
             end,
-                        
-            io:format("~p~n",[spec(Package,Version)])
+            Spec = spec(Package,Version),
+            case proplists:get_value(homepage, Opts) of
+                true ->
+                    agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/?q=" ++ Package));
+                false ->
+                    ignore
+            end,
+            io:format("~p~n",[Spec])
     end,
 	stop();
 
