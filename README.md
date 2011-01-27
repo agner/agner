@@ -177,7 +177,7 @@ Or in a more generic way:
 * `ProjectHomepage :: string()` - The URL of the homepage of the
   project.
 * `IsRebarCompatible :: boolean()` - Set to `true` if this project
-  uses `rebar`.
+  uses `rebar` or is compilable by rebar even if it wasn't originally designed for that.
 * `LicenseType :: string(), LicenseFile :: string()` - Two
   strings. The first one specifies the general license type of the
   project and the second string explains where the license is to be
