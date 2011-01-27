@@ -123,7 +123,7 @@ fetch(Name, Directory) ->
 fetch(Name, Version, Directory) when is_list(Version) ->
     fetch(Name, agner_spec:list_to_version(Version), Directory);
 fetch(Name, Version, Directory) ->
-    gen_server:call(agner_server, {fetch, Name, Version, Directory}).
+    gen_server:call(agner_server, {fetch, Name, Version, Directory}, infinity). %% fetch might be time consuming
 
 -spec versions(agner_spec_name()) -> list(agner_spec_version()).
 
