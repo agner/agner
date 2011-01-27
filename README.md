@@ -10,16 +10,12 @@ Agner-compatible rebar is available at (agner branch)[https://github.com/agner/r
 
 Using it with rebar is fairly simple, it uses rebar's deps feature:
 
-```
-{deps, [
-        {typespecs, "0.1", {agner, "typespecs"}},
-        {getopt, "0.3.0", {agner, "getopt"}}
-        ]}.
-```
+    {deps, [
+              {typespecs, "0.1", {agner, "typespecs"}},
+              {getopt, "0.3.0", {agner, "getopt"}}
+           ]}.
 
 You can also specify your own indeces:
 
-```
-{agner_indices, [{github, "yourgithubusername"},{github,"agner"}].
-```
+    {agner_indices, [{github, "yourgithubusername"},{github,"agner"}].
 
