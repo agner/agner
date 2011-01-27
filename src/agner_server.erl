@@ -233,7 +233,7 @@ index_module({github, Account}) ->
 indexize({github, "agner"}, Name) ->
     Name;
 indexize({github, Account}, Name) ->
-    Account + "/" + Name.
+    Account ++ "/" ++ Name.
 
 indices() ->
     case application:get_env(indices) of
