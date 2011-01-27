@@ -51,11 +51,18 @@ main(["versions"|Args]) ->
 
 main(["list"|Args]) ->
     OptSpec = [
+               {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
               ],
 	start(),
-    {ok, {_Opts, _}} = getopt:parse(OptSpec, Args),
+    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+    ShowDescriptions = proplists:get_value(descriptions, Opts),
     io:format("~s",[lists:map(fun (Name) ->
-                                        io_lib:format("~s~n",[Name])
+                                      case ShowDescriptions of
+                                          true ->
+                                              io_lib:format("~-40s ~s~n",[Name, proplists:get_value(description, spec(Name))]);
+                                          false ->
+                                              io_lib:format("~s~n",[Name])
+                                      end
                                 end,index())
                      ]),
 	stop();
