@@ -194,6 +194,8 @@ Or in a more generic way:
   this file. To handle multiple versions, you use *releases* and
   *flavours* by altering the `.agner` repository wherein this
   configuration file lies.
+* `UrlSpec :: {hg, URL, HgRev}` - Specifies where to fetch the
+  project. `HgSpec` has type `string()` and  points to either string-based revision representation
 
 Commands
 --------
