@@ -60,12 +60,10 @@ branches(Name) ->
 	end.
 
 spec(Name, SHA1) ->
-	case request("http://github.com/api/v2/json/blob/show/" ++ proper_repo_name(Name) ++  "/" ++ SHA1 ++ "/agner.config") of
-		{error, _Reason} = Error ->
-			Error;
-		{struct, Object} ->
-			{struct, Blob} = proplists:get_value(<<"blob">>, Object),
-			S = binary_to_list(proplists:get_value(<<"data">>, Blob)),
+	case httpc_request("http://github.com/" ++ proper_repo_name(Name) ++ "/raw/" ++ SHA1 ++ "/agner.config") of
+        {ok, {{"HTTP/1.1",404,_},_Headers,_Body}} ->
+            {error, not_found};
+        {ok, {{"HTTP/1.1",200,_},_Headers,S}} ->
             agner_spec:parse(S)
 	end.
 

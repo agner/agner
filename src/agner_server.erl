@@ -219,8 +219,7 @@ handle_versions(Name, From, [Mod0|Rest]) ->
 sha1(Mod, Name, Version) ->
     case Version of
         {branch, Branch} ->
-            Branches = Mod:branches(Name),
-            proplists:get_value(Branch, Branches);
+            Branch;
         {tag, Tag} ->
             Tags = Mod:tags(Name),
             proplists:get_value(Tag, Tags);
