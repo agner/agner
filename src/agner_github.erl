@@ -16,13 +16,14 @@ repositories() ->
 			Error;
 		{struct, Object} ->
 			Repositories = proplists:get_value(<<"repositories">>, Object),
-			lists:filter(fun (invalid) ->
+			lists:filter(fun ({invalid,_}) ->
 							  false;
 						  (_) ->
 							  true
 					  end,
 					  lists:map(fun ({struct, RepObject}) ->
-										repo_name(proplists:get_value(<<"name">>, RepObject))
+										{repo_name(proplists:get_value(<<"name">>, RepObject)),
+                                         proplists:get_value(<<"pushed_at">>, RepObject)}
 								end, Repositories))
 	end.
 
@@ -60,20 +61,51 @@ branches(Name) ->
 	end.
 
 spec(Name, SHA1) ->
-    {A,B,C} = now(),
-    N = node(),
-    TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
-    ClonePort = agner_download:git(["clone", "-q", "git://github.com/" ++ proper_repo_name(Name) ++ ".git", TmpFile]),
-    Result = agner_download:process_port(ClonePort, 
-                                         fun () ->
-                                                 PortCheckout = agner_download:git(["checkout","-q",SHA1],[{cd, TmpFile}]),
-                                                 agner_download:process_port(PortCheckout, fun () ->
-                                                                                                   {ok, S} = file:consult(filename:join(TmpFile, "agner.config")),
-                                                                                                   S
-                                                                                           end)
-                                         end),
-    os:cmd("rm -rf " ++ TmpFile),
-    Result.
+    case gen_server:call(agner_server, {pushed_at, Name}) of
+        At when is_list(At) ->
+            DotDir = filename:join(os:getenv("HOME"),".agner"),
+            filelib:ensure_dir(DotDir ++ "/"),
+            AtFilename = filename:join([DotDir, "cache." ++ Name ++ SHA1 ++ lists:map(fun ($/) ->
+                                                                                  $_;
+                                                                              ($\s) ->
+                                                                                  $_;
+                                                                              (C) ->
+                                                                                  C
+                                                                          end, At)]),
+            spec_1(Name, SHA1, AtFilename);
+        undefined ->
+            {A,B,C} = now(),
+            N = node(),
+            TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
+            Result = spec_1(Name, SHA1, TmpFile),
+            file:delete(TmpFile),
+            Result
+    end.
+
+spec_1(Name, SHA1, AtFilename) ->
+    case file:read_file_info(AtFilename) of
+        {error, enoent} ->
+            {A,B,C} = now(),
+            N = node(),
+            TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
+            ClonePort = agner_download:git(["clone", "-q", "git://github.com/" ++ proper_repo_name(Name) ++ ".git", TmpFile]),
+            Result = agner_download:process_port(ClonePort, 
+                                                 fun () ->
+                                                         PortCheckout = agner_download:git(["checkout","-q",SHA1],[{cd, TmpFile}]),
+                                                         agner_download:process_port(PortCheckout, fun () ->
+                                                                                                           Config = filename:join(TmpFile, "agner.config"),
+                                                                                                           {ok, S} = file:consult(Config),
+                                                                                                           {ok, _} = file:copy(Config, AtFilename),
+                                                                                                           S
+                                                                                                   end)
+                                                         end),
+            os:cmd("rm -rf " ++ TmpFile),
+            Result;
+        {ok, _} ->
+            {ok, S} = file:consult(AtFilename),
+            S
+    end.
+
 
 
 %%%

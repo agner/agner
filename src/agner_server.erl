@@ -13,7 +13,9 @@
 -define(SERVER, ?MODULE). 
 
 
--record(state, {}).
+-record(state, {
+          pushed_at
+         }).
 
 -type gen_server_state() :: #state{}.
 
@@ -49,7 +51,9 @@ start_link() ->
 -spec init([]) -> gen_server_init_result().
 				   
 init([]) ->
-	{ok, #state{}}.
+	{ok, #state{
+       pushed_at = ets:new(agner_pushed_at,[public])
+      }}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -69,11 +73,16 @@ init([]) ->
 -type agner_call_index() :: index.
 -type agner_call_fetch() :: {fetch, agner_spec_name(), agner_spec_version(), directory()}.
 -type agner_call_versions() :: {versions, agner_spec_name()}.
+-type agner_internal_call_pushed_at_updates() :: {pushed_at_updates, list({agner_spec_name(), string()})}.
+-type agner_internal_call_pushed_at() :: {pushed_at, agner_spec_name()}.
 
 -spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()|{error, bad_version}) ;
                  (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())) ;
                  (agner_call_fetch(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok | {error, any()}) ;
-                 (agner_call_versions(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_version()) | not_found_error()).
+                 (agner_call_versions(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_version()) | not_found_error());
+                 (agner_internal_call_pushed_at_updates(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok) ;
+                 (agner_internal_call_pushed_at(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(string() | undefined).
+
 						 
 handle_call({spec, Name, Version}, From, #state{}=State) ->
 	spawn_link(fun () ->
@@ -97,7 +106,27 @@ handle_call({versions, Name}, From, #state{}=State) ->
 	spawn_link(fun () ->
 					   handle_versions(Name, From, indices())
 			   end),
+	{noreply, State};
+
+%% INTERNAL CALLS
+handle_call({pushed_at_updates, Updates}, From, #state{ pushed_at = PushedAt }=State) ->
+	spawn_link(fun () ->
+                       ets:insert(PushedAt, Updates),
+                       gen_server:reply(From, ok)
+			   end),
+	{noreply, State};
+
+handle_call({pushed_at, Name}, From, #state{ pushed_at = PushedAt }=State) ->
+	spawn_link(fun () ->
+                       case ets:lookup(PushedAt, Name) of
+                           [{Name, At}] ->
+                               gen_server:reply(From, binary_to_list(At));
+                           _ ->
+                               gen_server:reply(From, undefined)
+                       end
+			   end),
 	{noreply, State}.
+
 
 %%--------------------------------------------------------------------
 %% @private
@@ -162,22 +191,24 @@ handle_spec(_,_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
 handle_spec(Name, Version, From, [Mod0|Rest]) ->
 	Mod = index_module(Mod0),
-	case Mod:repository(Name) of
-		{error, not_found} ->
-			handle_spec(Name, Version, From, Rest);
-		_ ->
-            case sha1(Mod, Name, Version) of
-                SHA1 when is_list(SHA1) ->
-                    Data = Mod:spec(Name, SHA1),
-                    gen_server:reply(From, Data);
-                _ ->
-                    gen_server:reply(From, {error, bad_version})
-            end
-	end.
+    case sha1(Mod, Name, Version) of
+        SHA1 when is_list(SHA1) ->
+            case Mod:spec(Name, SHA1) of
+                {error, not_found} ->
+                    handle_spec(Name, Version, From, Rest);
+                Data ->
+                    gen_server:reply(From, Data)
+            end;
+        _ ->
+            gen_server:reply(From, {error, bad_version})
+    end.
 
 -spec handle_index(gen_server_from(), list(agner_spec_name()), list(tuple())) -> any().
 handle_index(From, Acc, []) ->
-	gen_server:reply(From, lists:reverse(Acc));
+    Repos = lists:reverse(Acc),
+    RepoNames = lists:map(fun ({Name, _}) -> Name end, Repos),
+    gen_server:call(?SERVER, {pushed_at_updates, Repos}),
+	gen_server:reply(From, RepoNames);
 handle_index(From, Acc, [Mod0|Rest]) ->
 	Mod = index_module(Mod0),
 	case Mod:repositories() of
