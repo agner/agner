@@ -136,8 +136,9 @@ httpc_request_1(URL, Opts) ->
 parse_response({ok, {{"HTTP/1.1",200,_},_Headers,Body}}) ->
 	mochijson2:decode(Body);
 parse_response({ok, {{"HTTP/1.1",404,_},_Headers,_Body}}) ->
-	{error, not_found}.
-
+	{error, not_found};
+parse_response({ok, {{"HTTP/1.1",403,_}, _Headers, _Body}}) ->
+    {error, github_rate_limit_exceeded}.
 %%%
 
 repo_name(B) when is_binary(B) ->
