@@ -8,7 +8,7 @@ Essentially, Agner is an index of Erlang packages with some extra capabilities s
 Package names
 -------------
 
-Package name is just either a package name such as <code>mochiweb</code>, or (in case of github indeces, it might also
+Package name is just either a package name such as <code>mochiweb</code>, or (in case of github indices, it might also
 take a form of <code>account/package</code>, for example <code>yrashk/misultin</code>)
 
 Versions
