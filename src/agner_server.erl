@@ -83,7 +83,7 @@ handle_call({spec, Name, Version}, From, #state{}=State) ->
 
 handle_call(index, From, #state{}=State) ->
 	spawn_link(fun () ->
-					   handle_index(From, indices())
+					   handle_index(From, [], indices())
 			   end),
 	{noreply, State};
 
@@ -175,16 +175,16 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
             end
 	end.
 
--spec handle_index(gen_server_from(), list(tuple())) -> any().
-handle_index(From,[]) ->
-	gen_server:reply(From, {error, not_found});
-handle_index(From, [Mod0|Rest]) ->
+-spec handle_index(gen_server_from(), list(agner_spec_name()), list(tuple())) -> any().
+handle_index(From, Acc, []) ->
+	gen_server:reply(From, lists:usort(lists:reverse(Acc)));
+handle_index(From, Acc, [Mod0|Rest]) ->
 	Mod = index_module(Mod0),
 	case Mod:repositories() of
 		{error, not_found} ->
-			handle_index(From, Rest);
+			handle_index(From, Acc, Rest);
 		Repos ->
-			gen_server:reply(From, Repos)
+            handle_index(From, lists:map(fun (Repo) -> indexize(Mod0, Repo) end, Repos) ++ Acc, Rest)
 	end.
 
 -spec handle_fetch(agner_spec_name(), agner_spec_version(), directory(), gen_server_from()) -> any().
@@ -229,6 +229,11 @@ sha1(Mod, Name, Version) ->
 
 index_module({github, Account}) ->
 	{agner_github, Account}.
+
+indexize({github, "agner"}, Name) ->
+    Name;
+indexize({github, Account}, Name) ->
+    Account + "/" + Name.
 
 indices() ->
     case application:get_env(indices) of
