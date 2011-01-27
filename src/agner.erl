@@ -42,10 +42,10 @@ main(["versions"|Args]) ->
         undefined ->
             io:format("ERROR: Package name required.~n");
         Package ->
-            io:format("~s",[lists:map(fun (Version) ->
-                                              io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
-                                      end,
-                                      versions(Package))])
+            io:format("~s",[plists:map(fun (Version) ->
+                                               io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
+                                       end,
+                                       versions(Package))])
     end,
 	stop();
 
@@ -56,14 +56,14 @@ main(["list"|Args]) ->
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
     ShowDescriptions = proplists:get_value(descriptions, Opts),
-    io:format("~s",[lists:map(fun (Name) ->
-                                      case ShowDescriptions of
-                                          true ->
-                                              io_lib:format("~-40s ~s~n",[Name, proplists:get_value(description, spec(Name))]);
-                                          false ->
-                                              io_lib:format("~s~n",[Name])
-                                      end
-                                end,index())
+    io:format("~s",[plists:map(fun (Name) ->
+                                       case ShowDescriptions of
+                                           true ->
+                                               io_lib:format("~-40s ~s~n",[Name, proplists:get_value(description, spec(Name))]);
+                                           false ->
+                                               io_lib:format("~s~n",[Name])
+                                       end
+                               end,index())
                      ]),
 	stop();
 
