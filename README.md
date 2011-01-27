@@ -188,8 +188,8 @@ Or in a more generic way:
   Erlang/OTP (12,13,14,...) and `YY` is a minor release number (01,
   02, ...).
 * `UrlSpec :: {git, URL, GitSpec}` - Specifies where to fetch the
-  project. `GitSpec` has type `{tag, string()} | {branch, string()}`
-  and points to either a git *tag* or a *git* branch
+  project. `GitSpec` has type `sha1() | {tag, string()} | {branch, string()}`
+  and points to either string-based sha1 representation, a git *tag* or a *git* branch
   respectively. Notice that you can't specify more than one target in
   this file. To handle multiple versions, you use *releases* and
   *flavours* by altering the `.agner` repository wherein this
