@@ -1,7 +1,9 @@
 Agner
 =====
 
-Agner is a rebar-friendly Erlang package index inspired by Clojars and Homebrew.
+Agner is a rebar-friendly Erlang package index inspired by Clojars and Homebrew. 
+
+Essentially, Agner is an index of Erlang packages with some extra capabilities such as versioning, downloads and so on.
 
 Package names
 -------------
