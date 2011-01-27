@@ -167,11 +167,11 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
 			handle_spec(Name, Version, From, Rest);
 		_ ->
             case sha1(Mod, Name, Version) of
-                undefined ->
-                    gen_server:reply(From, {error, bad_version});
-                SHA1 ->
+                SHA1 when is_list(SHA1) ->
                     Data = Mod:spec(Name, SHA1),
-                    gen_server:reply(From, Data)
+                    gen_server:reply(From, Data);
+                _ ->
+                    gen_server:reply(From, {error, bad_version})
             end
 	end.
 
@@ -223,7 +223,9 @@ sha1(Mod, Name, Version) ->
             proplists:get_value(Branch, Branches);
         {tag, Tag} ->
             Tags = Mod:tags(Name),
-            proplists:get_value(Tag, Tags)
+            proplists:get_value(Tag, Tags);
+        no_such_version ->
+            no_such_version
     end.
 
 

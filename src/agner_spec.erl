@@ -1,6 +1,6 @@
 -module(agner_spec).
 -include_lib("agner.hrl").
--export([parse/1, list_to_version/1, version_to_list/1]).
+-export([parse/1, list_to_version/2, version_to_list/1]).
 
 -type agner_spec_source() :: string().
 
@@ -21,11 +21,21 @@ parse(S) ->
                                        [[Token]]
                                end, [], Tokens)))).
 
--spec list_to_version(string()) -> agner_spec_version().
+-spec list_to_version(agner_spec_name(), string()) -> agner_spec_version().
 
-list_to_version("@" ++ Version) ->
+list_to_version(Name, "atleast:" ++ Version) ->
+    case lists:reverse(lists:dropwhile(fun(V) ->
+                                               V < {tag, Version}
+                                       end, lists:usort(agner:versions(Name)))) of
+        [] ->
+            no_such_version;
+        [_|_] = L ->
+            hd(L)
+    end;
+
+list_to_version(_, "@" ++ Version) ->
     {branch, Version};
-list_to_version(Version) ->
+list_to_version(_, Version) ->
     {tag, Version}.
 
 -spec version_to_list(agner_spec_version()) -> string().
@@ -34,6 +44,3 @@ version_to_list({branch, Version}) ->
     "@" ++ Version;
 version_to_list({tag, Version}) ->
     Version.
-
-                              
-                     

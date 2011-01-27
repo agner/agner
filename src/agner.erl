@@ -100,11 +100,11 @@ main(_) ->
 spec(Name) ->
 	spec(Name, {branch, "master"}).
 
-spec(Name, Version) when is_list(Version) ->
-    spec(Name, agner_spec:list_to_version(Version));
-
 spec(Name, Version) when is_atom(Name) ->
 	spec(atom_to_list(Name),Version);
+
+spec(Name, Version) when is_list(Version) ->
+    spec(Name, agner_spec:list_to_version(Name, Version));
 
 spec(Name, Version) ->
 	gen_server:call(agner_server, {spec, Name, Version}).
@@ -121,7 +121,7 @@ fetch(Name, Directory) ->
     fetch(Name, {branch, "master"}, Directory).
 
 fetch(Name, Version, Directory) when is_list(Version) ->
-    fetch(Name, agner_spec:list_to_version(Version), Directory);
+    fetch(Name, agner_spec:list_to_version(Name, Version), Directory);
 fetch(Name, Version, Directory) ->
     gen_server:call(agner_server, {fetch, Name, Version, Directory}, infinity). %% fetch might be time consuming
 
