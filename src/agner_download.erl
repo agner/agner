@@ -1,5 +1,7 @@
 -module(agner_download).
 -export([fetch/2]).
+%% internal exports
+-export([git/1, git/2, process_port/2]).
 
 fetch({git, URL, Ref}, Directory) ->
     case filelib:is_dir(Directory) of

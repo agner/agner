@@ -60,12 +60,20 @@ branches(Name) ->
 	end.
 
 spec(Name, SHA1) ->
-	case httpc_request("http://github.com/" ++ proper_repo_name(Name) ++ "/raw/" ++ SHA1 ++ "/agner.config") of
-        {ok, {{"HTTP/1.1",404,_},_Headers,_Body}} ->
-            {error, not_found};
-        {ok, {{"HTTP/1.1",200,_},_Headers,S}} ->
-            agner_spec:parse(S)
-	end.
+    {A,B,C} = now(),
+    N = node(),
+    TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
+    ClonePort = agner_download:git(["clone", "-q", "git://github.com/" ++ proper_repo_name(Name) ++ ".git", TmpFile]),
+    Result = agner_download:process_port(ClonePort, 
+                                         fun () ->
+                                                 PortCheckout = agner_download:git(["checkout","-q",SHA1],[{cd, TmpFile}]),
+                                                 agner_download:process_port(PortCheckout, fun () ->
+                                                                                                   {ok, S} = file:consult(filename:join(TmpFile, "agner.config")),
+                                                                                                   S
+                                                                                           end)
+                                         end),
+    os:cmd("rm -rf " ++ TmpFile),
+    Result.
 
 
 %%%
