@@ -35,13 +35,13 @@ list_to_version(Name, "atleast:" ++ Version) ->
     end;
 
 list_to_version(_, "@" ++ Version) ->
-    {branch, Version};
+    {flavour, Version};
 list_to_version(_, Version) ->
-    {tag, Version}.
+    {release, Version}.
 
 -spec version_to_list(agner_spec_version()) -> string().
 
-version_to_list({branch, Version}) ->
+version_to_list({flavour, Version}) ->
     "@" ++ Version;
-version_to_list({tag, Version}) ->
+version_to_list({release, Version}) ->
     Version.

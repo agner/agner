@@ -150,7 +150,7 @@ main(_) ->
 -spec spec(agner_spec_name(), agner_spec_version() | string()) -> agner_spec() | not_found_error().
 
 spec(Name) ->
-	spec(Name, {branch, "master"}).
+	spec(Name, {flavour, "master"}).
 
 spec(Name, Version) when is_atom(Name) ->
 	spec(atom_to_list(Name),Version);
@@ -165,7 +165,7 @@ spec(Name, Version) ->
 -spec spec_url(agner_spec_name(), agner_spec_version() | string()) -> url() | not_found_error().
 
 spec_url(Name) ->
-	spec_url(Name, {branch, "master"}).
+	spec_url(Name, {flavour, "master"}).
 
 spec_url(Name, Version) when is_atom(Name) ->
 	spec_url(atom_to_list(Name),Version);
@@ -189,7 +189,7 @@ index() ->
 -spec fetch(agner_spec_name(), agner_spec_version() | agner_spec_version_string(), directory()) -> ok | not_found_error().
 
 fetch(Name, Directory) ->
-    fetch(Name, {branch, "master"}, Directory).
+    fetch(Name, {flavour, "master"}, Directory).
 
 fetch(Name, Version, Directory) when is_list(Version) ->
     fetch(Name, agner_spec:list_to_version(Name, Version), Directory);

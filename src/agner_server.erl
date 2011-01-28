@@ -300,9 +300,9 @@ handle_versions(Name, From, [Mod0|Rest]) ->
 		{error, not_found} ->
 			handle_versions(Name, From, Rest);
 		_ ->
-            Branches = lists:map(fun({Branch, _}) -> {branch, Branch} end,
+            Branches = lists:map(fun({Branch, _}) -> {flavour, Branch} end,
                                   Mod:branches(Name)),
-            Tags = lists:map(fun({Tag, _}) -> {tag, Tag} end,
+            Tags = lists:map(fun({Tag, _}) -> {release, Tag} end,
                                   Mod:tags(Name)),
             gen_server:reply(From, Branches ++ Tags)
 	end.
@@ -311,9 +311,9 @@ handle_versions(Name, From, [Mod0|Rest]) ->
                   
 sha1(Mod, Name, Version) ->
     case Version of
-        {branch, Branch} ->
+        {flavour, Branch} ->
             Branch;
-        {tag, Tag} ->
+        {release, Tag} ->
             Tags = Mod:tags(Name),
             proplists:get_value(Tag, Tags);
         no_such_version ->
