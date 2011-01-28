@@ -72,10 +72,14 @@ usage() ->
 main(Args) ->
 	case parse_args(Args) of
 		{arg, Command, ExtraArgs, OptSpec} ->
-			start(),
-			{ok, {Opts, _}} = getopt:parse(OptSpec, ExtraArgs),
-			handle_command(Command, Opts),
-			stop();
+			case getopt:parse(OptSpec, ExtraArgs) of
+				{ok, {Opts, _}} ->
+					start(),
+					handle_command(Command, Opts),
+					stop();
+			    {error, {missing_option_arg, Arg}} ->
+					io:format("Error: Missing option argument for '~p'~n", [Arg])
+			end;
 		no_parse ->
 			usage()
 	end.
