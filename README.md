@@ -247,6 +247,10 @@ Or in a more generic way:
 
 The very latest specification typespecs are available in [agner_spec.hrl](agner/tree/master/include/agner_spec.hrl)
 
+It is **highly recommended** that `.agner` repo maintainers use `agner verify` command before
+committing and pushing their updated specifications.
+
+
 Rebar
 -----
 
