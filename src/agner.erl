@@ -95,8 +95,15 @@ main(["fetch"|Args]) ->
         undefined ->
             io:format("ERROR: Package name required.~n");
         Package ->
-            io:format("~p~n",[fetch(Package,proplists:get_value(version, Opts),
-                                    proplists:get_value(directory, Opts, Package))])
+            Version = proplists:get_value(version, Opts),
+            io:format("~p~n",[fetch(Package,Version,
+                                    proplists:get_value(directory, Opts, Package))]),
+            case proplists:get_value(caveats, spec(Package, Version)) of
+                undefined ->
+                    ignore;
+                Caveats when is_list(Caveats) ->
+                    io:format("=== CAVEATS ===~n~n~s~n~n",[Caveats])
+            end
     end,
 	stop();
 
