@@ -10,7 +10,11 @@ stop() ->
     agner:stop().
 
 arg_proplist() ->
-	[{"help",
+	[{"version",
+      {version,
+       "Agner version",
+       []}},
+     {"help",
       {help,
        "Use agner help <command>",
        [{command, undefined, undefined, string, "Command"}]}},
@@ -259,7 +263,12 @@ handle_command(verify, Opts) ->
                     io:format("~nEROR: Can't fetch ~p: ~p~n",[URL, Reason])
             end,
             os:cmd("rm -rf " ++ TmpFile)
-    end.
+    end;
+
+handle_command(version, _) ->
+    {agner,_,Version} = lists:keyfind(agner,1,application:which_applications()),
+    io:format("~s~n",[Version]).
+
 
 temp_name() ->
 	%% Yes, the temp_name function lives in the test_server, go figure!
