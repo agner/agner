@@ -18,36 +18,38 @@ stop() ->
 	inets:stop(),
 	ssl:stop().
 
-parse_args(["spec"|Args]) ->
-    OptSpec = [
-               {package, undefined, undefined, string, "Package name"},
-               {browser, $b, "browser", boolean, "Show specification in the browser"},
-               {homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
-               {version, $v, "version", {string, "@master"}, "Version"}
-              ],
-	{arg, spec, Args, OptSpec};
-parse_args(["versions"|Args]) ->
-    OptSpec = [
-               {package, undefined, undefined, string, "Package name"}
-              ],
-	{arg, versions, Args, OptSpec};
-parse_args(["list"|Args]) ->
-    OptSpec = [
-               {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
-              ],
-	{arg, list, Args, OptSpec};
-parse_args(["fetch"|Args]) ->
-    OptSpec = [
+arg_proplist() ->
+	[{"spec",
+	  {spec, [
+			  {package, undefined, undefined, string, "Package name"},
+			  {browser, $b, "browser", boolean, "Show specification in the browser"},
+			  {homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
+			  {version, $v, "version", {string, "@master"}, "Version"}
+			 ]}},
+	 {"versions",
+	  {versions, [
+				  {package, undefined, undefined, string, "Package name"}
+				 ]}},
+	 {"list",
+	  {list, [
+			  {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
+			 ]}},
+	 {"fetch",
+	  {fetch, [
                {package, undefined, undefined, string, "Package name"},
                {directory, undefined, undefined, string, "Directory to check package out to"},
                {version, $v, "version", {string, "@master"}, "Version"}
-              ],
-	{arg, fetch, Args, OptSpec};
-parse_args(["verify"|Args]) ->
-    OptSpec = [
-               {spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
-              ],
-	{arg, verify, Args, OptSpec};
+			  ]}},
+	 {"verify",
+	  {verify, [
+				{spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
+			   ]}}].
+
+parse_args([Arg|Args]) ->
+	case proplists:get_value(Arg, arg_proplist()) of
+		undefined -> no_parse;
+		{A, OptSpec} -> {arg, A, Args, OptSpec}
+	end;
 parse_args(_) -> no_parse.
 
 main(Args) ->
