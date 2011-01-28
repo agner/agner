@@ -59,11 +59,14 @@ This section introduces the terminology of Agner:
 Command invocation
 ------------------
 
-    agner list [-d/--descriptions]
+    agner list [-d/--descriptions] [-p/--properties PROPERTY1,PROPERTY2]
 
 Will list all agner-packages. With the `-d` or `--descriptions`
 option, it will also print out the descriptions of the packages, for
 easy grepping to find relevant packages.
+
+If `-p` or `--properties` with a comma-separated list of properties is specified, they will be also
+included into each listing (when present).
 
     agner spec PACKAGE [-v/--version package_version] [-b/--browser] 
                        [-h/--homepage]

@@ -68,18 +68,38 @@ main(["versions"|Args]) ->
 
 main(["list"|Args]) ->
     OptSpec = [
-               {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
+               {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"},
+               {properties, $p, "properties", string, "Comma-separated list of properties to show"}
               ],
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
     ShowDescriptions = proplists:get_value(descriptions, Opts),
+    Properties = lists:map(fun list_to_atom/1, string:tokens(proplists:get_value(properties, Opts,""),",")),
     io:format("~s",[lists:usort(plists:map(fun (Name) ->
-                                                   case ShowDescriptions of
+                                                   Spec = spec(Name),
+                                                   Result0 = case ShowDescriptions of 
                                                        true ->
-                                                           io_lib:format("~-40s ~s~n",[Name, proplists:get_value(description, spec(Name))]);
+                                                           io_lib:format("~-40s ~s",[Name, proplists:get_value(description, Spec)]);
                                                        false ->
-                                                           io_lib:format("~s~n",[Name])
-                                                   end
+                                                           io_lib:format("~s",[Name])
+                                                   end,
+                                                   Result = case Properties of
+                                                                [] ->
+                                                                    Result0;
+                                                                [_|_] ->
+                                                                    [Result0|lists:map(fun (Prop) ->
+                                                                                               case lists:keyfind(Prop, 1, Spec) of
+                                                                                                   false ->
+                                                                                                       [];
+                                                                                                   T ->
+                                                                                                       Val = list_to_tuple(tl(tuple_to_list(T))),
+                                                                                                       
+                                                                                                       io_lib:format(" | ~s: ~p",[Prop,
+                                                                                                                          Val])
+                                                                                               end
+                                                                                    end, Properties)]
+                                                   end,
+                                                   Result ++ [$\n]
                                            end,index()))
                      ]),
 	stop();
