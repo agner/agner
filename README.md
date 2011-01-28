@@ -93,15 +93,15 @@ homepage.
 If `-p` or `--property` is supplied, agner will only render particular PROPERTY value
 instead of a full specification (example: `agner spec -p rebar_compatible yaws`).
 
-    agner fetch PACKAGE [DESTDIR] [-v/--version package_version] [-c/--compile]
+    agner fetch PACKAGE [DESTDIR] [-v/--version package_version] [-b/--build]
                                   [-a/--add-path]
 
 Fetch a given `PACKAGE` to either the current directory or,
 optionally, to the `DESTDIR` directory. The version constraint is as
 were the case for `agner spec`.
 
-If `-c` or `--compile` is supplied, Agner will try to compile fetched package.
-Currenly only rebar compatible packages can be built. If you also specify
+If `-b` or `--build` is supplied, Agner will try to build fetched package. Only rebar-compatible
+packages or packages with `build_command` can be built. If you also specify
 `-a` (or `--add-path`) Agner will add path to a newly built package to your
 HOME/.erlang
 

@@ -57,7 +57,7 @@ arg_proplist() ->
 		{package, undefined, undefined, string, "Package name"},
 		{directory, undefined, undefined, string, "Directory to check package out to"},
 		{version, $v, "version", {string, "@master"}, "Version"},
-        {compile, $c, "compile", {boolean, false}, "Compile fetched package"},
+        {build, $b, "build", {boolean, false}, "Build fetched package"},
         {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"}
 	   ]}},
 	 {"verify",
@@ -216,11 +216,11 @@ handle_command(fetch, Opts) ->
                 Caveats when is_list(Caveats) ->
                     io:format("=== CAVEATS ===~n~n~s~n~n",[Caveats])
             end,
-            case proplists:get_value(compile, Opts) of
+            case proplists:get_value(build, Opts) of
                 true ->
                     case proplists:get_value(rebar_compatible, Spec) of
                         true ->
-                            io:format("Compiling...~n"),
+                            io:format("Building...~n"),
                             {ok, Cwd} = file:get_cwd(),
                             file:set_cwd(Directory),
                             rebar:main(["get-deps"]),
@@ -231,7 +231,7 @@ handle_command(fetch, Opts) ->
                                 undefined ->
                                     io:format("ERROR: No build_command specified, can't compile this package");
                                 Command ->
-                                    io:format("Compiling (output will be shown when done)...~n"),
+                                    io:format("Building (output will be shown when done)...~n"),
                                     {ok, Cwd} = file:get_cwd(),
                                     file:set_cwd(Directory),
                                     io:format("~s~n",[os:cmd(Command)]),
