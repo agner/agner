@@ -129,9 +129,7 @@ handle_command(verify, Opts) ->
             io:format("ERROR: Can't read ~s: ~p~n",[SpecFile, Reason]);
         {ok, Spec} ->
             URL = proplists:get_value(url, Spec),
-            {A,B,C} = now(),
-            N = node(),
-            TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
+			TmpFile = temp_name(),
             case (catch agner_download:fetch(URL,TmpFile)) of
                 ok ->
                     io:format("~nPASSED~n");
@@ -149,6 +147,9 @@ usage() ->
                ],
     getopt:usage(OptSpec, "agner", "[options ...]").
 
+temp_name() ->
+	%% Yes, the temp_name function lives in the test_server, go figure!
+	test_server:temp_name("/tmp/agner").
 
 %%%===================================================================
 %%% API
