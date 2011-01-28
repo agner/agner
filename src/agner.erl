@@ -18,31 +18,50 @@ stop() ->
 	inets:stop(),
 	ssl:stop().
 
-parse_args(["spec"|Args]) -> {arg, spec, Args};
-parse_args(["versions"|Args]) -> {arg, versions, Args};
-parse_args(["list"|Args]) -> {arg, list, Args};
-parse_args(["fetch"|Args]) -> {arg, fetch, Args};
-parse_args(["verify"|Args]) -> {arg, verify, Args};
-parse_args(_) -> no_parse.
-
-main(Args) ->
-	case parse_args(Args) of
-		{arg, Command, ExtraArgs} ->
-			start(),
-			handle_command(Command, ExtraArgs),
-			stop();
-		no_parse ->
-			usage()
-	end.
-
-handle_command(spec, Args) ->
+parse_args(["spec"|Args]) ->
     OptSpec = [
                {package, undefined, undefined, string, "Package name"},
                {browser, $b, "browser", boolean, "Show specification in the browser"},
                {homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
                {version, $v, "version", {string, "@master"}, "Version"}
               ],
-    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+	{arg, spec, Args, OptSpec};
+parse_args(["versions"|Args]) ->
+    OptSpec = [
+               {package, undefined, undefined, string, "Package name"}
+              ],
+	{arg, versions, Args, OptSpec};
+parse_args(["list"|Args]) ->
+    OptSpec = [
+               {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
+              ],
+	{arg, list, Args, OptSpec};
+parse_args(["fetch"|Args]) ->
+    OptSpec = [
+               {package, undefined, undefined, string, "Package name"},
+               {directory, undefined, undefined, string, "Directory to check package out to"},
+               {version, $v, "version", {string, "@master"}, "Version"}
+              ],
+	{arg, fetch, Args, OptSpec};
+parse_args(["verify"|Args]) ->
+    OptSpec = [
+               {spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
+              ],
+	{arg, verify, Args, OptSpec};
+parse_args(_) -> no_parse.
+
+main(Args) ->
+	case parse_args(Args) of
+		{arg, Command, ExtraArgs, OptSpec} ->
+			start(),
+			{ok, {Opts, _}} = getopt:parse(OptSpec, ExtraArgs),
+			handle_command(Command, Opts),
+			stop();
+		no_parse ->
+			usage()
+	end.
+
+handle_command(spec, Opts) ->
     case proplists:get_value(package, Opts) of
         undefined ->
             io:format("ERROR: Package name required.~n");
@@ -64,11 +83,7 @@ handle_command(spec, Args) ->
             io:format("~p~n",[Spec])
     end;
 
-handle_command(versions, Args) ->
-    OptSpec = [
-               {package, undefined, undefined, string, "Package name"}
-              ],
-    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+handle_command(versions, Opts) ->
     case proplists:get_value(package, Opts) of
         undefined ->
             io:format("ERROR: Package name required.~n");
@@ -79,12 +94,7 @@ handle_command(versions, Args) ->
                                        versions(Package))])
     end;
 
-handle_command(list, Args) ->
-
-    OptSpec = [
-               {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
-              ],
-    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+handle_command(list, Opts) ->
     ShowDescriptions = proplists:get_value(descriptions, Opts),
     io:format("~s",[lists:usort(plists:map(fun (Name) ->
                                                    case ShowDescriptions of
@@ -96,13 +106,7 @@ handle_command(list, Args) ->
                                            end,index()))
                      ]);
 
-handle_command(fetch, Args) ->
-    OptSpec = [
-               {package, undefined, undefined, string, "Package name"},
-               {directory, undefined, undefined, string, "Directory to check package out to"},
-               {version, $v, "version", {string, "@master"}, "Version"}
-              ],
-    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+handle_command(fetch, Opts) ->
     case proplists:get_value(package, Opts) of
         undefined ->
             io:format("ERROR: Package name required.~n");
@@ -118,11 +122,7 @@ handle_command(fetch, Args) ->
             end
     end;
 
-handle_command(verify, Args) ->
-    OptSpec = [
-               {spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
-              ],
-    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+handle_command(verify, Opts) ->
     SpecFile = proplists:get_value(spec, Opts),
     case file:consult(SpecFile) of
         {error, Reason} ->
