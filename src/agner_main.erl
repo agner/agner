@@ -186,6 +186,7 @@ handle_command(fetch, Opts) ->
                             io:format("Compiling...~n"),
                             {ok, Cwd} = file:get_cwd(),
                             file:set_cwd(Directory),
+                            rebar:main(["get-deps"]),
                             rebar:main(["compile"]),
                             file:set_cwd(Cwd);
                         _ ->
