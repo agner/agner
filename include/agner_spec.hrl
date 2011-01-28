@@ -12,6 +12,7 @@
 -type agner_spec_property_authors() :: {authors, list(string())}.
 -type agner_spec_property_homepage() :: {homepage, string()}.
 -type agner_spec_property_rebar_compatible() :: {rebar_compatible, boolean()}.
+-type agner_spec_property_build_command() :: {build_command, string()}.
 -type agner_spec_property_license() :: {license, string(), file()} |
                                        {license, string()}.
 -type agner_spec_property_erlang_versions() :: {erlang_versions, list(atom())}.
@@ -29,6 +30,7 @@
                                agner_spec_property_authors() |
                                agner_spec_property_homepage() |
                                agner_spec_property_rebar_compatible() |
+                               agner_spec_property_build_command() |
                                agner_spec_property_license() |
                                agner_spec_property_erlang_versions() |
                                agner_spec_property_applications() |

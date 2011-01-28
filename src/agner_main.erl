@@ -217,7 +217,16 @@ handle_command(fetch, Opts) ->
                             rebar:main(["compile"]),
                             file:set_cwd(Cwd);
                         _ ->
-                            io:format("ERROR: Can't compile rebar-incompatible packages at this moment. To be fixed.~n")
+                            case proplists:get_value(build_command, Spec) of
+                                undefined ->
+                                    io:format("ERROR: No build_command specified, can't compile this package");
+                                Command ->
+                                    io:format("Compiling (output will be shown when done)...~n"),
+                                    {ok, Cwd} = file:get_cwd(),
+                                    file:set_cwd(Directory),
+                                    io:format("~s~n",[os:cmd(Command)]),
+                                    file:set_cwd(Cwd)
+                            end
                     end,
                     case proplists:get_value(addpath, Opts) of
                         true ->
