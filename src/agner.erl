@@ -151,7 +151,7 @@ spec(Name, Version) when is_list(Version) ->
     spec(Name, agner_spec:list_to_version(Name, Version));
 
 spec(Name, Version) ->
-	gen_server:call(agner_server, {spec, Name, Version}).
+    agner_server:spec(Name, Version).
 
 -spec spec_url(agner_spec_name()) -> url() | not_found_error().
 -spec spec_url(agner_spec_name(), agner_spec_version() | string()) -> url() | not_found_error().
@@ -166,7 +166,7 @@ spec_url(Name, Version) when is_list(Version) ->
     spec_url(Name, agner_spec:list_to_version(Name, Version));
 
 spec_url(Name, Version) ->
-	gen_server:call(agner_server, {spec_url, Name, Version}).
+    agner_server:spec_url(Name, Version).
 
 
 
@@ -174,7 +174,8 @@ spec_url(Name, Version) ->
 -spec index() -> list(agner_spec_name()).
 
 index() ->
-    gen_server:call(agner_server, index).
+    agner_server:index().
+
 
 -spec fetch(agner_spec_name(), directory()) -> ok | not_found_error().
 -spec fetch(agner_spec_name(), agner_spec_version(), directory()) -> ok | not_found_error().
@@ -185,11 +186,11 @@ fetch(Name, Directory) ->
 fetch(Name, Version, Directory) when is_list(Version) ->
     fetch(Name, agner_spec:list_to_version(Name, Version), Directory);
 fetch(Name, Version, Directory) ->
-    gen_server:call(agner_server, {fetch, Name, Version, Directory}, infinity). %% fetch might be time consuming
+    agner_server:fetch(Name, Version, Directory).
+
+
 
 -spec versions(agner_spec_name()) -> list(agner_spec_version()).
 
 versions(Name) ->
-    gen_server:call(agner_server, {versions, Name}).
-                      
-                   
+    agner_server:versions(Name).
