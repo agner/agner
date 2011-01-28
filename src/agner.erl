@@ -20,37 +20,58 @@ stop() ->
 
 arg_proplist() ->
 	[{"spec",
-	  {spec, [
-			  {package, undefined, undefined, string, "Package name"},
-			  {browser, $b, "browser", boolean, "Show specification in the browser"},
-			  {homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
-			  {version, $v, "version", {string, "@master"}, "Version"}
-			 ]}},
+	  {spec,
+	   "Output the specification of a package",
+	   [
+		{package, undefined, undefined, string, "Package name"},
+		{browser, $b, "browser", boolean, "Show specification in the browser"},
+		{homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
+		{version, $v, "version", {string, "@master"}, "Version"}
+	   ]}},
 	 {"versions",
-	  {versions, [
-				  {package, undefined, undefined, string, "Package name"}
-				 ]}},
+	  {versions,
+	  "Show the avilable releases and flavours of a package",
+	   [
+		{package, undefined, undefined, string, "Package name"}
+	   ]}},
 	 {"list",
-	  {list, [
-			  {descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
-			 ]}},
+	  {list,
+	   "List packages on stdout",
+	   [
+		{descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"}
+	   ]}},
 	 {"fetch",
-	  {fetch, [
-               {package, undefined, undefined, string, "Package name"},
-               {directory, undefined, undefined, string, "Directory to check package out to"},
-               {version, $v, "version", {string, "@master"}, "Version"}
-			  ]}},
+	  {fetch,
+	   "Download a package",
+	   [
+		{package, undefined, undefined, string, "Package name"},
+		{directory, undefined, undefined, string, "Directory to check package out to"},
+		{version, $v, "version", {string, "@master"}, "Version"}
+	   ]}},
 	 {"verify",
-	  {verify, [
-				{spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
-			   ]}}].
+	  {verify,
+	   "Verify the integrity of a .agner configuration file",
+	   [
+		{spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
+	   ]}}].
+
+command_descriptions() ->
+	[{Cmd, Desc} || {Cmd, {_Atom, Desc, _Opts}} <- arg_proplist()].
 
 parse_args([Arg|Args]) ->
 	case proplists:get_value(Arg, arg_proplist()) of
 		undefined -> no_parse;
-		{A, OptSpec} -> {arg, A, Args, OptSpec}
+		{A, _Desc, OptSpec} -> {arg, A, Args, OptSpec}
 	end;
 parse_args(_) -> no_parse.
+
+usage() ->
+    OptSpec = [
+               {command, undefined, undefined, string, "Command to be executed (e.g. spec)"}
+               ],
+    getopt:usage(OptSpec, "agner", "[options ...]"),
+	io:format("Valid commands are:~n", []),
+	[io:format("   ~-10s ~s~n", [Cmd, Desc]) || {Cmd, Desc} <- command_descriptions()].
 
 main(Args) ->
 	case parse_args(Args) of
@@ -142,12 +163,6 @@ handle_command(verify, Opts) ->
             end,
             os:cmd("rm -rf " ++ TmpFile)
     end.
-
-usage() ->
-    OptSpec = [
-               {command, undefined, undefined, string, "Command to be executed (e.g. spec)"}
-               ],
-    getopt:usage(OptSpec, "agner", "[options ...]").
 
 temp_name() ->
 	%% Yes, the temp_name function lives in the test_server, go figure!
