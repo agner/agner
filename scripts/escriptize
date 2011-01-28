@@ -1,3 +1,5 @@
 #! /bin/sh
 CWD=`dirname $0`/..
+cd $CWD
 $CWD/rebar -C $CWD/rebar.config escriptize skip_deps=true
+$CWD/scripts/add_rebar

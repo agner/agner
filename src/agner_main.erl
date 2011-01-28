@@ -42,7 +42,8 @@ arg_proplist() ->
 	   [
 		{package, undefined, undefined, string, "Package name"},
 		{directory, undefined, undefined, string, "Directory to check package out to"},
-		{version, $v, "version", {string, "@master"}, "Version"}
+		{version, $v, "version", {string, "@master"}, "Version"},
+        {compile, $c, "compile", {boolean, false}, "Compile fetched package"}
 	   ]}},
 	 {"verify",
 	  {verify,
@@ -168,13 +169,30 @@ handle_command(fetch, Opts) ->
             io:format("ERROR: Package name required.~n");
         Package ->
             Version = proplists:get_value(version, Opts),
+            Directory = proplists:get_value(directory, Opts, Package),
             io:format("~p~n",[agner:fetch(Package,Version,
-                                    proplists:get_value(directory, Opts, Package))]),
-            case proplists:get_value(caveats, agner:spec(Package, Version)) of
+                                    Directory)]),
+            Spec = agner:spec(Package, Version),
+            case proplists:get_value(caveats, Spec) of
                 undefined ->
                     ignore;
                 Caveats when is_list(Caveats) ->
                     io:format("=== CAVEATS ===~n~n~s~n~n",[Caveats])
+            end,
+            case proplists:get_value(compile, Opts) of
+                true ->
+                    case proplists:get_value(rebar_compatible, Spec) of
+                        true ->
+                            io:format("Compiling...~n"),
+                            {ok, Cwd} = file:get_cwd(),
+                            file:set_cwd(Directory),
+                            rebar:main(["compile"]),
+                            file:set_cwd(Cwd);
+                        _ ->
+                            io:format("ERROR: Can't compile rebar-incompatible packages at this moment. To be fixed.~n")
+                    end;
+                false ->
+                    ignore
             end
     end;
 
