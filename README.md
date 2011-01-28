@@ -83,13 +83,16 @@ If `-h` or `--homepage` is present, it will also open browser with the package's
 homepage.
 
     agner fetch PACKAGE [DESTDIR] [-v/--version package_version] [-c/--compile]
+                                  [-a/--add-path]
 
 Fetch a given `PACKAGE` to either the current directory or,
 optionally, to the `DESTDIR` directory. The version constraint is as
 were the case for `agner spec`.
 
 If `-c` or `--compile` is supplied, Agner will try to compile fetched package.
-Currenly only rebar compatible packages can be built.
+Currenly only rebar compatible packages can be built. If you also specify
+`-a` (or `--add-path`) Agner will add path to a newly built package to your
+HOME/.erlang
 
     agner versions PACKAGE
 

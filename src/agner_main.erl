@@ -43,7 +43,8 @@ arg_proplist() ->
 		{package, undefined, undefined, string, "Package name"},
 		{directory, undefined, undefined, string, "Directory to check package out to"},
 		{version, $v, "version", {string, "@master"}, "Version"},
-        {compile, $c, "compile", {boolean, false}, "Compile fetched package"}
+        {compile, $c, "compile", {boolean, false}, "Compile fetched package"},
+        {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"}
 	   ]}},
 	 {"verify",
 	  {verify,
@@ -191,6 +192,15 @@ handle_command(fetch, Opts) ->
                             file:set_cwd(Cwd);
                         _ ->
                             io:format("ERROR: Can't compile rebar-incompatible packages at this moment. To be fixed.~n")
+                    end,
+                    case proplists:get_value(addpath, Opts) of
+                        true ->
+                            {ok, F} = file:open(filename:join(os:getenv("HOME"),".erlang"),
+                                                [append]),
+                            file:write(F, io_lib:format("code:add_patha(\"~s/ebin\"). %% {agner, ~s}~n", [Directory, Package])),
+                            file:close(F);
+                        false ->
+                            ignore
                     end;
                 false ->
                     ignore
