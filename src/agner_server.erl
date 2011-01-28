@@ -5,12 +5,13 @@
 
 %% API
 -export([start_link/0]).
+-export([spec/2, spec_url/2, index/0, fetch/3, versions/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 		 terminate/2, code_change/3]).
 
--define(SERVER, ?MODULE). 
+-define(SERVER, ?MODULE).
 
 
 -record(state, {
@@ -33,6 +34,31 @@
 start_link() ->
 	gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
+%% @doc Ask the server for a spec on Name and Version
+%% @end
+spec(Name, Version) ->
+    gen_server:call(agner_server, {spec, Name, Version}).
+
+%% @doc Ask the server for a spec URL
+%% @end
+spec_url(Name, Version) ->
+    gen_server:call(agner_server, {spec_url, Name, Version}).
+
+%% @doc Ask the server for an index
+%% @end
+index() ->
+    gen_server:call(agner_server, index).
+
+%% @doc Fetch a package/project to a directory
+%% @end
+fetch(Name, Version, Directory) ->
+        gen_server:call(agner_server, {fetch, Name, Version, Directory}, infinity).
+
+%% @doc Ask for the versions of a given package, Name
+%% @end
+versions(Name) ->
+    gen_server:call(agner_server, {versions, Name}).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -49,7 +75,7 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 -spec init([]) -> gen_server_init_result().
-				   
+
 init([]) ->
 	{ok, #state{
        pushed_at = ets:new(agner_pushed_at,[public])
