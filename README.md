@@ -168,10 +168,10 @@ which tracks the Erlang/OTP branch called `dev`. The other important
 flavour is *@release* which will track the latest release.
 
 Also, command line utility and agner-enabled rebar will recognize 
-'atleast:VERSION' format (for example, 'atleast:1.5.0') and will use
+`atleast:VERSION` format (for example, `atleast:1.5.0`) and will use
 the latest version after 'VERSION' (so, if some package already has a 
-version of '1.6', 'atleast:1.5.0' will select '1.6'. This is mostly
-for scenarios when '@release' flavour is absent or broken.
+version of `1.6`, `atleast:1.5.0` will select `1.6`. This is mostly
+for scenarios when `@release` flavour is absent or broken.
 
 ### How to create relases and flavours
 
