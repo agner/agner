@@ -89,6 +89,13 @@ were the case for `agner spec`.
 
 List the versions of the given `PACKAGE`
 
+    agner verify [SPEC FILENAME (agner.config by default)]
+
+Verify specification file for correctness; intended to be used to package maintainers to simplify
+their workflow. Currently checks whether 1) specification is a valid file that can be parsed,
+2) the URL can be fetched. In the future it will also offer a deeper analysis of specification
+correctness.
+
 Packaging
 =========
 

@@ -100,6 +100,34 @@ main(["fetch"|Args]) ->
     end,
 	stop();
 
+main(["verify"|Args]) ->
+    OptSpec = [
+               {spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
+              ],
+	start(),
+    {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
+    SpecFile = proplists:get_value(spec, Opts),
+    case file:consult(SpecFile) of
+        {error, Reason} ->
+            io:format("ERROR: Can't read ~s: ~p~n",[SpecFile, Reason]);
+        {ok, Spec} ->
+            URL = proplists:get_value(url, Spec),
+            {A,B,C} = now(),
+            N = node(),
+            TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
+            case (catch agner_download:fetch(URL,TmpFile)) of
+                ok ->
+                    io:format("~nPASSED~n");
+                {'EXIT', {Reason, _}} ->
+                    io:format("~nEROR: Can't fetch ~p: ~p~n",[URL, Reason]);
+                {error, Reason} ->
+                    io:format("~nEROR: Can't fetch ~p: ~p~n",[URL, Reason])
+            end,
+            os:cmd("rm -rf " ++ TmpFile)
+    end,
+	stop();
+    
+
 main(_) ->
     OptSpec = [
                {command, undefined, undefined, string, "Command to be executed (e.g. spec)"}
