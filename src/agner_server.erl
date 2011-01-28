@@ -40,35 +40,35 @@ start_link() ->
 -spec spec(agner_spec_name(), agner_spec_version()) -> agner_spec().
                   
 spec(Name, Version) ->
-    gen_server:call(agner_server, {spec, Name, Version}).
+    gen_server:call(?SERVER, {spec, Name, Version}).
 
 %% @doc Ask the server for a spec URL
 %% @end
 -spec spec_url(agner_spec_name(), agner_spec_version()) -> url().
 
 spec_url(Name, Version) ->
-    gen_server:call(agner_server, {spec_url, Name, Version}).
+    gen_server:call(?SERVER, {spec_url, Name, Version}).
 
 %% @doc Ask the server for an index
 %% @end
 -spec index() -> list(agner_spec_name()).
                    
 index() ->
-    gen_server:call(agner_server, index).
+    gen_server:call(?SERVER, index).
 
 %% @doc Fetch a package/project to a directory
 %% @end
 -spec fetch(agner_spec_name(), agner_spec_version(), directory()) -> ok | not_found_error().
                    
 fetch(Name, Version, Directory) ->
-        gen_server:call(agner_server, {fetch, Name, Version, Directory}, infinity).
+        gen_server:call(?SERVER, {fetch, Name, Version, Directory}, infinity).
 
 %% @doc Ask for the versions of a given package, Name
 %% @end
 -spec versions(agner_spec_name()) -> list(agner_spec_version()).
                       
 versions(Name) ->
-    gen_server:call(agner_server, {versions, Name}).
+    gen_server:call(?SERVER, {versions, Name}).
 
 %%%===================================================================
 %%% gen_server callbacks
