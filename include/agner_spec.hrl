@@ -8,6 +8,7 @@
 
 -type agner_spec_property_name() :: {name, string()}.
 -type agner_spec_property_description() :: {description, string()}.
+-type agner_spec_property_keywords() :: {keywords, list(string())}.
 -type agner_spec_property_authors() :: {authors, list(string())}.
 -type agner_spec_property_homepage() :: {homepage, string()}.
 -type agner_spec_property_rebar_compatible() :: {rebar_compatible, boolean()}.
@@ -24,6 +25,7 @@
 
 -type agner_spec_property() :: agner_spec_property_name() |
                                agner_spec_property_description() |
+                               agner_spec_property_keywords() |
                                agner_spec_property_authors() |
                                agner_spec_property_homepage() |
                                agner_spec_property_rebar_compatible() |
