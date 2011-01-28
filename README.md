@@ -60,6 +60,7 @@ Command invocation
 ------------------
 
     agner list [-d/--descriptions] [-p/--properties PROPERTY1,PROPERTY2]
+               [-s/--search SEARCH_TERM]
 
 Will list all agner-packages. With the `-d` or `--descriptions`
 option, it will also print out the descriptions of the packages, for
@@ -67,6 +68,13 @@ easy grepping to find relevant packages.
 
 If `-p` or `--properties` with a comma-separated list of properties is specified, they will be also
 included into each listing (when present).
+
+If `-s` or `--search` option is supplied, packages name, descriptions and keywords are matched against
+SEARCH_TERM and only matching items are shown.
+
+    agner search SEARCH_TERM [-d/--description] [-p/--properties PROPERTY1,PROPERTY2]
+
+This is an alias for `agner list -s`
 
     agner spec PACKAGE [-v/--version package_version] [-b/--browser] 
                        [-h/--homepage]
