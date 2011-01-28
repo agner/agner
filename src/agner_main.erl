@@ -2,6 +2,8 @@
 -module(agner_main).
 -export([main/1]).
 
+-define(AGNER_PREFIX,"/usr/local").
+
 start() ->
     agner:start().
 
@@ -58,7 +60,15 @@ arg_proplist() ->
 		{directory, undefined, undefined, string, "Directory to check package out to"},
 		{version, $v, "version", {string, "@master"}, "Version"},
         {build, $b, "build", {boolean, false}, "Build fetched package"},
-        {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"}
+        {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"},
+        {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"}
+	   ]}},
+     {"install",
+      {install,
+       "Install a package",
+	   [
+		{package, undefined, undefined, string, "Package name"},
+		{version, $v, "version", {string, "@master"}, "Version"}
 	   ]}},
 	 {"verify",
 	  {verify,
@@ -86,6 +96,12 @@ usage() ->
 	[io:format("   ~-10s ~s~n", [Cmd, Desc]) || {Cmd, Desc} <- command_descriptions()].
 
 main(Args) ->
+    case os:getenv("AGNER_PREFIX") of
+        false ->
+            os:putenv("AGNER_PREFIX",?AGNER_PREFIX);
+        [_|_] ->
+            ignore
+    end,
 	case parse_args(Args) of
 		{arg, Command, ExtraArgs, OptSpec} ->
 			case getopt:parse(OptSpec, ExtraArgs) of
@@ -200,6 +216,11 @@ handle_command(list, Opts) ->
                                            end,agner:index()))
                    ]);
 
+handle_command(install, Opts) ->
+    TmpFile = temp_name(),
+    handle_command(fetch, [{build, true},{directory, TmpFile},{install, true},{addpath, false}|Opts]),
+    os:cmd("rm -rf " ++ TmpFile);
+
 handle_command(fetch, Opts) ->
     case proplists:get_value(package, Opts) of
         undefined ->
@@ -246,6 +267,21 @@ handle_command(fetch, Opts) ->
                             file:close(F);
                         false ->
                             ignore
+                    end,
+                    case proplists:get_value(install, Opts) of
+                        false ->
+                            ignore;
+                        true ->
+                            case proplists:get_value(install_command, Spec) of
+                                undefined ->
+                                    io:format("ERROR: No install_command specified, can't install this package");
+                                ICommand ->
+                                    io:format("Installing (output will be shown when done)...~n"),
+                                    {ok, Cwd1} = file:get_cwd(),
+                                    file:set_cwd(Directory),
+                                    io:format("~s~n",[os:cmd(ICommand)]),
+                                    file:set_cwd(Cwd1)
+                            end
                     end;
                 false ->
                     ignore

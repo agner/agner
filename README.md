@@ -94,7 +94,7 @@ If `-p` or `--property` is supplied, agner will only render particular PROPERTY 
 instead of a full specification (example: `agner spec -p rebar_compatible yaws`).
 
     agner fetch PACKAGE [DESTDIR] [-v/--version package_version] [-b/--build]
-                                  [-a/--add-path]
+                                  [-a/--add-path] [-i/--install]
 
 Fetch a given `PACKAGE` to either the current directory or,
 optionally, to the `DESTDIR` directory. The version constraint is as
@@ -104,6 +104,14 @@ If `-b` or `--build` is supplied, Agner will try to build fetched package. Only 
 packages or packages with `build_command` can be built. If you also specify
 `-a` (or `--add-path`) Agner will add path to a newly built package to your
 HOME/.erlang
+
+If `-i` or `--install` is supplied and package has `install_command` property defined, Agner will also
+install this package. Please note that in most cases you should also specify `--build`/`-b` in order for
+installation to make sense.
+
+    agner install PACKAGE [-v/--version package_version]
+
+Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>"
 
     agner versions PACKAGE
 
