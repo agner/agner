@@ -72,14 +72,14 @@ main(["list"|Args]) ->
 	start(),
     {ok, {Opts, _}} = getopt:parse(OptSpec, Args),
     ShowDescriptions = proplists:get_value(descriptions, Opts),
-    io:format("~s",[plists:map(fun (Name) ->
-                                       case ShowDescriptions of
-                                           true ->
-                                               io_lib:format("~-40s ~s~n",[Name, proplists:get_value(description, spec(Name))]);
-                                           false ->
-                                               io_lib:format("~s~n",[Name])
-                                       end
-                               end,index())
+    io:format("~s",[lists:usort(plists:map(fun (Name) ->
+                                                   case ShowDescriptions of
+                                                       true ->
+                                                           io_lib:format("~-40s ~s~n",[Name, proplists:get_value(description, spec(Name))]);
+                                                       false ->
+                                                           io_lib:format("~s~n",[Name])
+                                                   end
+                                           end,index()))
                      ]),
 	stop();
 
