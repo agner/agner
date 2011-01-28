@@ -77,7 +77,7 @@ SEARCH_TERM and only matching items are shown.
 This is an alias for `agner list -s`
 
     agner spec PACKAGE [-v/--version package_version] [-b/--browser] 
-                       [-h/--homepage]
+                       [-h/--homepage] [-p/--property PROPERTY]
 
 Will print a specification of a given package on stdout. If the
 optional version constraint is given (for example `agner spec gproc -v
@@ -89,6 +89,9 @@ file in its respective `.agner` repository.
 
 If `-h` or `--homepage` is present, it will also open browser with the package's
 homepage.
+
+If `-p` or `--property` is supplied, agner will only render particular PROPERTY value
+instead of a full specification (example: `agner spec -p rebar_compatible yaws`).
 
     agner fetch PACKAGE [DESTDIR] [-v/--version package_version] [-c/--compile]
                                   [-a/--add-path]

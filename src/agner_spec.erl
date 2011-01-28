@@ -1,7 +1,7 @@
 %% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_spec).
 -include_lib("agner.hrl").
--export([parse/1, list_to_version/2, version_to_list/1]).
+-export([parse/1, list_to_version/2, version_to_list/1, property_to_list/1]).
 
 -type agner_spec_source() :: string().
 
@@ -45,3 +45,14 @@ version_to_list({flavour, Version}) ->
     "@" ++ Version;
 version_to_list({release, Version}) ->
     Version.
+
+-spec property_to_list(agner_spec_property()) -> string().
+                               
+property_to_list({_,V}) when is_list(V) ->
+    io_lib:format("~s", [V]);
+property_to_list(Prop) when is_tuple(Prop) ->
+    io_lib:format("~p",[list_to_tuple(tl(tuple_to_list(Prop)))]);
+property_to_list(undefined) ->
+    "".
+
+    

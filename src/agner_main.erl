@@ -25,7 +25,8 @@ arg_proplist() ->
 		{package, undefined, undefined, string, "Package name"},
 		{browser, $b, "browser", boolean, "Show specification in the browser"},
 		{homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
-		{version, $v, "version", {string, "@master"}, "Version"}
+		{version, $v, "version", {string, "@master"}, "Version"},
+        {property, $p, "property", string, "Particular property to render instead of a full spec"}
 	   ]}},
 	 {"versions",
 	  {versions,
@@ -133,7 +134,12 @@ handle_command(spec, Opts) ->
                 _ ->
                     ignore
             end,
-            io:format("~p~n",[Spec])
+            case proplists:get_value(property, Opts) of
+                undefined ->
+                    io:format("~p~n",[Spec]);
+                Property ->
+                    io:format("~s~n",[agner_spec:property_to_list(lists:keyfind(list_to_atom(Property), 1, Spec))])
+            end
     end;
 
 handle_command(versions, Opts) ->
