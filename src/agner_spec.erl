@@ -1,3 +1,4 @@
+%% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_spec).
 -include_lib("agner.hrl").
 -export([parse/1, list_to_version/2, version_to_list/1]).

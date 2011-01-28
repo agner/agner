@@ -1,3 +1,4 @@
+%% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner).
 -include_lib("agner.hrl").
 -export([start/0,stop/0]).
