@@ -239,7 +239,7 @@ Or in a more generic way:
 * `UrlSpec :: {hg, URL, HgRev}` - Specifies where to fetch the
   project. `HgSpec` has type `string()` and  points to either string-based revision representation
 
-The very latest specification typespecs are available in [agner_spec.hrl](tree/master/include/agner_spec.hrl)
+The very latest specification typespecs are available in [agner_spec.hrl](agner/tree/master/include/agner_spec.hrl)
 
 Rebar
 -----
