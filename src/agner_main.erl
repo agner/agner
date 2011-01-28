@@ -169,7 +169,7 @@ handle_command(fetch, Opts) ->
             io:format("ERROR: Package name required.~n");
         Package ->
             Version = proplists:get_value(version, Opts),
-            Directory = proplists:get_value(directory, Opts, Package),
+            Directory = filename:absname(proplists:get_value(directory, Opts, Package)),
             io:format("~p~n",[agner:fetch(Package,Version,
                                     Directory)]),
             Spec = agner:spec(Package, Version),
