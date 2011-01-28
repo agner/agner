@@ -10,7 +10,11 @@ stop() ->
     agner:stop().
 
 arg_proplist() ->
-	[{"spec",
+	[{"help",
+      {help,
+       "Use agner help <command>",
+       [{command, undefined, undefined, string, "Command"}]}},
+     {"spec",
 	  {spec,
 	   "Output the specification of a package",
 	   [
@@ -75,6 +79,17 @@ main(Args) ->
 		no_parse ->
 			usage()
 	end.
+
+handle_command(help, []) ->
+    usage();
+handle_command(help, Opts) ->
+    case proplists:get_value(command, Opts) of
+        undefined ->
+            usage();
+        Command ->
+            {_Atom, _Desc, Opts1} = proplists:get_value(Command, arg_proplist()),
+            getopt:usage(Opts1, "agner " ++ Command)
+    end;
 
 handle_command(spec, Opts) ->
     case proplists:get_value(package, Opts) of
