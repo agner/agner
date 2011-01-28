@@ -1,6 +1,7 @@
 -type agner_spec_name() :: string() | atom().
 -type agner_spec_version() :: {branch, string()} |
                               {tag, string()}.
+-type agner_spec_version_string() :: string().
 
 -type agner_repo() :: string().
 -type agner_repo_tag() :: string().

@@ -186,7 +186,7 @@ index() ->
 
 
 -spec fetch(agner_spec_name(), directory()) -> ok | not_found_error().
--spec fetch(agner_spec_name(), agner_spec_version(), directory()) -> ok | not_found_error().
+-spec fetch(agner_spec_name(), agner_spec_version() | agner_spec_version_string(), directory()) -> ok | not_found_error().
 
 fetch(Name, Directory) ->
     fetch(Name, {branch, "master"}, Directory).
