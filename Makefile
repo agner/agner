@@ -7,10 +7,10 @@ clean:
 	@./rebar clean
 
 dialyze:
-	@./rebar dialyze
+	@./rebar dialyze skip_deps=true
 
 build-plt:
-	@./rebar build-plt
+	@./rebar build-plt skip_deps=true
 
 compile: deps
 	@./rebar compile
