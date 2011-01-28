@@ -1,3 +1,4 @@
+%% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_download).
 -export([fetch/2]).
 %% internal exports

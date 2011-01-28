@@ -1,3 +1,4 @@
+%% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_github, [Account]).
 -behaviour(agner_index).
 -include_lib("agner.hrl").

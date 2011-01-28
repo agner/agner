@@ -1,3 +1,4 @@
+%% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_server).
 -include_lib("agner.hrl").
 -include_lib("typespecs/include/typespecs.hrl").

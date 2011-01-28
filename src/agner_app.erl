@@ -1,3 +1,4 @@
+%% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_app).
 
 -behaviour(application).
