@@ -18,7 +18,7 @@ If you want to keep it semi-private, you can just use it from your own index.
 Mastering specification
 -----------------------
 
-First of all, please take some time to read through [README](agner#readme) to make sure you understand all the concepts,
+First of all, please take some time to read through [README](README.md) to make sure you understand all the concepts,
 especially how versioning is done.
 
 Also, even though in Git world you can be crucified for deleting remote tags (`release` versions in our lingo), in Agner,
