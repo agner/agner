@@ -87,8 +87,12 @@ handle_command(help, Opts) ->
         undefined ->
             usage();
         Command ->
-            {_Atom, _Desc, Opts1} = proplists:get_value(Command, arg_proplist()),
-            getopt:usage(Opts1, "agner " ++ Command)
+            case proplists:get_value(Command, arg_proplist()) of
+                {_Atom, _Desc, Opts1} ->
+                    getopt:usage(Opts1, "agner " ++ Command);
+                undefined ->
+                    io:format("No such command: ~s~n", [Command])
+            end
     end;
 
 handle_command(spec, Opts) ->
