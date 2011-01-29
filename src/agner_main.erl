@@ -2,8 +2,6 @@
 -module(agner_main).
 -export([main/1]).
 
--define(AGNER_PREFIX,"/usr/local").
-
 start() ->
     agner:start().
 
@@ -89,7 +87,14 @@ arg_proplist() ->
 	   "Verify the integrity of a .agner configuration file",
 	   [
 		{spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
-	   ]}}].
+	   ]}},
+     {"config",
+      {config,
+       "Show Agner's environmental configuration",
+       [
+        {variable, undefined, undefined, string, "Variable name, omit to list all of them"}
+       ]}}].
+       
 
 command_descriptions() ->
 	[{Cmd, Desc} || {Cmd, {_Atom, Desc, _Opts}} <- arg_proplist()].
@@ -110,12 +115,6 @@ usage() ->
 	[io:format("   ~-10s ~s~n", [Cmd, Desc]) || {Cmd, Desc} <- command_descriptions()].
 
 main(Args) ->
-    case os:getenv("AGNER_PREFIX") of
-        false ->
-            os:putenv("AGNER_PREFIX",?AGNER_PREFIX);
-        [_|_] ->
-            ignore
-    end,
 	case parse_args(Args) of
 		{arg, Command, ExtraArgs, OptSpec} ->
 			case getopt:parse(OptSpec, ExtraArgs) of
@@ -342,8 +341,18 @@ handle_command(verify, Opts) ->
 
 handle_command(version, _) ->
     {agner,_,Version} = lists:keyfind(agner,1,application:which_applications()),
-    io:format("~s~n",[Version]).
+    io:format("~s~n",[Version]);
 
+handle_command(config, []) ->
+    io:format("prefix="), handle_command(config,[{variable, "prefix"}]),
+    io:format("bin="), handle_command(config,[{variable, "bin"}]);
+handle_command(config, [{variable, "prefix"}]) ->
+    io:format("~s~n",[os:getenv("AGNER_PREFIX")]);
+handle_command(config, [{variable, "bin"}]) ->
+    io:format("~s~n",[os:getenv("AGNER_BIN")]).
+  
+
+%%%%
 
 temp_name() ->
 	%% Yes, the temp_name function lives in the test_server, go figure!

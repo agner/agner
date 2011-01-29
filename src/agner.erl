@@ -6,7 +6,23 @@
 %% API
 -export([spec/1, spec/2, spec_url/1, spec_url/2, index/0, fetch/2, fetch/3, versions/1]).
 
+-define(AGNER_BIN,"/usr/local/bin").
+-define(AGNER_PREFIX,"/usr/local/agner").
+
 start() ->
+    case os:getenv("AGNER_BIN") of
+        false ->
+            os:putenv("AGNER_BIN",?AGNER_BIN);
+        [_|_] ->
+            ignore
+    end,
+    case os:getenv("AGNER_PREFIX") of
+        false ->
+            os:putenv("AGNER_PREFIX",?AGNER_PREFIX);
+        [_|_] ->
+            ignore
+    end,
+    ok = filelib:ensure_dir(os:getenv("AGNER_PREFIX") ++ "/"),
 	inets:start(),
 	ssl:start(),
 	{ok, _Pid} = inets:start(httpc,[{profile, agner}]),
