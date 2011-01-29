@@ -54,6 +54,7 @@ The install command will be invoked in checked out directory containing target r
 
 Here's the current list of environmentvariables that will be available to build & install commands:
 
+* AGNER -- Absolute path to the agner script user
 * AGNER_PREFIX -- Root agner's directory (defaults to `/usr/local/agner`)
 
 Here's the current list of environmentvariables that will be available to install command:
