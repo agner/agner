@@ -38,6 +38,7 @@
                                agner_spec_property_homepage() |
                                agner_spec_property_rebar_compatible() |
                                agner_spec_property_build_command() |
+                               agner_spec_property_install_command() |
                                agner_spec_property_license() |
                                agner_spec_property_erlang_versions() |
                                agner_spec_property_applications() |
