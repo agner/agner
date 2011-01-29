@@ -4,6 +4,13 @@
 %% internal exports
 -export([git/1, git/2, process_port/2]).
 
+fetch({all, []}, _) ->
+    ok;
+
+fetch({all, [{Name, URL}|Rest]}, Directory) ->
+    fetch(URL, filename:join(Directory, Name)),
+    fetch({all, Rest}, Directory);
+
 fetch({git, URL, Ref}, Directory) ->
     case filelib:is_dir(Directory) of
         false -> %% clone
@@ -26,7 +33,6 @@ fetch({hg, URL, Rev}, Directory) ->
             PortClone = hg(["pull", "-u", "-r", Rev],[{cd, Directory}]),
             process_port(PortClone, fun () -> ok end)
     end.
-                                       
 
 %%
 

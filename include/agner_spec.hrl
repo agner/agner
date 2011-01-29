@@ -6,6 +6,14 @@
 
 -type file() :: string().
 
+-type agner_named_download_url() :: 
+        {string(), agner_download_url()}.
+
+-type agner_download_url() ::
+        {all, list(agner_named_download_url())} |
+        {git, url(), git_ref()} |
+        {hg, url(), hg_rev()}.
+
 -type agner_spec_property_name() :: {name, string()}.
 -type agner_spec_property_description() :: {description, string()}.
 -type agner_spec_property_keywords() :: {keywords, list(string())}.
@@ -19,9 +27,7 @@
 -type agner_spec_property_erlang_versions() :: {erlang_versions, list(atom())}.
 -type agner_spec_property_applications() :: {applications, list(atom())}.
 -type agner_spec_property_caveats() :: {caveats, string()}.
--type agner_spec_property_url() :: {url, 
-                                    {git, url(), git_ref()} |
-                                    {hg, url(), hg_rev()}}.
+-type agner_spec_property_url() :: {url, agner_download_url()}.
                                     
                                                              
 
