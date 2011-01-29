@@ -29,8 +29,7 @@ the ways might be adding some README or NOTES file into your `.agner` repo.
 Before commiting your agner.config, please make sure you ran `agner verify` on it so it passes at least
 some validity checks.
 
-Build command
-~~~~~~~~~~~~~
+### Build command
 
 If your target repository can't be built by simply invoking `rebar get-deps && rebar compile` then you need to supply
 a `build_command` property, for example:
@@ -40,8 +39,7 @@ a `build_command` property, for example:
 
 The build command will be invoked in checked out directory containing target repository.
 
-Install command
-~~~~~~~~~~~~~~~
+### Install command
 
 If your target repository can't be built by simply invoking `rebar get-deps && rebar compile` then you need to supply
 a `install_command` property, for example:
@@ -52,8 +50,7 @@ a `install_command` property, for example:
 The install command will be invoked in checked out directory containing target repository. 
 
 
-Environment Variables
-~~~~~~~~~~~~~~~~~~~~~
+### Environment Variables
 
 Here's the current list of environmentvariables that will be available to build & install commands:
 
