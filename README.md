@@ -76,7 +76,7 @@ SEARCH_TERM and only matching items are shown.
 
 This is an alias for `agner list -s`
 
-    agner spec PACKAGE [-v/--version package_version] [-b/--browser] 
+    agner spec PACKAGE [-v/--version VERSION] [-b/--browser] 
                        [-h/--homepage] [-p/--property PROPERTY]
 
 Will print a specification of a given package on stdout. If the
@@ -93,7 +93,7 @@ homepage.
 If `-p` or `--property` is supplied, agner will only render particular PROPERTY value
 instead of a full specification (example: `agner spec -p rebar_compatible yaws`).
 
-    agner fetch PACKAGE [DESTDIR] [-v/--version package_version] [-b/--build]
+    agner fetch PACKAGE [DESTDIR] [-v/--version VERSION] [-b/--build]
                                   [-a/--add-path] [-i/--install]
 
 Fetch a given `PACKAGE` to either the current directory or,
@@ -109,7 +109,7 @@ If `-i` or `--install` is supplied and package has `install_command` property de
 install this package. Please note that in most cases you should also specify `--build`/`-b` in order for
 installation to make sense.
 
-    agner install PACKAGE [-v/--version package_version]
+    agner install PACKAGE [-v/--version VERSION]
 
 Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>`. A typical example would be `agner install rebar`
 or `agner install rebar -v @agner` to get `rebar` binary in your PATH. It is assumed that `install_command`
