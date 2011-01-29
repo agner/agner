@@ -111,7 +111,9 @@ installation to make sense.
 
     agner install PACKAGE [-v/--version package_version]
 
-Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>"
+Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>`. A typical example would be `agner install rebar`
+or `agner install rebar -v @agner` to get `rebar` binary in your PATH. It is assumed that `install_command`
+property will make use of AGNER_PREFIX OS environment variable (which defaults to `/usr/local`).
 
     agner versions PACKAGE
 
