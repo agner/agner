@@ -54,7 +54,11 @@ The install command will be invoked in checked out directory containing target r
 
 Here's the current list of environmentvariables that will be available to build & install commands:
 
-* AGNER_PREFIX -- A place where install procedure should consider putting installable files to. Right now it defaults to
-  `/usr/local` but eventually will point to a properly isolated deployment environment
+* AGNER_PREFIX -- Root agner's directory (defaults to `/usr/local/agner`)
+
+Here's the current list of environmentvariables that will be available to install command:
+
+* AGNER_INSTALL_PREFIX -- A place where install procedure should consider putting installable files to. Right now it equates to
+  `AGNER_PREFIX/agner/packages/<package_name>-<package_version>`
 
 More variables to come later.

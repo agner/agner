@@ -71,6 +71,13 @@ arg_proplist() ->
 		{version, $v, "version", {string, "@master"}, "Version"},
         {spec, $s, "spec-file", string, "Use local specification file"}
 	   ]}},
+     {"installed",
+      {installed,
+       "Shows location where particular package is installed",
+	   [
+		{package, undefined, undefined, string, "Package name"},
+		{version, $v, "version", {string, "@master"}, "Version"}
+	   ]}},
      {"build",
       {build,
        "Build a package",
@@ -236,6 +243,21 @@ handle_command(list, Opts) ->
                                            end,agner:index()))
                    ]);
 
+handle_command(installed, Opts) ->
+    case proplists:get_value(package, Opts) of
+        undefined ->
+            io:format("ERROR: Package name required.~n");
+        Package ->
+            Version = proplists:get_value(version, Opts),
+            InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
+            case filelib:is_dir(InstallPrefix) of
+                true ->
+                    io:format("~s~n",[InstallPrefix]);
+                false ->
+                    ignore
+            end
+    end;
+
 handle_command(install, Opts) ->
     TmpFile = temp_name(),
     handle_command(fetch, [{build, true},{directory, TmpFile},{install, true},{addpath, false}|Opts]),
@@ -269,6 +291,7 @@ handle_command(fetch, Opts) ->
                 Caveats when is_list(Caveats) ->
                     io:format("=== CAVEATS ===~n~n~s~n~n",[Caveats])
             end,
+
             case proplists:get_value(build, Opts) of
                 true ->
                     case proplists:get_value(rebar_compatible, Spec) of
@@ -304,6 +327,11 @@ handle_command(fetch, Opts) ->
                         false ->
                             ignore;
                         true ->
+                            filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
+                            InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
+                            os:cmd("rm -rf " ++ InstallPrefix),
+                            ok = filelib:ensure_dir(InstallPrefix ++ "/"),
+                            os:putenv("AGNER_INSTALL_PREFIX", InstallPrefix),
                             case proplists:get_value(install_command, Spec) of
                                 undefined ->
                                     io:format("ERROR: No install_command specified, can't install this package");
@@ -312,7 +340,18 @@ handle_command(fetch, Opts) ->
                                     {ok, Cwd1} = file:get_cwd(),
                                     file:set_cwd(Directory),
                                     io:format("~s~n",[os:cmd(ICommand)]),
-                                    file:set_cwd(Cwd1)
+                                    file:set_cwd(Cwd1),
+                                    case proplists:get_value(bin_files, Spec) of
+                                        undefined ->
+                                            ignore;
+                                        Files ->
+                                            lists:foreach(fun (File) ->
+                                                                  Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
+                                                                  File1 = filename:join([InstallPrefix,File]),
+                                                                  file:delete(Symlink),
+                                                                  ok = file:make_symlink(File1, Symlink)
+                                                          end, Files)
+                                    end
                             end
                     end;
                 false ->
