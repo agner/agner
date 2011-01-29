@@ -14,7 +14,9 @@ Installation
 ------------
 
 In order to install, simply run `make` and `make install` (it will 
-install to `/usr/local/bin`). If you are a Homebrew user on OS X, 
+install to `/usr/local/bin`). 
+
+If you are a **Homebrew** user on **OS X**, 
 feel free to use it: 
 `brew install https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
 or `brew --HEAD https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
