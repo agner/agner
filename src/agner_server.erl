@@ -308,11 +308,14 @@ handle_versions(Name, From, [Mod0|Rest]) ->
 		{error, not_found} ->
 			handle_versions(Name, From, Rest);
 		_ ->
-            Branches = lists:map(fun({Branch, _}) -> {flavour, Branch} end,
+            Branches = lists:map(fun
+                                     ({[$%|_],_}) -> undefined;
+                                     ({Branch, _}) -> {flavour, Branch} end,
                                   Mod:branches(Name)),
-            Tags = lists:map(fun({Tag, _}) -> {release, Tag} end,
+            Tags = lists:map(fun ({[$%|_],_}) -> undefined;
+                                 ({Tag, _}) -> {release, Tag} end,
                                   Mod:tags(Name)),
-            gen_server:reply(From, Branches ++ Tags)
+            gen_server:reply(From, lists:filter(fun (undefined) -> false; (_) -> true end, Branches ++ Tags))
 	end.
 
 -spec sha1(agner_index(), agner_spec_name(), agner_spec_version()) -> sha1().
