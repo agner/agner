@@ -118,6 +118,10 @@ installation to make sense.
 Option `-s` or `--spec-file` is primarily intended for package maintainers. This way they can specify their
 local `agner.config` files to test their package.
 
+    agner build PACKAGE [DESTDIR] [-v/--version VERSION] [-s/--spec-file SPECFILE] [-a/--add-path] [-i/--install]
+
+Alias for `agner fetch --build PACKAGE`.
+
     agner install PACKAGE [-v/--version VERSION] [-s/--spec-file SPECFILE]
 
 Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>`. A typical example would be `agner install rebar`

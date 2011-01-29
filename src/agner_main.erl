@@ -73,6 +73,17 @@ arg_proplist() ->
 		{version, $v, "version", {string, "@master"}, "Version"},
         {spec, $s, "spec-file", string, "Use local specification file"}
 	   ]}},
+     {"build",
+      {build,
+       "Build a package",
+	   [
+		{package, undefined, undefined, string, "Package name"},
+		{version, $v, "version", {string, "@master"}, "Version"},
+        {spec, $s, "spec-file", string, "Use local specification file"},
+        {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"},
+        {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
+		{directory, undefined, undefined, string, "Directory to check package out to"}
+	   ]}},      
 	 {"verify",
 	  {verify,
 	   "Verify the integrity of a .agner configuration file",
@@ -230,6 +241,9 @@ handle_command(install, Opts) ->
     TmpFile = temp_name(),
     handle_command(fetch, [{build, true},{directory, TmpFile},{install, true},{addpath, false}|Opts]),
     os:cmd("rm -rf " ++ TmpFile);
+
+handle_command(build, Opts) ->
+    handle_command(fetch, [{build, true}|Opts]);
 
 handle_command(fetch, Opts) ->
     case proplists:get_value(package, Opts) of
