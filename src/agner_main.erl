@@ -73,7 +73,7 @@ arg_proplist() ->
 	   ]}},
      {"uninstall",
       {uninstall,
-       "Uninstalls previously installed package",
+       "Uninstall previously installed package",
 	   [
 		{package, undefined, undefined, string, "Package name"},
 		{version, $v, "version", {string, "@master"}, "Version"},
