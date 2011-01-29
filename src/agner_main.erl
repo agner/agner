@@ -130,6 +130,7 @@ usage() ->
 	[io:format("   ~-10s ~s~n", [Cmd, Desc]) || {Cmd, Desc} <- command_descriptions()].
 
 main(Args) ->
+    os:putenv("AGNER", filename:absname(escript:script_name())),
 	case parse_args(Args) of
 		{arg, Command, ExtraArgs, OptSpec} ->
 			case getopt:parse(OptSpec, ExtraArgs) of
