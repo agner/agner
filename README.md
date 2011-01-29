@@ -10,6 +10,17 @@ capabilities such as versioning, downloads and so on.
 Agner is a shorthand for *A Giant Nebula of Erlang Repositories*. It
 also pays homage to the Danish statistician Agner Krarup Erlang.
 
+Installation
+------------
+
+In order to install, simply run `make` and `make install` (it will 
+install to `/usr/local/bin`). If you are a Homebrew user on OS X, 
+feel free to use it: 
+`brew install https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
+or `brew --HEAD https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
+(if you want the very best and newest).
+As of the time of this writing, agner formula hasn't been merged into the official repo yet.
+
 Motivation
 ----------
 
