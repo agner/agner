@@ -63,3 +63,9 @@ Here's the current list of environmentvariables that will be available to instal
   `AGNER_PREFIX/agner/packages/<package_name>-<package_version>`
 
 More variables to come later.
+
+### Private branches && Tags
+
+If you want to have either branches or tags that shouldn't be exposed to the end user as versions when they inquire using
+`agner versions`, simply prepend your branch or tag name with `%` (comment) symbol and it will be hidden from the general public.
+It will still be possible to use such versions explicitly, though (for example, `agner spec erlv8 -v @%test` for a branch called `%test`)
