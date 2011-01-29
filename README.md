@@ -78,6 +78,7 @@ This is an alias for `agner list -s`
 
     agner spec PACKAGE [-v/--version VERSION] [-b/--browser] 
                        [-h/--homepage] [-p/--property PROPERTY]
+                       [-s/--spec-file SPECFILE]
 
 Will print a specification of a given package on stdout. If the
 optional version constraint is given (for example `agner spec gproc -v
@@ -93,8 +94,13 @@ homepage.
 If `-p` or `--property` is supplied, agner will only render particular PROPERTY value
 instead of a full specification (example: `agner spec -p rebar_compatible yaws`).
 
+Option `-s` or `--spec-file` is primarily intended for package maintainers. This way they can specify their
+local `agner.config` files to test their package.
+
+
     agner fetch PACKAGE [DESTDIR] [-v/--version VERSION] [-b/--build]
                                   [-a/--add-path] [-i/--install]
+                                  [-s/--spec-file SPECFILE]
 
 Fetch a given `PACKAGE` to either the current directory or,
 optionally, to the `DESTDIR` directory. The version constraint is as
@@ -108,6 +114,9 @@ HOME/.erlang
 If `-i` or `--install` is supplied and package has `install_command` property defined, Agner will also
 install this package. Please note that in most cases you should also specify `--build`/`-b` in order for
 installation to make sense.
+
+Option `-s` or `--spec-file` is primarily intended for package maintainers. This way they can specify their
+local `agner.config` files to test their package.
 
     agner install PACKAGE [-v/--version VERSION]
 

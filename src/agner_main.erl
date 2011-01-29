@@ -28,7 +28,8 @@ arg_proplist() ->
 		{browser, $b, "browser", boolean, "Show specification in the browser"},
 		{homepage, $h, "homepage", boolean, "Show package homepage in the browser"},
 		{version, $v, "version", {string, "@master"}, "Version"},
-        {property, $p, "property", string, "Particular property to render instead of a full spec"}
+        {property, $p, "property", string, "Particular property to render instead of a full spec"},
+        {spec, $s, "spec-file", string, "Use local specification file"}
 	   ]}},
 	 {"versions",
 	  {versions,
@@ -61,14 +62,16 @@ arg_proplist() ->
 		{version, $v, "version", {string, "@master"}, "Version"},
         {build, $b, "build", {boolean, false}, "Build fetched package"},
         {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"},
-        {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"}
+        {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
+        {spec, $s, "spec-file", string, "Use local specification file"}
 	   ]}},
      {"install",
       {install,
        "Install a package",
 	   [
 		{package, undefined, undefined, string, "Package name"},
-		{version, $v, "version", {string, "@master"}, "Version"}
+		{version, $v, "version", {string, "@master"}, "Version"},
+        {spec, $s, "spec-file", string, "Use local specification file"}
 	   ]}},
 	 {"verify",
 	  {verify,
@@ -143,7 +146,14 @@ handle_command(spec, Opts) ->
                 _ ->
                     ignore
             end,
-            Spec = agner:spec(Package,Version),
+            Spec = 
+                case proplists:get_value(spec, Opts) of
+                    undefined ->
+                        agner:spec(Package, Version);
+                    File ->
+                        {ok, T} = file:consult(File),
+                        T
+                end,
             case proplists:get_value(homepage, Opts) of
                 true ->
                     agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/?q=" ++ Package));
@@ -228,9 +238,18 @@ handle_command(fetch, Opts) ->
         Package ->
             Version = proplists:get_value(version, Opts),
             Directory = filename:absname(proplists:get_value(directory, Opts, Package)),
-            io:format("~p~n",[agner:fetch(Package,Version,
+            Spec = 
+                case proplists:get_value(spec, Opts) of
+                    undefined ->
+                        agner:spec(Package, Version);
+                    File ->
+                        {ok, T} = file:consult(File),
+                        T
+                end,
+
+            io:format("~p~n",[agner:fetch(Spec,Version,
                                     Directory)]),
-            Spec = agner:spec(Package, Version),
+                           
             case proplists:get_value(caveats, Spec) of
                 undefined ->
                     ignore;

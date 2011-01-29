@@ -58,10 +58,11 @@ index() ->
 
 %% @doc Fetch a package/project to a directory
 %% @end
--spec fetch(agner_spec_name(), agner_spec_version(), directory()) -> ok | not_found_error().
+-spec fetch(agner_spec_name(), agner_spec_version(), directory()) -> ok | not_found_error();
+           (agner_spec(), any(), directory()) -> ok | not_found_error().
                    
-fetch(Name, Version, Directory) ->
-        gen_server:call(?SERVER, {fetch, Name, Version, Directory}, infinity).
+fetch(NameOrSpec, Version, Directory) ->
+        gen_server:call(?SERVER, {fetch, NameOrSpec, Version, Directory}, infinity).
 
 %% @doc Ask for the versions of a given package, Name
 %% @end
@@ -109,7 +110,7 @@ init([]) ->
 -type agner_call_spec() :: {spec, agner_spec_name(), agner_spec_version()}.
 -type agner_call_spec_url() :: {spec_url, agner_spec_name(), agner_spec_version()}.
 -type agner_call_index() :: index.
--type agner_call_fetch() :: {fetch, agner_spec_name(), agner_spec_version(), directory()}.
+-type agner_call_fetch() :: {fetch, agner_spec_name() | agner_spec(), agner_spec_version(), directory()}.
 -type agner_call_versions() :: {versions, agner_spec_name()}.
 -type agner_internal_call_pushed_at_updates() :: {pushed_at_updates, list({agner_spec_name(), string()})}.
 -type agner_internal_call_pushed_at() :: {pushed_at, agner_spec_name()}.
@@ -141,9 +142,9 @@ handle_call(index, From, #state{}=State) ->
 			   end),
 	{noreply, State};
 
-handle_call({fetch, Name, Version, Directory}, From, #state{}=State) ->
+handle_call({fetch, NameOrSpec, Version, Directory}, From, #state{}=State) ->
 	spawn_link(fun () ->
-					   handle_fetch(Name, Version, Directory, From)
+					   handle_fetch(NameOrSpec, Version, Directory, From)
 			   end),
 	{noreply, State};
 
@@ -280,13 +281,20 @@ handle_index(From, Acc, [Mod0|Rest]) ->
             handle_index(From, lists:map(fun (Repo) -> indexize(Mod0, Repo) end, Repos) ++ Acc, Rest)
 	end.
 
--spec handle_fetch(agner_spec_name(), agner_spec_version(), directory(), gen_server_from()) -> any().
-handle_fetch(Name, Version, Directory, From) ->
-    case agner:spec(Name, Version) of
-        {error, _} = Error ->
-            gen_server:reply(From, Error);
-        Spec ->
-            URL = proplists:get_value(url, Spec),
+-spec handle_fetch(agner_spec_name() | agner_spec(), agner_spec_version(), directory(), gen_server_from()) -> any().
+handle_fetch(NameOrSpec, Version, Directory, From) ->
+    case io_lib:printable_list(NameOrSpec) of
+        true ->
+            case agner:spec(NameOrSpec, Version) of
+                {error, _} = Error ->
+                    gen_server:reply(From, Error);
+                Spec ->
+                    URL = proplists:get_value(url, Spec),
+                    agner_download:fetch(URL, Directory),
+                    gen_server:reply(From, ok)
+            end;
+        false -> %% it is a spec
+            URL = proplists:get_value(url, NameOrSpec),
             agner_download:fetch(URL, Directory),
             gen_server:reply(From, ok)
     end.
