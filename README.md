@@ -136,6 +136,11 @@ List the versions of the given `PACKAGE`
 
 Prints prefix where package is installed. If package is not installed, prints nothing.
 
+    agner config [VARIABLE]
+
+Shows main environmental variables. If `VARIABLES` is omitted, then lists `key=value` for each variable. If not omitted,
+prints just its value. Currently supported variables are: `prefix` and `bin`.
+
     agner verify [SPEC FILENAME (agner.config by default)]
 
 Verify specification file for correctness; intended to be used to package maintainers to simplify
