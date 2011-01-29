@@ -71,8 +71,8 @@ arg_proplist() ->
 		{version, $v, "version", {string, "@master"}, "Version"},
         {spec, $s, "spec-file", string, "Use local specification file"}
 	   ]}},
-     {"installed",
-      {installed,
+     {"prefix",
+      {prefix,
        "Shows location where particular package is installed",
 	   [
 		{package, undefined, undefined, string, "Package name"},
@@ -243,7 +243,7 @@ handle_command(list, Opts) ->
                                            end,agner:index()))
                    ]);
 
-handle_command(installed, Opts) ->
+handle_command(prefix, Opts) ->
     case proplists:get_value(package, Opts) of
         undefined ->
             io:format("ERROR: Package name required.~n");

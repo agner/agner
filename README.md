@@ -132,6 +132,10 @@ property will make use of AGNER_PREFIX OS environment variable (which defaults t
 
 List the versions of the given `PACKAGE`
 
+    agner prefix PACKAGE [-v/--version VERSION]
+
+Prints prefix where package is installed. If package is not installed, prints nothing.
+
     agner verify [SPEC FILENAME (agner.config by default)]
 
 Verify specification file for correctness; intended to be used to package maintainers to simplify
