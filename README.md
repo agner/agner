@@ -128,6 +128,11 @@ Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>`. A typica
 or `agner install rebar -v @agner` to get `rebar` binary in your PATH. It is assumed that `install_command`
 property will make use of AGNER_PREFIX OS environment variable (which defaults to `/usr/local`).
 
+    agner uninstall PACKAGE [-v/--version VERSION] [-s/--spec-file SPECFILE]
+
+Uninstall given package (and a particular VERSION of it, if specified). Will use local SPECFILE is `--spec-file`/`-s` 
+option is passed.
+
     agner versions PACKAGE
 
 List the versions of the given `PACKAGE`

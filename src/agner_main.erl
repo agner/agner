@@ -71,6 +71,14 @@ arg_proplist() ->
 		{version, $v, "version", {string, "@master"}, "Version"},
         {spec, $s, "spec-file", string, "Use local specification file"}
 	   ]}},
+     {"uninstall",
+      {uninstall,
+       "Uninstalls previously installed package",
+	   [
+		{package, undefined, undefined, string, "Package name"},
+		{version, $v, "version", {string, "@master"}, "Version"},
+        {spec, $s, "spec-file", string, "Use local specification file"}
+	   ]}},
      {"prefix",
       {prefix,
        "Shows location where particular package is installed",
@@ -255,6 +263,39 @@ handle_command(prefix, Opts) ->
                     io:format("~s~n",[InstallPrefix]);
                 false ->
                     ignore
+            end
+    end;
+
+handle_command(uninstall, Opts) ->
+    case proplists:get_value(package, Opts) of
+        undefined ->
+            io:format("ERROR: Package name required.~n");
+        Package ->
+            Version = proplists:get_value(version, Opts),
+            InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
+            case filelib:is_dir(InstallPrefix) of
+                true ->
+                    io:format("Uninstalling...~n"),
+                    Spec = 
+                        case proplists:get_value(spec, Opts) of
+                            undefined ->
+                                agner:spec(Package, Version);
+                            File ->
+                        {ok, T} = file:consult(File),
+                                T
+                        end,
+                    os:cmd("rm -rf " ++ InstallPrefix),
+                    case proplists:get_value(bin_files, Spec) of
+                        undefined ->
+                            ignore;
+                        Files ->
+                            lists:foreach(fun (File) ->
+                                                  Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
+                                                  file:delete(Symlink)
+                                          end, Files)
+                    end;
+                false ->
+                    io:format("ERROR: This package hasn't been installed~n")
             end
     end;
 
