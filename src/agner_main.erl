@@ -182,7 +182,7 @@ handle_command(spec, Opts) ->
                 end,
             case proplists:get_value(homepage, Opts) of
                 true ->
-                    agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/?q=" ++ Package));
+                    agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/#q=" ++ Package));
                 _ ->
                     ignore
             end,
