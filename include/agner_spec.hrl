@@ -4,8 +4,6 @@
 
 -type hg_rev() :: string().
 
--type file() :: string().
-
 -type agner_named_download_url() :: 
         {string(), agner_download_url()}.
 

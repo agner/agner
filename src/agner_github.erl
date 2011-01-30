@@ -62,47 +62,39 @@ branches(Name) ->
 					  end, Branches)
 	end.
 
-spec(Name, SHA1) ->
-    case gen_server:call(agner_server, {pushed_at, Name}) of
+spec(Name, Version) ->
+    {ok, RepoServer} = agner_repo_server:create(Name, Version),
+    case agner_repo_server:pushed_at(RepoServer) of
         At when is_list(At) ->
             DotDir = filename:join(os:getenv("HOME"),".agner"),
             filelib:ensure_dir(DotDir ++ "/"),
-            AtFilename = filename:join([DotDir, "cache." ++ Name ++ SHA1 ++ lists:map(fun ($/) ->
-                                                                                  $_;
-                                                                              ($\s) ->
-                                                                                  $_;
-                                                                              (C) ->
-                                                                                  C
-                                                                          end, At)]),
-            spec_1(Name, SHA1, AtFilename);
+            AtFilename = filename:join([DotDir, "cache." ++ Name ++ integer_to_list(erlang:phash2(Version)) ++ 
+                                            lists:map(fun ($/) ->
+                                                              $_;
+                                                          ($\s) ->
+                                                              $_;
+                                                          (C) ->
+                                                              C
+                                                      end, At)]),
+            spec_1(RepoServer, AtFilename);
         undefined ->
             {A,B,C} = now(),
             N = node(),
             TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
-            Result = spec_1(Name, SHA1, TmpFile),
+            Result = spec_1(RepoServer, TmpFile),
             file:delete(TmpFile),
             Result
     end.
 
-spec_1(Name, SHA1, AtFilename) ->
+spec_1(RepoServer,  AtFilename) ->
     case file:read_file_info(AtFilename) of
         {error, enoent} ->
-            {A,B,C} = now(),
-            N = node(),
-            TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
-            ClonePort = agner_download:git(["clone", "-q", "git://github.com/" ++ proper_repo_name(Name) ++ ".git", TmpFile]),
-            Result = agner_download:process_port(ClonePort, 
-                                                 fun () ->
-                                                         PortCheckout = agner_download:git(["checkout","-q",SHA1],[{cd, TmpFile}]),
-                                                         agner_download:process_port(PortCheckout, fun () ->
-                                                                                                           Config = filename:join(TmpFile, "agner.config"),
-                                                                                                           {ok, S} = file:consult(Config),
-                                                                                                           {ok, _} = file:copy(Config, AtFilename),
-                                                                                                           S
-                                                                                                   end)
-                                                         end),
-            os:cmd("rm -rf " ++ TmpFile),
-            Result;
+            ok = agner_repo_server:clone(RepoServer, fun (Name) -> "git://github.com/" ++ proper_repo_name(Name) ++ ".git" end),
+            
+            Config = agner_repo_server:file(RepoServer, "agner.config"),
+            {ok, S} = file:consult(Config),
+            {ok, _} = file:copy(Config, AtFilename),
+            S;
         {ok, _} ->
             {ok, S} = file:consult(AtFilename),
             S

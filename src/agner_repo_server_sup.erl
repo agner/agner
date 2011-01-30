@@ -1,5 +1,5 @@
 %% -*- Mode: Erlang; tab-width: 4 -*-
--module(agner_sup).
+-module(agner_repo_server_sup).
 
 -behaviour(supervisor).
 
@@ -24,8 +24,7 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, [
-                                  ?CHILD(agner_repo_server_sup, supervisor),
-								  ?CHILD(agner_server, worker)
+    {ok, { {simple_one_for_one, 5, 10}, [
+								  ?CHILD(agner_repo_server, worker)
 								 ]} }.
 

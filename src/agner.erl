@@ -26,6 +26,8 @@ start() ->
 	inets:start(),
 	ssl:start(),
 	{ok, _Pid} = inets:start(httpc,[{profile, agner}]),
+    application:start(gproc),
+    gproc:start_link(),
 	application:start(agner).
 
 stop() ->

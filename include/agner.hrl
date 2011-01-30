@@ -18,4 +18,6 @@
 
 -type url() :: string().
 
+-type file() :: string().
+
 -include_lib("agner_spec.hrl").

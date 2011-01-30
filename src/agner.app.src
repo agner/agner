@@ -6,7 +6,8 @@
   {applications, [
                   kernel,
                   stdlib,
-				  inets
+				  inets,
+                  gproc
                  ]},
   {env, [{indices, [{github, "agner"}]}]},
   {mod, { agner_app, []}},
