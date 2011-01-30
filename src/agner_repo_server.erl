@@ -68,7 +68,7 @@ pushed_at(Pid) ->
 clone(Pid, Fun) ->
     gen_server:call(Pid, {clone, Fun}).
 
--spec file(pid(), file()) -> file() | not_found_error().
+-spec file(pid(), file()) -> file() | not_found_error() | {error, not_cloned}.
                   
 file(Pid, Filename) ->
     gen_server:call(Pid, {file, Filename}).
@@ -121,7 +121,7 @@ init({Name, Version}) ->
                  (clone_call(), gen_server_from(), gen_server_state()) ->
                          gen_server_handle_call_result(ok);
                  (file_call(), gen_server_from(), gen_server_state()) ->
-                         gen_server_handle_call_result(file() | not_found_error()).
+                         gen_server_handle_call_result(file() | not_found_error() | {error, not_cloned}).
 
 handle_call(pushed_at, _From, #state{ pushed_at = PushedAt } = State) ->
     {reply, PushedAt, State};
@@ -143,14 +143,17 @@ handle_call({clone, Fun}, _From, #state{ directory = undefined, name = Name, ver
 handle_call({clone, _Fun}, _From, #state{} = State) -> %% already cloned
     {reply, ok, State};
 
-handle_call({file, Filename}, _From, #state{ directory = Directory} = State) -> 
+handle_call({file, Filename}, _From, #state{ directory = Directory} = State) when is_list(Directory) -> 
     F = filename:join(Directory, Filename),
     case (filelib:is_dir(F) or filelib:is_file(F)) of
         true ->
             {reply, F, State};
         false ->
             {reply, {error, not_found}, State}
-    end.
+    end;
+
+handle_call({file, _Filename}, _From, #state{ directory = undefined } = State) -> 
+    {reply, {error, not_cloned}, State}.
 
 
 %%--------------------------------------------------------------------
