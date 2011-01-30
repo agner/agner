@@ -113,7 +113,7 @@ local `agner.config` files to test their package.
 
     agner fetch PACKAGE [DESTDIR] [-v/--version VERSION] [-b/--build]
                                   [-a/--add-path] [-i/--install]
-                                  [-s/--spec-file SPECFILE]
+                                  [-s/--spec-file SPECFILE] [--package-path PACKAGEPATH]
 
 Fetch a given `PACKAGE` to either the current directory or,
 optionally, to the `DESTDIR` directory. The version constraint is as
@@ -129,7 +129,9 @@ install this package. Please note that in most cases you should also specify `--
 installation to make sense.
 
 Option `-s` or `--spec-file` is primarily intended for package maintainers. This way they can specify their
-local `agner.config` files to test their package.
+local `agner.config` files to test their package. Can be used in conjunction with `--package-path` to point to a
+checkout copy of an `.agner` repo (will be used to set `$AGNER_PACKAGE_REPO` variable for shell commands, defaults to
+`.`)
 
     agner build PACKAGE [DESTDIR] [-v/--version VERSION] [-s/--spec-file SPECFILE] [-a/--add-path] [-i/--install]
 

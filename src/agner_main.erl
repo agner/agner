@@ -93,6 +93,7 @@ arg_proplist() ->
 		{package, undefined, undefined, string, "Package name"},
 		{version, $v, "version", {string, "@master"}, "Version"},
         {spec, $s, "spec-file", string, "Use local specification file"},
+        {package_path, undefined, "package-path", string, "Path to the package repo contents (used in conjunction with --spec-file only, defaults to '.')"},
         {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"},
         {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
 		{directory, undefined, undefined, string, "Directory to check package out to"}
@@ -318,15 +319,20 @@ handle_command(fetch, Opts) ->
             Spec = 
                 case proplists:get_value(spec, Opts) of
                     undefined ->
-                        agner:spec(Package, Version);
+                        Spec0 = agner:spec(Package, Version),
+                        {ok, RepoServer} = agner_repo_server:create(Package, Version),
+                        os:putenv("AGNER_PACKAGE_REPO",agner_repo_server:file(RepoServer,"")),
+                        Spec0;
                     File ->
                         {ok, T} = file:consult(File),
+                        os:putenv("AGNER_PACKAGE_REPO",proplists:get_value(package_path, Opts, ".")),
                         T
                 end,
 
             io:format("~p~n",[agner:fetch(Spec,Version,
                                     Directory)]),
-                           
+
+                          
             case proplists:get_value(caveats, Spec) of
                 undefined ->
                     ignore;
