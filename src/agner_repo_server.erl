@@ -136,8 +136,7 @@ handle_call({clone, Fun}, _From, #state{ directory = undefined, name = Name, ver
                                                                                    [{cd, Directory}]),
                                                  agner_download:process_port(PortCheckout, fun () ->
                                                                                                    ok
-                                                                                           end),
-                                                 ok
+                                                                                           end)
                                          end),
     {reply, Result, State#state{ directory = Directory }};
 
