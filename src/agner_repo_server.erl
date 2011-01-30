@@ -17,8 +17,8 @@
 -type pushed_at() :: string() | undefined.
 
 -record(state, {
-          name :: agner_spec_name() | undefined,
-          version :: agner_spec_version() | undefined,
+          name :: agner_package_name() | undefined,
+          version :: agner_package_version() | undefined,
           pushed_at :: pushed_at(),
           directory :: directory() | undefined
          }).
@@ -29,7 +29,7 @@
 %%% API
 %%%===================================================================
 
--spec create(agner_spec_name(), agner_spec_version()) -> {ok, pid()}.
+-spec create(agner_package_name(), agner_package_version()) -> {ok, pid()}.
 
 create(Name, Version) ->
     supervisor:start_child(agner_repo_server_sup, [Name, Version]).
@@ -38,10 +38,10 @@ create(Name, Version) ->
 %% @doc
 %% Starts the server
 %%
-%% @spec start_link(agner_spec_name(), agner_spec_version()) -> {ok, Pid} | ignore | {error, Error}
+%% @spec start_link(agner_package_name(), agner_package_version()) -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
--spec start_link(agner_spec_name(), agner_spec_version()) -> {ok, pid()} | ignore | {error, term()}.
+-spec start_link(agner_package_name(), agner_package_version()) -> {ok, pid()} | ignore | {error, term()}.
                          
 start_link(Name, Version) ->
     case gproc:lookup_local_name({?SERVER, Name, Version}) of
@@ -61,7 +61,7 @@ set_pushed_at(Pid, PushedAt) ->
 pushed_at(Pid) ->
     gen_server:call(Pid, pushed_at).
 
--type repo_url_function() :: fun((agner_spec_name()) -> url()).
+-type repo_url_function() :: fun((agner_package_name()) -> url()).
 
 -spec clone(pid(), repo_url_function()) -> ok.
 
@@ -89,7 +89,7 @@ file(Pid, Filename) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
--spec init({agner_spec_name(), agner_spec_version()}) -> gen_server_init_result().
+-spec init({agner_package_name(), agner_package_version()}) -> gen_server_init_result().
                   
 init({Name, Version}) ->
     gproc:add_local_name({?SERVER, Name, Version}),
@@ -217,7 +217,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
--spec version_to_ref(agner_spec_version()) -> string().
+-spec version_to_ref(agner_package_version()) -> string().
                             
 version_to_ref({flavour, Branch}) ->
     "origin/" ++ Branch;

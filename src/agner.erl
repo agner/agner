@@ -42,8 +42,8 @@ main(Args) ->
 %%%===================================================================
 %%% API
 %%%===================================================================
--spec spec(agner_spec_name()) -> agner_spec() | not_found_error().
--spec spec(agner_spec_name(), agner_spec_version() | string()) -> agner_spec() | not_found_error().
+-spec spec(agner_package_name()) -> agner_spec() | not_found_error().
+-spec spec(agner_package_name(), agner_package_version() | string()) -> agner_spec() | not_found_error().
 
 spec(Name) ->
 	spec(Name, {flavour, "master"}).
@@ -57,8 +57,8 @@ spec(Name, Version) when is_list(Version) ->
 spec(Name, Version) ->
     agner_server:spec(Name, Version).
 
--spec spec_url(agner_spec_name()) -> url() | not_found_error().
--spec spec_url(agner_spec_name(), agner_spec_version() | string()) -> url() | not_found_error().
+-spec spec_url(agner_package_name()) -> url() | not_found_error().
+-spec spec_url(agner_package_name(), agner_package_version() | string()) -> url() | not_found_error().
 
 spec_url(Name) ->
 	spec_url(Name, {flavour, "master"}).
@@ -75,14 +75,14 @@ spec_url(Name, Version) ->
 
 
 
--spec index() -> list(agner_spec_name()).
+-spec index() -> list(agner_package_name()).
 
 index() ->
     agner_server:index().
 
 
--spec fetch(agner_spec_name(), directory()) -> ok | not_found_error().
--spec fetch(agner_spec_name(), agner_spec_version() | agner_spec_version_string(), directory()) -> ok | not_found_error().
+-spec fetch(agner_package_name(), directory()) -> ok | not_found_error().
+-spec fetch(agner_package_name(), agner_package_version() | agner_package_version_string(), directory()) -> ok | not_found_error().
 
 fetch(Name, Directory) ->
     fetch(Name, {flavour, "master"}, Directory).
@@ -94,7 +94,7 @@ fetch(Name, Version, Directory) ->
 
 
 
--spec versions(agner_spec_name()) -> list(agner_spec_version()).
+-spec versions(agner_package_name()) -> list(agner_package_version()).
 
 versions(Name) ->
     agner_server:versions(Name).

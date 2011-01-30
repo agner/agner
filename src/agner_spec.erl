@@ -22,7 +22,7 @@ parse(S) ->
                                        [[Token]]
                                end, [], Tokens)))).
 
--spec list_to_version(agner_spec_name(), string()) -> agner_spec_version().
+-spec list_to_version(agner_package_name(), string()) -> agner_package_version().
 
 list_to_version(Name, "atleast:" ++ Version) ->
     case lists:reverse(lists:dropwhile(fun(V) ->
@@ -39,7 +39,7 @@ list_to_version(_, "@" ++ Version) ->
 list_to_version(_, Version) ->
     {release, Version}.
 
--spec version_to_list(agner_spec_version()) -> string().
+-spec version_to_list(agner_package_version()) -> string().
 
 version_to_list({flavour, Version}) ->
     "@" ++ Version;

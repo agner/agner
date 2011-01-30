@@ -36,28 +36,28 @@ start_link() ->
 
 %% @doc Ask the server for a spec on Name and Version
 %% @end
--spec spec(agner_spec_name(), agner_spec_version()) -> agner_spec().
+-spec spec(agner_package_name(), agner_package_version()) -> agner_spec().
                   
 spec(Name, Version) ->
     gen_server:call(?SERVER, {spec, Name, Version}).
 
 %% @doc Ask the server for a spec URL
 %% @end
--spec spec_url(agner_spec_name(), agner_spec_version()) -> url().
+-spec spec_url(agner_package_name(), agner_package_version()) -> url().
 
 spec_url(Name, Version) ->
     gen_server:call(?SERVER, {spec_url, Name, Version}).
 
 %% @doc Ask the server for an index
 %% @end
--spec index() -> list(agner_spec_name()).
+-spec index() -> list(agner_package_name()).
                    
 index() ->
     gen_server:call(?SERVER, index).
 
 %% @doc Fetch a package/project to a directory
 %% @end
--spec fetch(agner_spec_name(), agner_spec_version(), directory()) -> ok | not_found_error();
+-spec fetch(agner_package_name(), agner_package_version(), directory()) -> ok | not_found_error();
            (agner_spec(), any(), directory()) -> ok | not_found_error().
                    
 fetch(NameOrSpec, Version, Directory) ->
@@ -65,7 +65,7 @@ fetch(NameOrSpec, Version, Directory) ->
 
 %% @doc Ask for the versions of a given package, Name
 %% @end
--spec versions(agner_spec_name()) -> list(agner_spec_version()).
+-spec versions(agner_package_name()) -> list(agner_package_version()).
                       
 versions(Name) ->
     gen_server:call(?SERVER, {versions, Name}).
@@ -105,17 +105,17 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
--type agner_call_spec() :: {spec, agner_spec_name(), agner_spec_version()}.
--type agner_call_spec_url() :: {spec_url, agner_spec_name(), agner_spec_version()}.
+-type agner_call_spec() :: {spec, agner_package_name(), agner_package_version()}.
+-type agner_call_spec_url() :: {spec_url, agner_package_name(), agner_package_version()}.
 -type agner_call_index() :: index.
--type agner_call_fetch() :: {fetch, agner_spec_name() | agner_spec(), agner_spec_version(), directory()}.
--type agner_call_versions() :: {versions, agner_spec_name()}.
+-type agner_call_fetch() :: {fetch, agner_package_name() | agner_spec(), agner_package_version(), directory()}.
+-type agner_call_versions() :: {versions, agner_package_name()}.
 
 -spec handle_call(agner_call_spec(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(agner_spec()|{error, bad_version}) ;
                  (agner_call_spec_url(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(url()|{error, bad_version}) ;
-                 (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_name())) ;
+                 (agner_call_index(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_package_name())) ;
                  (agner_call_fetch(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok | {error, any()}) ;
-                 (agner_call_versions(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_spec_version()) | not_found_error()).
+                 (agner_call_versions(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_package_version()) | not_found_error()).
 
 						 
 handle_call({spec, Name, Version}, From, #state{}=State) ->
@@ -207,7 +207,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================                 
--spec handle_spec(agner_spec_name(), agner_spec_version(), gen_server_from(), agner_indices()) -> any().
+-spec handle_spec(agner_package_name(), agner_package_version(), gen_server_from(), agner_indices()) -> any().
 handle_spec(_,_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
 handle_spec(Name, Version, From, [Mod0|Rest]) ->
@@ -219,7 +219,7 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
             gen_server:reply(From, Data)
     end.
 
--spec handle_spec_url(agner_spec_name(), agner_spec_version(), gen_server_from(), agner_indices()) -> any().
+-spec handle_spec_url(agner_package_name(), agner_package_version(), gen_server_from(), agner_indices()) -> any().
 handle_spec_url(_,_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
 handle_spec_url(Name, Version, From, [Mod0|Rest]) ->
@@ -236,7 +236,7 @@ handle_spec_url(Name, Version, From, [Mod0|Rest]) ->
             gen_server:reply(From, {error, bad_version})
     end.
 
--spec handle_index(gen_server_from(), list(agner_spec_name()), list(tuple())) -> any().
+-spec handle_index(gen_server_from(), list(agner_package_name()), list(tuple())) -> any().
 handle_index(From, Acc, []) ->
     Repos = lists:reverse(Acc),
     RepoNames = lists:map(fun ({Name, _}) -> Name end, Repos),
@@ -254,7 +254,7 @@ handle_index(From, Acc, [Mod0|Rest]) ->
             handle_index(From, lists:map(fun (Repo) -> indexize(Mod0, Repo) end, Repos) ++ Acc, Rest)
 	end.
 
--spec handle_fetch(agner_spec_name() | agner_spec(), agner_spec_version(), directory(), gen_server_from()) -> any().
+-spec handle_fetch(agner_package_name() | agner_spec(), agner_package_version(), directory(), gen_server_from()) -> any().
 handle_fetch(NameOrSpec, Version, Directory, From) ->
     case io_lib:printable_list(NameOrSpec) of
         true ->
@@ -272,7 +272,7 @@ handle_fetch(NameOrSpec, Version, Directory, From) ->
             gen_server:reply(From, ok)
     end.
 
--spec handle_versions(agner_spec_name(), gen_server_from(), agner_indices()) -> any().
+-spec handle_versions(agner_package_name(), gen_server_from(), agner_indices()) -> any().
 handle_versions(_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
 handle_versions(Name, From, [Mod0|Rest]) ->
@@ -291,7 +291,7 @@ handle_versions(Name, From, [Mod0|Rest]) ->
             gen_server:reply(From, lists:filter(fun (undefined) -> false; (_) -> true end, Branches ++ Tags))
 	end.
 
--spec sha1(agner_index(), agner_spec_name(), agner_spec_version()) -> sha1().
+-spec sha1(agner_index(), agner_package_name(), agner_package_version()) -> sha1().
                   
 sha1(Mod, Name, Version) ->
     case Version of
