@@ -25,7 +25,7 @@ start() ->
     ok = filelib:ensure_dir(os:getenv("AGNER_PREFIX") ++ "/"),
 	inets:start(),
 	ssl:start(),
-	{ok, _Pid} = inets:start(httpc,[{profile, agner}]),
+    inets:start(httpc,[{profile, agner}]),
     application:start(gproc),
     gproc:start_link(),
 	application:start(agner).
