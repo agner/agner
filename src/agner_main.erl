@@ -31,7 +31,7 @@ arg_proplist() ->
 	   ]}},
 	 {"versions",
 	  {versions,
-	  "Show the avilable releases and flavours of a package",
+	  "Show the available releases and flavours of a package",
 	   [
 		{package, undefined, undefined, string, "Package name"}
 	   ]}},
