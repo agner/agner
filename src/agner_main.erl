@@ -200,10 +200,10 @@ handle_command(versions, Opts) ->
         undefined ->
             io:format("ERROR: Package name required.~n");
         Package ->
-            io:format("~s",[plists:map(fun (Version) ->
-                                               io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
-                                       end,
-                                       agner:versions(Package))])
+            io:format("~s",[lists:usort(plists:map(fun (Version) ->
+                                                           io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
+                                                   end,
+                                                   agner:versions(Package)))])
     end;
 
 handle_command(search, Opts) ->
