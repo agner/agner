@@ -320,7 +320,8 @@ handle_command(fetch, Opts) ->
                 case proplists:get_value(spec, Opts) of
                     undefined ->
                         Spec0 = agner:spec(Package, Version),
-                        {ok, RepoServer} = agner_repo_server:create(Package, Version),
+                        {ok, RepoServer} = agner_repo_server:create(Package, agner_spec:list_to_version(Package, Version)),
+                        
                         os:putenv("AGNER_PACKAGE_REPO",agner_repo_server:file(RepoServer,"")),
                         Spec0;
                     File ->
