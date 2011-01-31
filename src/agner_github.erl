@@ -13,20 +13,28 @@
 		]).
 
 repositories() ->
-	case request("https://github.com/api/v2/json/repos/show/" ++ Account)  of
+    repositories(1).
+
+repositories(Page) ->
+	case request("https://github.com/api/v2/json/repos/show/" ++ Account ++ "?page=" ++ integer_to_list(Page))  of
 		{error, _Reason} = Error ->
 			Error;
 		{struct, Object} ->
-			Repositories = proplists:get_value(<<"repositories">>, Object),
-			lists:filter(fun ({invalid,_}) ->
-							  false;
-						  (_) ->
-							  true
-					  end,
-					  lists:map(fun ({struct, RepObject}) ->
-										{repo_name(proplists:get_value(<<"name">>, RepObject)),
-                                         proplists:get_value(<<"pushed_at">>, RepObject)}
-								end, Repositories))
+			case proplists:get_value(<<"repositories">>, Object) of
+                [] ->
+                    [];
+                Repositories ->
+                    Repos = lists:filter(fun ({invalid,_}) ->
+                                         false;
+                                     (_) ->
+                                         true
+                                 end,
+                                 lists:map(fun ({struct, RepObject}) ->
+                                                   {repo_name(proplists:get_value(<<"name">>, RepObject)),
+                                                    proplists:get_value(<<"pushed_at">>, RepObject)}
+                                           end, Repositories)),
+                    Repos ++ repositories(Page + 1)
+            end
 	end.
 
 repository(Name) ->
