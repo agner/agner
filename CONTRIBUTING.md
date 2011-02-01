@@ -10,10 +10,12 @@ How can I create a new package?
 -------------------------------
 
 You can create a spec repository by forking and renaming [template package repo](https://github.com/agner/agner.template)
-and later on submitting it for inclusion by [opening an issue](https://github.com/agner/agner/issues). 
-The last step is only necessary if you want this package to be published on a "central" index. 
+and later on submitting it for inclusion by [opening an issue](https://github.com/agner/agner/issues). One of the most
+convenient ways to do this is to use `agner create` command. Please note
+that if you don't have owner permissions at `agner` GitHub account,
+please supply your account name using `--github-account NAME` option. 
+The last step (opening an issue to include it into the central repository) is only necessary if you want this package to be published on a "central" index. 
 If you want to keep it semi-private, you can just use it from your own index.
-
 
 Mastering specification
 -----------------------
