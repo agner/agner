@@ -98,6 +98,13 @@ arg_proplist() ->
         {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
 		{directory, undefined, undefined, string, "Directory to check package out to"}
 	   ]}},      
+     {"create",
+      {create,
+       "Create new .agner repository",
+       [
+        {package, undefined, undefined, string, "Package name"},
+        {github_account, undefined, "github-account",{string, "agner"}, "GitHub account to set as origin"}
+       ]}},
 	 {"verify",
 	  {verify,
 	   "Verify the integrity of an .agner configuration file",
@@ -414,6 +421,18 @@ handle_command(fetch, Opts) ->
                 false ->
                     ignore
             end
+    end;
+
+handle_command(create, Opts) ->
+    case proplists:get_value(package, Opts) of
+        undefined ->
+            io:format("ERROR: Package name required.~n");
+        Package ->
+            Dir = filename:absname(Package ++ ".agner"),
+            ClonePort = agner_download:git(["clone","-q","https://github.com/agner/agner.template.git",Dir]),
+            agner_download:process_port(ClonePort, fun() ->
+                                                           agner_download:git(["config","remote.origin.url","git@github.com:" ++ proplists:get_value(github_account, Opts) ++ "/" ++ Package ++ ".agner.git"],[{cd, Dir}])
+                                                   end)
     end;
 
 handle_command(verify, Opts) ->

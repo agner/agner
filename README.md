@@ -161,6 +161,11 @@ Prints prefix where package is installed. If package is not installed, prints no
 Shows main environmental variables. If `VARIABLES` is omitted, then lists `key=value` for each variable. If not omitted,
 prints just its value. Currently supported variables are: `prefix` and `bin`.
 
+    agner create PACKAGE [--github-account ACCOUNT]
+
+Contributor's tool that clones `.agner` repo template and sets its origin to ACCOUNT (by default, equals `agner`,
+so if you don't have a permission to create repos in `agner`, set --github-account to your personal or organization account.
+
     agner verify [SPEC FILENAME (agner.config by default)]
 
 Verify specification file for correctness; intended to be used to package maintainers to simplify
