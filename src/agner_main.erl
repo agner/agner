@@ -365,8 +365,8 @@ handle_command(fetch, Opts) ->
                             io:format("Building...~n"),
                             {ok, Cwd} = file:get_cwd(),
                             file:set_cwd(Directory),
-                            rebar:main(["get-deps"]),
-                            rebar:main(["compile"]),
+                            RebarCommands = proplists:get_value(rebar_commands, Spec,["get-deps","compile"]),
+                            rebar:main(RebarCommands),
                             file:set_cwd(Cwd);
                         _ ->
                             ignore
