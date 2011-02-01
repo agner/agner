@@ -85,24 +85,24 @@ What you can do is:
 
 1. Create new `release2` branch
 
-     git checkout -b release2
+        git checkout -b release2
 
 2. Do the actual replacement
 
-     git tag -l | sort | xargs -I {} sh -c 'git cherry-pick -n {} && cat agner.config | sed s/nae/name/g > agner.new && mv agner.new agner.config && git add agner.config && git commit -C {} && git tag -d {} && git tag {}'
+        git tag -l | sort | xargs -I {} sh -c 'git cherry-pick -n {} && cat agner.config | sed s/nae/name/g > agner.new && mv agner.new agner.config && git add agner.config && git commit -C {} && git tag -d {} && git tag {}'
 
 3. Remove remote `release branch`
 
-     git push origin :release
+        git push origin :release
 
 4. Push `remote2` as `remote`
 
-     git push origin release2:release
+        git push origin release2:release
 
 5. Remove remote tags:
 
-    git tag -l | xargs -I {} git push origin :{}
+        git tag -l | xargs -I {} git push origin :{}
 
 6. Push tags:
 
-    git push origin --tags
+        git push origin --tags
