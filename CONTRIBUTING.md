@@ -57,6 +57,7 @@ Here's the current list of environmentvariables that will be available to build 
 
 * AGNER -- Absolute path to the agner script file
 * AGNER_PREFIX -- Root agner's directory (defaults to `/usr/local/agner`)
+* AGNER_PACKAGE_REPO -- Path to checked out .agner repo
 
 Here's the current list of environmentvariables that will be available to install command:
 
