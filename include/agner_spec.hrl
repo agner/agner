@@ -27,7 +27,7 @@
 -type agner_spec_property_applications() :: {applications, list(atom())}.
 -type agner_spec_property_caveats() :: {caveats, string()}.
 -type agner_spec_property_url() :: {url, agner_download_url()}.
-                                    
+-type agner_spec_code_paths() :: {code_paths, [directory()]}.
                                                              
 
 -type agner_spec_property() :: agner_spec_property_name() |
@@ -43,6 +43,7 @@
                                agner_spec_property_erlang_versions() |
                                agner_spec_property_applications() |
                                agner_spec_property_caveats() |
-                               agner_spec_property_url().
+                               agner_spec_property_url() |
+                               agner_spec_code_paths().
 
 -type agner_spec() :: list(agner_spec_property()).
