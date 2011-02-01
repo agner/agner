@@ -12,6 +12,10 @@
         {git, url(), git_ref()} |
         {hg, url(), hg_rev()}.
 
+-type agner_spec_requirement() :: {agner_package_name(), agner_package_version_string()} |
+                                  agner_package_name().
+
+
 -type agner_spec_property_name() :: {name, string()}.
 -type agner_spec_property_description() :: {description, string()}.
 -type agner_spec_property_keywords() :: {keywords, list(string())}.
@@ -28,6 +32,8 @@
 -type agner_spec_property_applications() :: {applications, list(atom())}.
 -type agner_spec_property_caveats() :: {caveats, string()}.
 -type agner_spec_property_url() :: {url, agner_download_url()}.
+-type agner_spec_property_deps_dir() :: {deps_dir, directory()}.
+-type agner_spec_property_requires() :: {requires, list(agner_spec_requirement())}.
 -type agner_spec_code_paths() :: {code_paths, [directory()]}.
                                                              
 
@@ -46,6 +52,8 @@
                                agner_spec_property_applications() |
                                agner_spec_property_caveats() |
                                agner_spec_property_url() |
+                               agner_spec_property_deps_dir() |
+                               agner_spec_property_requires() |
                                agner_spec_code_paths().
 
 -type agner_spec() :: list(agner_spec_property()).

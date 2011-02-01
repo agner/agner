@@ -350,6 +350,19 @@ handle_command(fetch, Opts) ->
             io:format("~p~n",[agner:fetch(Spec,Version,
                                     Directory)]),
 
+            Requires = proplists:get_value(requires, Spec, []),
+            DepsDir = filename:join(Directory, proplists:get_value(deps_dir, Spec, "deps")),
+            lists:foreach(fun ({ReqName, ReqVersion}) ->
+                                  io:format("[Building dependency: ~s -v ~s]~n", [ReqName, ReqVersion]),
+                                  handle_command(fetch, [{package, ReqName},{version, ReqVersion},
+                                                         {directory, filename:join(DepsDir,ReqName)}|
+                                                         proplists:delete(spec,Opts)]);
+                              (ReqName) when is_list(ReqName) ->
+                                  io:format("[Building dependency: ~s]~n", [ReqName]),
+                                  handle_command(fetch, [{package, ReqName},{version, "@master"},
+                                                         {directory, filename:join(DepsDir,ReqName)}|
+                                                         proplists:delete(spec, Opts)])
+                         end, Requires),
                           
             case proplists:get_value(caveats, Spec) of
                 undefined ->
