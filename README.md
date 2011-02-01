@@ -72,44 +72,52 @@ This section introduces the terminology of Agner:
 Command invocation
 ------------------
 
-    agner list [-d/--descriptions] [-p/--properties PROPERTY1,PROPERTY2]
+    agner help [COMMAND]
+
+Print a command overview on the command line. If the optional
+COMMAND is given, show help for the given command.
+
+-----------------------------------------------------
+
+    agner list [-d/--descriptions] [-p/--properties PROPERTY1[,PROPERTY2]...]
                [-s/--search SEARCH_TERM]
 
 Will list all agner-packages. With the `-d` or `--descriptions`
 option, it will also print out the descriptions of the packages, for
-easy grepping to find relevant packages.
+easy grepping to find relevant packages. It accepts the following flags:
 
-If `-p` or `--properties` with a comma-separated list of properties is specified, they will be also
-included into each listing (when present).
+* `-p` or `--properties`: A comma, separated list of properties to be
+included in the listing (when present).
+* `-s` or `--search`: The packages name, description and keyword are
+searched, matched against SEARCH_TERM. Only matching items are shown.
 
-If `-s` or `--search` option is supplied, packages name, descriptions and keywords are matched against
-SEARCH_TERM and only matching items are shown.
+A convenience command is:
 
     agner search SEARCH_TERM [-d/--description] [-p/--properties PROPERTY1,PROPERTY2]
 
 This is an alias for `agner list -s`
 
-    agner spec PACKAGE [-v/--version VERSION] [-b/--browser] 
+-----------------------------------------------------
+
+    agner spec PACKAGE [-v/--version VERSION] [-b/--browser]
                        [-h/--homepage] [-p/--property PROPERTY]
                        [-s/--spec-file SPECFILE]
 
 Will print a specification of a given package on stdout. If the
 optional version constraint is given (for example `agner spec gproc -v
 @release`) then the output is of that version. By default, the
-`@master` flavour is chosen.
+`@master` flavour is chosen. Flags:
 
-If `-b` or `--browser` is used, it will also open browser with the specification 
-file in its respective `.agner` repository.
-
-If `-h` or `--homepage` is present, it will also open browser with the package's
-homepage.
-
-If `-p` or `--property` is supplied, agner will only render particular PROPERTY value
+* `-b` or `--browser`: Open a browser with the specification file in
+its respective `.agner` repository.
+* `-h` or `--homepage`: Open a browser with the package's homepage.
+* `-p` or `--property`: Agner will only render a particular PROPERTY value
 instead of a full specification (example: `agner spec -p rebar_compatible yaws`).
+* `-s` or `--spec-file`: A flag primarily intended for package
+maintainers. This way they can specify their local `agner.config`
+files to test their package.
 
-Option `-s` or `--spec-file` is primarily intended for package maintainers. This way they can specify their
-local `agner.config` files to test their package.
-
+-----------------------------------------------------
 
     agner fetch PACKAGE [DESTDIR] [-v/--version VERSION] [-b/--build]
                                   [-a/--add-path] [-i/--install]
@@ -117,21 +125,24 @@ local `agner.config` files to test their package.
 
 Fetch a given `PACKAGE` to either the current directory or,
 optionally, to the `DESTDIR` directory. The version constraint is as
-were the case for `agner spec`.
+were the case for `agner spec`. Flags:
 
-If `-b` or `--build` is supplied, Agner will try to build fetched package. Only rebar-compatible
+* `-b` or `--build`: Agner will try to build fetched package. Only rebar-compatible
 packages or packages with `build_command` can be built. If you also specify
 `-a` (or `--add-path`) Agner will add path to a newly built package to your
 HOME/.erlang
-
-If `-i` or `--install` is supplied and package has `install_command` property defined, Agner will also
-install this package. Please note that in most cases you should also specify `--build`/`-b` in order for
+* `-i` or `--install`: If the package has the `install_command`
+property defined, Agner will also install this package. Please note
+that in most cases you should also specify `--build`/`-b` in order for
 installation to make sense.
+* `-s` or `--spec-file`: A flag primarily intended for package
+maintainers. This way they can specify their local `agner.config`
+files to test their package. Can be used in conjunction with
+`--package-path` to point to a checkout copy of an `.agner` repo (will
+be used to set `$AGNER_PACKAGE_REPO` variable for shell commands,
+defaults to `.`)
 
-Option `-s` or `--spec-file` is primarily intended for package maintainers. This way they can specify their
-local `agner.config` files to test their package. Can be used in conjunction with `--package-path` to point to a
-checkout copy of an `.agner` repo (will be used to set `$AGNER_PACKAGE_REPO` variable for shell commands, defaults to
-`.`)
+Convenience shortcuts:
 
     agner build PACKAGE [DESTDIR] [-v/--version VERSION] [-s/--spec-file SPECFILE] [-a/--add-path] [-i/--install]
 
@@ -143,29 +154,42 @@ Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>`. A typica
 or `agner install rebar -v @agner` to get `rebar` binary in your PATH. It is assumed that `install_command`
 property will make use of AGNER_PREFIX OS environment variable (which defaults to `/usr/local`).
 
+-----------------------------------------------------
+
     agner uninstall PACKAGE [-v/--version VERSION] [-s/--spec-file SPECFILE]
 
-Uninstall given package (and a particular VERSION of it, if specified). Will use local SPECFILE is `--spec-file`/`-s` 
-option is passed.
+Uninstall given package (and a particular VERSION of it, if
+specified). Will use local SPECFILE if `--spec-file`/`-s` option is passed.
+
+-----------------------------------------------------
 
     agner versions PACKAGE [--no-flavours] [--no-releases]
 
-List the versions of the given `PACKAGE`. Specifying `--no-flavours` will omit flavour versions; and specifying
-`--no-releases` will omit release versions respectively.
+List the versions of the given `PACKAGE`. Specifying `--no-flavours`
+will omit flavour versions; and specifying `--no-releases` will omit
+release versions respectively.
+
+-----------------------------------------------------
 
     agner prefix PACKAGE [-v/--version VERSION]
 
 Prints prefix where package is installed. If package is not installed, prints nothing.
+
+-----------------------------------------------------
 
     agner config [VARIABLE]
 
 Shows main environmental variables. If `VARIABLES` is omitted, then lists `key=value` for each variable. If not omitted,
 prints just its value. Currently supported variables are: `prefix` and `bin`.
 
+-----------------------------------------------------
+
     agner create PACKAGE [--github-account ACCOUNT]
 
 Contributor's tool that clones `.agner` repo template and sets its origin to ACCOUNT (by default, equals `agner`,
 so if you don't have a permission to create repos in `agner`, set --github-account to your personal or organization account.
+
+-----------------------------------------------------
 
     agner verify [SPEC FILENAME (agner.config by default)]
 
