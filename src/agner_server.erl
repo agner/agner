@@ -280,6 +280,7 @@ handle_versions(Name, From, [Mod0|Rest]) ->
 		_ ->
             Branches = lists:map(fun
                                      ({[$%|_],_}) -> undefined;
+                                     ({"gh-pages",_}) -> undefined;
                                      ({Branch, _}) -> {flavour, Branch} end,
                                   Mod:branches(Name)),
             Tags = lists:map(fun ({[$%|_],_}) -> undefined;
