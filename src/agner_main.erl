@@ -326,7 +326,7 @@ handle_command(fetch, Opts) ->
                         Spec0;
                     File ->
                         {ok, T} = file:consult(File),
-                        os:putenv("AGNER_PACKAGE_REPO",proplists:get_value(package_path, Opts, ".")),
+                        os:putenv("AGNER_PACKAGE_REPO",proplists:get_value(package_path, Opts, filename:absname("."))),
                         T
                 end,
 
