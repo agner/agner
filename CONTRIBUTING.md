@@ -106,3 +106,5 @@ What you can do is:
 6. Push tags:
 
         git push origin --tags
+
+P.S. If you want to stick to proper release version tags only (for example, if you use hidden % tags), you might want to use `agner versions PACKAGE --no-flavours` command instead of `git tag -l`
