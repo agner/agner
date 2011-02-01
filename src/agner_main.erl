@@ -189,7 +189,9 @@ handle_command(spec, Opts) ->
             end,
             case proplists:get_value(property, Opts) of
                 undefined ->
-                    io:format("~p~n",[Spec]);
+                    lists:foreach(fun(Property) ->
+                                          io:format("~p.~n",[Property])
+                                  end, Spec);
                 Property ->
                     io:format("~s~n",[agner_spec:property_to_list(lists:keyfind(list_to_atom(Property), 1, Spec))])
             end
