@@ -26,7 +26,7 @@ parse(S) ->
 
 list_to_version(Name, "atleast:" ++ Version) ->
     case lists:reverse(lists:dropwhile(fun(V) ->
-                                               V < {tag, Version}
+                                               V < {release, Version}
                                        end, lists:usort(agner:versions(Name)))) of
         [] ->
             no_such_version;
@@ -41,6 +41,8 @@ list_to_version(_, Version) ->
 
 -spec version_to_list(agner_package_version()) -> string().
 
+version_to_list(no_such_version) ->
+    undefined;
 version_to_list({flavour, Version}) ->
     "@" ++ Version;
 version_to_list({release, Version}) ->
