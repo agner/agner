@@ -19,7 +19,7 @@ install to `/usr/local/bin`).
 If you are a **Homebrew** user on **OS X**, 
 feel free to use it: 
 `brew install https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
-or `brew --HEAD https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
+or `brew install --HEAD https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
 (if you want the very best and newest).
 As of the time of this writing, agner formula hasn't been merged into the official repo yet.
 
