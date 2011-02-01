@@ -117,7 +117,6 @@ init([]) ->
                  (agner_call_fetch(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(ok | {error, any()}) ;
                  (agner_call_versions(), gen_server_from(), gen_server_state()) -> gen_server_async_reply(list(agner_package_version()) | not_found_error()).
 
-						 
 handle_call({spec, Name, Version}, From, #state{}=State) ->
 	spawn_link(fun () ->
 					   handle_spec(Name, Version, From, indices())
@@ -262,13 +261,11 @@ handle_fetch(NameOrSpec, Version, Directory, From) ->
                 {error, _} = Error ->
                     gen_server:reply(From, Error);
                 Spec ->
-                    URL = proplists:get_value(url, Spec),
-                    agner_download:fetch(URL, Directory),
+                    agner_download:fetch(Spec, Directory),
                     gen_server:reply(From, ok)
             end;
         false -> %% it is a spec
-            URL = proplists:get_value(url, NameOrSpec),
-            agner_download:fetch(URL, Directory),
+            agner_download:fetch(NameOrSpec, Directory),
             gen_server:reply(From, ok)
     end.
 

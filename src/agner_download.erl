@@ -4,14 +4,23 @@
 %% internal exports
 -export([git/1, git/2, process_port/2]).
 
-fetch({all, []}, _) ->
+fetch(Spec, Directory) ->
+    Fetch = fetch_1(proplists:get_value(url, Spec), Directory),
+    {ok, F} = file:open(filename:join(Directory,".agner.config"),[write]),
+    lists:foreach(fun (Term) ->
+                          io:fwrite(F,"~p.~n",[Term])
+                  end, Spec),
+    file:close(F),
+    Fetch.
+
+fetch_1({all, []}, _) ->
     ok;
 
-fetch({all, [{Name, URL}|Rest]}, Directory) ->
-    fetch(URL, filename:join(Directory, Name)),
-    fetch({all, Rest}, Directory);
+fetch_1({all, [{Name, URL}|Rest]}, Directory) ->
+    fetch_1(URL, filename:join(Directory, Name)),
+    fetch_1({all, Rest}, Directory);
 
-fetch({git, URL, Ref}, Directory) ->
+fetch_1({git, URL, Ref}, Directory) ->
     case filelib:is_dir(Directory) of
         false -> %% clone
             PortClone = git(["clone", URL, Directory]),
@@ -21,7 +30,7 @@ fetch({git, URL, Ref}, Directory) ->
             process_port(PortFetch, fun() -> git_checkout(Ref, Directory) end)
     end;
 
-fetch({hg, URL, Rev}, Directory) ->
+fetch_1({hg, URL, Rev}, Directory) ->
     case filelib:is_dir(Directory) of
         false -> %% new
             PortClone = hg(["clone", "-U", URL, Directory]),
