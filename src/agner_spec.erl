@@ -49,7 +49,12 @@ version_to_list({release, Version}) ->
 -spec property_to_list(agner_spec_property()) -> string().
                                
 property_to_list({_,V}) when is_list(V) ->
-    io_lib:format("~s", [V]);
+    case io_lib:printable_list(V) of
+        true ->
+            io_lib:format("~s", [V]);
+        false ->
+            io_lib:format("~p", [V])
+    end;
 property_to_list(Prop) when is_tuple(Prop) ->
     io_lib:format("~p",[list_to_tuple(tl(tuple_to_list(Prop)))]);
 property_to_list(undefined) ->
