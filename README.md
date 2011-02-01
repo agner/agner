@@ -77,7 +77,7 @@ Command invocation
 Print a command overview on the command line. If the optional
 COMMAND is given, show help for the given command.
 
------------------------------------------------------
+#### Listing:
 
     agner list [-d/--descriptions] [-p/--properties PROPERTY1[,PROPERTY2]...]
                [-s/--search SEARCH_TERM]
@@ -97,7 +97,7 @@ A convenience command is:
 
 This is an alias for `agner list -s`
 
------------------------------------------------------
+#### Spec'ing
 
     agner spec PACKAGE [-v/--version VERSION] [-b/--browser]
                        [-h/--homepage] [-p/--property PROPERTY]
@@ -117,7 +117,7 @@ instead of a full specification (example: `agner spec -p rebar_compatible yaws`)
 maintainers. This way they can specify their local `agner.config`
 files to test their package.
 
------------------------------------------------------
+#### Fetching, building and installing
 
     agner fetch PACKAGE [DESTDIR] [-v/--version VERSION] [-b/--build]
                                   [-a/--add-path] [-i/--install]
@@ -154,14 +154,14 @@ Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>`. A typica
 or `agner install rebar -v @agner` to get `rebar` binary in your PATH. It is assumed that `install_command`
 property will make use of AGNER_PREFIX OS environment variable (which defaults to `/usr/local`).
 
------------------------------------------------------
+#### Uninstalling
 
     agner uninstall PACKAGE [-v/--version VERSION] [-s/--spec-file SPECFILE]
 
 Uninstall given package (and a particular VERSION of it, if
 specified). Will use local SPECFILE if `--spec-file`/`-s` option is passed.
 
------------------------------------------------------
+#### Query
 
     agner versions PACKAGE [--no-flavours] [--no-releases]
 
@@ -169,27 +169,21 @@ List the versions of the given `PACKAGE`. Specifying `--no-flavours`
 will omit flavour versions; and specifying `--no-releases` will omit
 release versions respectively.
 
------------------------------------------------------
-
     agner prefix PACKAGE [-v/--version VERSION]
 
 Prints prefix where package is installed. If package is not installed, prints nothing.
-
------------------------------------------------------
 
     agner config [VARIABLE]
 
 Shows main environmental variables. If `VARIABLES` is omitted, then lists `key=value` for each variable. If not omitted,
 prints just its value. Currently supported variables are: `prefix` and `bin`.
 
------------------------------------------------------
+#### Packaging
 
     agner create PACKAGE [--github-account ACCOUNT]
 
 Contributor's tool that clones `.agner` repo template and sets its origin to ACCOUNT (by default, equals `agner`,
 so if you don't have a permission to create repos in `agner`, set --github-account to your personal or organization account.
-
------------------------------------------------------
 
     agner verify [SPEC FILENAME (agner.config by default)]
 
