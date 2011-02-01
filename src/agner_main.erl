@@ -356,7 +356,12 @@ handle_command(fetch, Opts) ->
                     end,
                     case proplists:get_value(build_command, Spec) of
                         undefined ->
-                            io:format("ERROR: No build_command specified, can't build this package");
+                            case proplists:get_value(rebar_compatible, Spec) of
+                                true ->
+                                    ignore;
+                                _ ->
+                                    io:format("ERROR: No build_command specified, can't build this package")
+                            end;
                         Command ->
                             io:format("Building (output will be shown when done)...~n"),
                             {ok, Cwd0} = file:get_cwd(),
