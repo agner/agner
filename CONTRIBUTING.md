@@ -71,3 +71,38 @@ More variables to come later.
 If you want to have either branches or tags that shouldn't be exposed to the end user as versions when they inquire using
 `agner versions`, simply prepend your branch or tag name with `%` (comment) symbol and it will be hidden from the general public.
 It will still be possible to use such versions explicitly, though (for example, `agner spec erlv8 -v @%test` for a branch called `%test`)
+
+## Tips & Tricks
+
+### Rewriting multiple versions
+
+Ever found yourself in a situation when you made a typo across multiple versions of the specification? I know I did, multiple
+times. So here's a quick-n-dirty solution for this.
+
+Let's assume you have a branch named `release` (@release flavour) and some release versions that you want to rewrite; and you need to change misspelled `nae` property to `name`.
+
+What you can do is:
+
+1. Create new `release2` branch
+
+     git checkout -b release2
+
+2. Do the actual replacement
+
+     git tag -l | sort | xargs -I {} sh -c 'git cherry-pick -n {} && cat agner.config | sed s/nae/name/g > agner.new && mv agner.new agner.config && git add agner.config && git commit -C {} && git tag -d {} && git tag {}'
+
+3. Remove remote `release branch`
+
+     git push origin :release
+
+4. Push `remote2` as `remote`
+
+     git push origin release2:release
+
+5. Remove remote tags:
+
+    git tag -l | xargs -I {} git push origin :{}
+
+6. Push tags:
+
+    git push origin --tags
