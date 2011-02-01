@@ -100,7 +100,7 @@ arg_proplist() ->
 	   ]}},      
 	 {"verify",
 	  {verify,
-	   "Verify the integrity of a .agner configuration file",
+	   "Verify the integrity of an .agner configuration file",
 	   [
 		{spec, undefined, undefined, {string, "agner.config"}, "Specification file (agner.config by default)"}
 	   ]}},
