@@ -305,8 +305,13 @@ sha1(Mod, Name, Version) ->
     end.
 
 
-index_module({github, Account}) ->
-	{agner_github, Account}.
+index_module(T) ->
+    case application:get_env(index_modules) of
+        {ok, Modules} ->
+            setelement(1,T,proplists:get_value(element(1,T), Modules));
+        _ ->
+            T
+    end.
 
 indexize({github, "agner"}, Name) ->
     Name;
