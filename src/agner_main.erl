@@ -146,7 +146,13 @@ main(Args) ->
 			case getopt:parse(OptSpec, ExtraArgs) of
 				{ok, {Opts, _}} ->
 					start(),
-					handle_command(Command, Opts),
+					Result = (catch handle_command(Command, Opts)),
+                    case Result of
+                        {'EXIT', {{agner_failure, Reason},_}} ->
+                            io:format("ERROR: ~s~n",[Reason]);
+                        _ ->
+                            ignore
+                    end,
 					stop();
 			    {error, {missing_option_arg, Arg}} ->
 					io:format("Error: Missing option argument for '~p'~n", [Arg])
@@ -353,9 +359,33 @@ handle_command(fetch, Opts) ->
                     io:format("~p~n",[agner:fetch(Spec,Version,
                                                   Directory)]),
                     
-                    Requires = proplists:get_value(requires, Spec, []),
+                    Requires = lists:sort(fun ({"agner", _},_) ->
+                                                  true;
+                                              ("agner", _) ->
+                                                  true;
+                                              (A,B) ->
+                                                  A =< B
+                                          end, proplists:get_value(requires, Spec, [])),
                     DepsDir = filename:join(Directory, proplists:get_value(deps_dir, Spec, "deps")),
-                    lists:foreach(fun ({ReqName, ReqVersion}) ->
+                    lists:foreach(fun ("agner") ->
+                                          ignore;
+                                      ({"agner", "atleast:" ++ AgnerVersion}) ->
+                                          {agner,_,CurrentAgnerVersion} = lists:keyfind(agner,1,application:which_applications()),
+                                          case AgnerVersion > CurrentAgnerVersion of
+                                              true ->
+                                                  error({agner_failure, "Your agner is too old (" ++ CurrentAgnerVersion ++ ", " ++ AgnerVersion ++ " required)"});
+                                              false ->
+                                                  ignore
+                                          end;
+                                      ({"agner", AgnerVersion}) ->
+                                          {agner,_,CurrentAgnerVersion} = lists:keyfind(agner,1,application:which_applications()),
+                                          case AgnerVersion /= CurrentAgnerVersion of
+                                              true ->
+                                                  error({agner_failure, "Your agner version is mismatched (" ++ CurrentAgnerVersion ++ ", " ++ AgnerVersion ++ " required)"});
+                                              false ->
+                                                  ignore
+                                          end;
+                                      ({ReqName, ReqVersion}) ->
                                           io:format("[Building dependency: ~s -v ~s]~n", [ReqName, ReqVersion]),
                                           handle_command(fetch, [{package, ReqName},{version, ReqVersion},
                                                                  {directory, filename:join(DepsDir,ReqName)}|
