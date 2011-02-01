@@ -449,6 +449,7 @@ handle_command(verify, Opts) ->
         {error, Reason} ->
             io:format("ERROR: Can't read ~s: ~p~n",[SpecFile, Reason]);
         {ok, Spec} ->
+            URL = proplists:get_value(url, Spec),
 			TmpFile = temp_name(),
             case (catch agner_download:fetch(Spec,TmpFile)) of
                 ok ->
