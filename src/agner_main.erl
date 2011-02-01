@@ -375,7 +375,7 @@ handle_command(fetch, Opts) ->
                 true ->
                     case proplists:get_value(rebar_compatible, Spec) of
                         true ->
-                            io:format("Building...~n"),
+                            io:format("[Building...]~n"),
                             {ok, Cwd} = file:get_cwd(),
                             file:set_cwd(Directory),
                             RebarCommands = proplists:get_value(rebar_commands, Spec,["get-deps","compile"]),
@@ -393,7 +393,7 @@ handle_command(fetch, Opts) ->
                                     io:format("ERROR: No build_command specified, can't build this package")
                             end;
                         Command ->
-                            io:format("Building (output will be shown when done)...~n"),
+                            io:format("[Building (output will be shown when done)...]~n"),
                             {ok, Cwd0} = file:get_cwd(),
                             file:set_cwd(Directory),
                             io:format("~s~n",[os:cmd(Command)]),
@@ -421,7 +421,7 @@ handle_command(fetch, Opts) ->
                                 undefined ->
                                     io:format("ERROR: No install_command specified, can't install this package");
                                 ICommand ->
-                                    io:format("Installing (output will be shown when done)...~n"),
+                                    io:format("[Installing (output will be shown when done)...]~n"),
                                     {ok, Cwd1} = file:get_cwd(),
                                     file:set_cwd(Directory),
                                     io:format("~s~n",[os:cmd(ICommand)]),
