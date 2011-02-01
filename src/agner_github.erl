@@ -24,15 +24,18 @@ repositories(Page) ->
                 [] ->
                     [];
                 Repositories ->
-                    Repos = lists:filter(fun ({invalid,_}) ->
-                                         false;
-                                     (_) ->
-                                         true
-                                 end,
-                                 lists:map(fun ({struct, RepObject}) ->
-                                                   {repo_name(proplists:get_value(<<"name">>, RepObject)),
-                                                    proplists:get_value(<<"pushed_at">>, RepObject)}
-                                           end, Repositories)),
+                    Repos = lists:filter(fun 
+                                             ({_,undefined}) ->
+                                                 false;
+                                             ({invalid,_}) ->
+                                                 false;
+                                             (_) ->
+                                                 true
+                                         end,
+                                         lists:map(fun ({struct, RepObject}) ->
+                                                           {repo_name(proplists:get_value(<<"name">>, RepObject)),
+                                                            proplists:get_value(<<"pushed_at">>, RepObject)}
+                                                   end, Repositories)),
                     Repos ++ repositories(Page + 1)
             end
 	end.
