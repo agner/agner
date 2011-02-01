@@ -33,7 +33,9 @@ arg_proplist() ->
 	  {versions,
 	  "Show the available releases and flavours of a package",
 	   [
-		{package, undefined, undefined, string, "Package name"}
+		{package, undefined, undefined, string, "Package name"},
+        {no_flavours, undefined, "no-flavours", {boolean, false}, "Don't show flavour versions"},
+        {no_releases, undefined, "no-releases", {boolean, false}, "Don't show release versions"}
 	   ]}},
 	 {"list",
 	  {list,
@@ -209,8 +211,14 @@ handle_command(versions, Opts) ->
         undefined ->
             io:format("ERROR: Package name required.~n");
         Package ->
-            io:format("~s",[lists:usort(plists:map(fun (Version) ->
-                                                           io_lib:format("~s~n",[agner_spec:version_to_list(Version)])
+            NoFlavours = proplists:get_value(no_flavours, Opts),
+            NoReleases = proplists:get_value(no_releases, Opts),
+            io:format("~s",[lists:usort(plists:map(fun ({flavour, _} = Version) when not NoFlavours ->
+                                                           io_lib:format("~s~n",[agner_spec:version_to_list(Version)]);
+                                                       ({release, _} = Version) when not NoReleases ->
+                                                           io_lib:format("~s~n",[agner_spec:version_to_list(Version)]);
+                                                       (_) ->
+                                                           ""
                                                    end,
                                                    agner:versions(Package)))])
     end;

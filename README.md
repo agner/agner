@@ -148,9 +148,10 @@ property will make use of AGNER_PREFIX OS environment variable (which defaults t
 Uninstall given package (and a particular VERSION of it, if specified). Will use local SPECFILE is `--spec-file`/`-s` 
 option is passed.
 
-    agner versions PACKAGE
+    agner versions PACKAGE [--no-flavours] [--no-releases]
 
-List the versions of the given `PACKAGE`
+List the versions of the given `PACKAGE`. Specifying `--no-flavours` will omit flavour versions; and specifying
+`--no-releases` will omit release versions respectively.
 
     agner prefix PACKAGE [-v/--version VERSION]
 
