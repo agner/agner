@@ -356,7 +356,7 @@ handle_command(fetch, Opts) ->
                     Requires = proplists:get_value(requires, Spec, []),
                     DepsDir = filename:join(Directory, proplists:get_value(deps_dir, Spec, "deps")),
                     lists:foreach(fun ({ReqName, ReqVersion}) ->
-                                  io:format("[Building dependency: ~s -v ~s]~n", [ReqName, ReqVersion]),
+                                          io:format("[Building dependency: ~s -v ~s]~n", [ReqName, ReqVersion]),
                                           handle_command(fetch, [{package, ReqName},{version, ReqVersion},
                                                                  {directory, filename:join(DepsDir,ReqName)}|
                                                                  proplists:delete(spec,Opts)]);
