@@ -13,7 +13,7 @@ also pays homage to the Danish statistician Agner Krarup Erlang.
 Installation
 ------------
 
-If you are looking for a simple oneliner to install `agner` here it is:
+It is just a matter of a simple oneliner to get agner installed.
 
      curl https://github.com/agner/agner/raw/master/scripts/oneliner | sh
 
@@ -23,18 +23,6 @@ If you want to install latest release instead of HEAD, use this one:
 
 If your `/usr/local` isn't writeable to your user, either set your AGNER_PREFIX variable
 to point to some writeable location or use `sudo sh`.
-
-This is a quite recommended way as it installs proper `agner` package.
-
-In order to install, simply run `make` and `make install` (it will 
-install to `/usr/local/bin`). 
-
-If you are a **Homebrew** user on **OS X**, 
-feel free to use it: 
-`brew install https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
-or `brew install --HEAD https://github.com/agner/homebrew/raw/master/Library/Formula/agner.rb` 
-(if you want the very best and newest).
-As of the time of this writing, agner formula hasn't been merged into the official repo yet.
 
 Motivation
 ----------
