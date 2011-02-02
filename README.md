@@ -53,7 +53,7 @@ This section introduces the terminology of Agner:
   is a github user with one or more packages among the users git
   repositories.
 * **package:** A separate library or program indentified by the
-  index. It is a `.agner` repository underneath the index-user, so one
+  index. It is an `.agner` repository underneath the index-user, so one
   example would be `agner/gproc.agner` specifying a package for the
   `gproc` library undernath the `agner`-user. This is a very important
   feature that allows installing packages not hosted in a central index.
