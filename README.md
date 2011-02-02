@@ -24,6 +24,7 @@ If you want to install latest release instead of HEAD, use this one:
 If your `/usr/local` isn't writeable to your user, either set your AGNER_PREFIX variable
 to point to some writeable location or use `sudo sh`.
 
+This is a quite recommended way as it installs proper `agner` package.
 
 In order to install, simply run `make` and `make install` (it will 
 install to `/usr/local/bin`). 
