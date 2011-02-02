@@ -13,6 +13,18 @@ also pays homage to the Danish statistician Agner Krarup Erlang.
 Installation
 ------------
 
+If you are looking for a simple oneliner to install `agner` here it is:
+
+     curl https://github.com/agner/agner/raw/master/scripts/oneliner | sh
+
+If you want to install latest release instead of HEAD, use this one:
+
+     curl https://github.com/agner/agner/raw/master/scripts/oneliner.release | sh
+
+If your `/usr/local` isn't writeable to your user, either set your AGNER_PREFIX variable
+to point to some writeable location or use `sudo sh`.
+
+
 In order to install, simply run `make` and `make install` (it will 
 install to `/usr/local/bin`). 
 
