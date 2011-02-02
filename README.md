@@ -55,7 +55,8 @@ This section introduces the terminology of Agner:
 * **package:** A separate library or program indentified by the
   index. It is a `.agner` repository underneath the index-user, so one
   example would be `agner/gproc.agner` specifying a package for the
-  `gproc` library undernath the `agner`-user.
+  `gproc` library undernath the `agner`-user. This is a very important
+  feature that allows installing packages not hosted in a central index.
 * **project:** A software project, program or library, that contains
   the actual source code for the program or library. In the example,
   this is `esl/gproc` on github.
