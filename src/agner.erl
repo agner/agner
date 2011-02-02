@@ -22,7 +22,7 @@ start() ->
         [_|_] ->
             ignore
     end,
-    ok = filelib:ensure_dir(os:getenv("AGNER_PREFIX") ++ "/"),
+    filelib:ensure_dir(os:getenv("AGNER_PREFIX") ++ "/"),
 	inets:start(),
 	ssl:start(),
     inets:start(httpc,[{profile, agner}]),
