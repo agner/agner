@@ -424,7 +424,7 @@ handle_command(fetch, Opts) ->
                                         true ->
                                             ignore;
                                         _ ->
-                                            io:format("ERROR: No build_command specified, can't build this package")
+                                            io:format("ERROR: No build_command specified, can't build this package~n")
                                     end;
                                 Command ->
                                     io:format("[Building (output will be shown when done)...]~n"),
@@ -453,7 +453,7 @@ handle_command(fetch, Opts) ->
                                     os:putenv("AGNER_INSTALL_PREFIX", InstallPrefix),
                                     case proplists:get_value(install_command, Spec) of
                                         undefined ->
-                                            io:format("ERROR: No install_command specified, can't install this package");
+                                            io:format("ERROR: No install_command specified, can't install this package~n");
                                         ICommand ->
                                             io:format("[Installing (output will be shown when done)...]~n"),
                                             {ok, Cwd1} = file:get_cwd(),
