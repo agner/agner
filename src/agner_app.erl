@@ -35,7 +35,7 @@ start(_StartType, _StartArgs) ->
 %% stop/1 is called, we pick them up from the state, setup monitors on them and wait until every
 %% one of them is DOWN (and that means the stuff is now cleaned up)
 
-%% This would probably take a whole lot more time to figure out if Fred Hebert had't offered
+%% This would probably take a whole lot more time to figure out if Fred Hebert hadn't offered
 %% his help to brainstorm this problem through. Merci pour l'aide!
 
 
