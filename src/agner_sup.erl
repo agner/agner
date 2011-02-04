@@ -11,6 +11,8 @@
 
 %% Helper macro for declaring children of supervisor
 -define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+-define(SUP(I, Timeout), {I, {I, start_link, []}, permanent, Timeout, supervisor, [I]}).
+
 
 %% ===================================================================
 %% API functions
@@ -25,7 +27,7 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_one, 5, 10}, [
-                                  ?CHILD(agner_repo_server_sup, supervisor),
+                                  ?SUP(agner_repo_server_sup, infinity),
 								  ?CHILD(agner_server, worker)
 								 ]} }.
 
