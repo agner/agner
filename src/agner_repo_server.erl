@@ -32,7 +32,12 @@
 -spec create(agner_package_name(), agner_package_version()) -> {ok, pid()}.
 
 create(Name, Version) ->
-    supervisor:start_child(agner_repo_server_sup, [Name, Version]).
+    case gproc:lookup_local_name({?SERVER, Name, Version}) of
+        Pid when is_pid(Pid) ->
+            {ok, Pid};
+        _ ->
+            supervisor:start_child(agner_repo_server_sup, [Name, Version])
+    end.
                     
 %%--------------------------------------------------------------------
 %% @doc
@@ -44,12 +49,7 @@ create(Name, Version) ->
 -spec start_link(agner_package_name(), agner_package_version()) -> {ok, pid()} | ignore | {error, term()}.
                          
 start_link(Name, Version) ->
-    case gproc:lookup_local_name({?SERVER, Name, Version}) of
-        Pid when is_pid(Pid) ->
-            {ok, Pid};
-        _ ->
-            gen_server:start_link(?MODULE, {Name, Version}, [])
-    end.
+    gen_server:start_link(?MODULE, {Name, Version}, []).
 
 -spec set_pushed_at(pid(), pushed_at()) -> ok.
 
@@ -199,7 +199,7 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, #state{ directory = Directory }) when is_list(Directory) ->
-    os:cmd("rm -rf " ++ Directory),
+    os:cmd("echo X >> deleted && rm -rf " ++ Directory),
     ok;
 terminate(_Reason, _State) ->
     ok.
