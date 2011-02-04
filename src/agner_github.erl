@@ -78,7 +78,7 @@ spec(Name, Version) ->
     {ok, RepoServer} = agner_repo_server:create(Name, Version),
     case agner_repo_server:pushed_at(RepoServer) of
         At when is_list(At) ->
-            DotDir = filename:join("/tmp",".agner"),
+            DotDir = filename:join("/tmp","agner"),
             filelib:ensure_dir(DotDir ++ "/"),
             AtFilename = filename:join([DotDir, "cache." ++ Name ++ integer_to_list(erlang:phash2(Version)) ++ 
                                             lists:map(fun ($/) ->
