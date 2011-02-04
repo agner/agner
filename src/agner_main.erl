@@ -2,6 +2,8 @@
 -module(agner_main).
 -export([main/1]).
 -include_lib("kernel/include/file.hrl").
+%% internal
+-export([handle_command/2]).
 
 start() ->
     agner:start().
@@ -335,152 +337,18 @@ handle_command(build, Opts) ->
     handle_command(fetch, [{build, true}|Opts]);
 
 handle_command(fetch, Opts) ->
-    case proplists:get_value(package, Opts) of
-        undefined ->
-            io:format("ERROR: Package name required.~n");
-        Package ->
-            case agner_spec:version_to_list(agner_spec:list_to_version(Package, proplists:get_value(version, Opts))) of
-                undefined ->
-                    io:format("ERROR: No version satisfy criteria of ~s~n",[proplists:get_value(version, Opts)]);
-                Version ->
-                    Directory = filename:absname(proplists:get_value(directory, Opts, Package)),
-                    {Spec, PackageRepo} =
-                        case proplists:get_value(spec, Opts) of
-                            undefined ->
-                                Spec0 = agner:spec(Package, Version),
-                                {ok, RepoServer} = agner_repo_server:create(Package, agner_spec:list_to_version(Package, Version)),
-                                {Spec0, agner_repo_server:file(RepoServer, "")};
-                            File ->
-                                {ok, T} = file:consult(File),
-                                {T, proplists:get_value(package_path, Opts, filename:absname("."))}
-                        end,
-                    
-                    io:format("~p~n",[agner:fetch(Spec,Version,
-                                                  Directory)]),
-                    
-                    Requires = lists:sort(fun ({"agner", _},_) ->
-                                                  true;
-                                              ("agner", _) ->
-                                                  true;
-                                              (A,B) ->
-                                                  A =< B
-                                          end, proplists:get_value(requires, Spec, [])),
-                    DepsDir = filename:join(Directory, proplists:get_value(deps_dir, Spec, "deps")),
-                    lists:foreach(fun ("agner") ->
-                                          ignore;
-                                      ({"agner", "atleast:" ++ AgnerVersion}) ->
-                                          {agner,_,CurrentAgnerVersion} = lists:keyfind(agner,1,application:which_applications()),
-                                          case AgnerVersion > CurrentAgnerVersion of
-                                              true ->
-                                                  error({agner_failure, "Your agner is too old (" ++ CurrentAgnerVersion ++ ", " ++ AgnerVersion ++ " required)"});
-                                              false ->
-                                                  ignore
-                                          end;
-                                      ({"agner", AgnerVersion}) ->
-                                          {agner,_,CurrentAgnerVersion} = lists:keyfind(agner,1,application:which_applications()),
-                                          case AgnerVersion /= CurrentAgnerVersion of
-                                              true ->
-                                                  error({agner_failure, "Your agner version is mismatched (" ++ CurrentAgnerVersion ++ ", " ++ AgnerVersion ++ " required)"});
-                                              false ->
-                                                  ignore
-                                          end;
-                                      ({ReqName, ReqVersion}) ->
-                                          io:format("[Building dependency: ~s -v ~s]~n", [ReqName, ReqVersion]),
-                                          handle_command(fetch, [{package, ReqName},{version, ReqVersion},
-                                                                 {directory, filename:join(DepsDir,ReqName)}|
-                                                                 proplists:delete(spec,Opts)]);
-                                      (ReqName) when is_list(ReqName) ->
-                                          io:format("[Building dependency: ~s]~n", [ReqName]),
-                                          handle_command(fetch, [{package, ReqName},{version, "@master"},
-                                                                 {directory, filename:join(DepsDir,ReqName)}|
-                                                                 proplists:delete(spec, Opts)])
-                                  end, Requires),
-                    
-                    case proplists:get_value(caveats, Spec) of
-                        undefined ->
-                            ignore;
-                        Caveats when is_list(Caveats) ->
-                    io:format("=== CAVEATS ===~n~n~s~n~n",[Caveats])
-                    end,
-                    InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
-                    os:putenv("AGNER_INSTALL_PREFIX", InstallPrefix),
-                    
-                    case proplists:get_value(build, Opts) of
-                        true ->
-                            os:putenv("AGNER_PACKAGE_REPO", PackageRepo),
-                            case proplists:get_value(rebar_compatible, Spec) of
-                                true ->
-                                    io:format("[Building...]~n"),
-                                    {ok, Cwd} = file:get_cwd(),
-                                    file:set_cwd(Directory),
-                                    RebarCommands = proplists:get_value(rebar_commands, Spec,["get-deps","compile"]),
-                                    rebar_config:set_global(shutdown_agner, false), %% prevents rebar from shutting down agner
-                                    rebar:main(RebarCommands),
-                                    file:set_cwd(Cwd);
-                                _ ->
-                                    ignore
-                            end,
-                            case proplists:get_value(build_command, Spec) of
-                                undefined ->
-                                    case proplists:get_value(rebar_compatible, Spec) of
-                                        true ->
-                                            ignore;
-                                        _ ->
-                                            io:format("ERROR: No build_command specified, can't build this package~n")
-                                    end;
-                                Command ->
-                                    io:format("[Building (output will be shown when done)...]~n"),
-                                    {ok, Cwd0} = file:get_cwd(),
-                                    file:set_cwd(Directory),
-                                    io:format("~s~n",[os:cmd(Command)]),
-                                    file:set_cwd(Cwd0)
-                            end,
-                            case proplists:get_value(addpath, Opts) of
-                                true ->
-                                    {ok, F} = file:open(filename:join(os:getenv("HOME"),".erlang"),
-                                                        [append]),
-                                    file:write(F, io_lib:format("code:add_patha(\"~s/ebin\"). %% {agner, ~s}~n", [Directory, Package])),
-                                    file:close(F);
-                                false ->
-                                    ignore
-                            end,
-                            case proplists:get_value(install, Opts) of
-                                false ->
-                                    ignore;
-                                true ->
-                                    filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
-                                    os:cmd("rm -rf " ++ InstallPrefix),
-                                    ok = filelib:ensure_dir(InstallPrefix ++ "/"),
-                                    case proplists:get_value(install_command, Spec) of
-                                        undefined ->
-                                            io:format("ERROR: No install_command specified, can't install this package~n");
-                                        ICommand ->
-                                            io:format("[Installing (output will be shown when done)...]~n"),
-                                            {ok, Cwd1} = file:get_cwd(),
-                                            file:set_cwd(Directory),
-                                            io:format("~s~n",[os:cmd(ICommand)]),
-                                            file:set_cwd(Cwd1),
-                                            case proplists:get_value(bin_files, Spec) of
-                                                undefined ->
-                                                    ignore;
-                                                Files ->
-                                                    lists:foreach(fun (File) ->
-                                                                          Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
-                                                                          File1 = filename:join([InstallPrefix,File]),
-                                                                          file:delete(Symlink),
-      
-                                                                          {ok, #file_info{mode = Mode}} = file:read_file_info(File1),
-
-                                                                          file:change_mode(File1, Mode bor 8#00011),
-                                                                          ok = file:make_symlink(File1, Symlink)
-                                                                  end, Files)
-                                            end
-                                    end
-                            end;
-                        false ->
-                            ignore
-                    end
-            end
+    process_flag(trap_exit, true),
+    error_logger:delete_report_handler(error_logger_tty_h),
+    {ok, Pid} = agner_fetch:start_link(Opts),
+    receive
+        {'EXIT', Pid, shutdown} -> 
+            ok;
+        {'EXIT', Pid, {error, Errors}} when is_list(Errors) ->
+            [ format_error(Error) || Error <- Errors ];
+        {'EXIT', Pid, {error, Error}} ->
+            format_error(Error);
+        Other ->
+            io:format("FAILURE: ~p~n",[Other])
     end;
 
 handle_command(create, Opts) ->
@@ -526,6 +394,10 @@ handle_command(config, [{variable, "prefix"}]) ->
 handle_command(config, [{variable, "bin"}]) ->
     io:format("~s~n",[os:getenv("AGNER_BIN")]).
   
+%%%
+
+format_error({_, Error}) when is_list(Error) ->
+    io:format("ERROR: ~s~n",[Error]).
 
 %%%%
 
