@@ -3,6 +3,7 @@
 -behaviour(agner_index).
 -include_lib("agner.hrl").
 -include_lib("agner_index.hrl").
+-include_lib("kernel/include/file.hrl").
 
 -export([repositories/0,
 		 repository/1,
@@ -105,6 +106,8 @@ spec_1(RepoServer,  AtFilename) ->
             Config = agner_repo_server:file(RepoServer, "agner.config"),
             {ok, S} = file:consult(Config),
             {ok, _} = file:copy(Config, AtFilename),
+            {ok, #file_info{mode = Mode}} = file:read_file_info(AtFilename),
+            file:change_mode(AtFilename, Mode bor 8#00444),
             S;
         {ok, _} ->
             {ok, S} = file:consult(AtFilename),
