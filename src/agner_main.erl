@@ -237,7 +237,7 @@ handle_command(list, Opts) ->
     ShowDescriptions = proplists:get_value(descriptions, Opts),
     Search = proplists:get_value(search, Opts),
     Properties = lists:map(fun list_to_atom/1, string:tokens(proplists:get_value(properties, Opts,""),",")),
-    io:format("~s",[lists:usort(plists:map(fun (Name) ->
+    io:format("~s",[lists:usort(lists:map(fun (Name) ->
                                                    Spec = agner:spec(Name),
                                                    Searchable = string:to_lower(lists:flatten([Name,proplists:get_value(description,Spec,[])|proplists:get_value(keywords,Spec,[])])),
                                                    Show = 
