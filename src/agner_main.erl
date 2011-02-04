@@ -1,6 +1,7 @@
 %% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_main).
 -export([main/1]).
+-include_lib("kernel/include/file.hrl").
 
 start() ->
     agner:start().
@@ -467,6 +468,10 @@ handle_command(fetch, Opts) ->
                                                                           Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
                                                                           File1 = filename:join([InstallPrefix,File]),
                                                                           file:delete(Symlink),
+      
+                                                                          {ok, #file_info{mode = Mode}} = file:read_file_info(File1),
+
+                                                                          file:change_mode(File1, Mode bor 8#00011),
                                                                           ok = file:make_symlink(File1, Symlink)
                                                                   end, Files)
                                             end
