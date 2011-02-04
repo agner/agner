@@ -92,6 +92,7 @@ file(Pid, Filename) ->
 -spec init({agner_package_name(), agner_package_version()}) -> gen_server_init_result().
                   
 init({Name, Version}) ->
+    process_flag(trap_exit, true),
     gproc:add_local_name({?SERVER, Name, Version}),
     {ok, #state{
        name = Name,
