@@ -412,6 +412,7 @@ handle_command(fetch, Opts) ->
                                     {ok, Cwd} = file:get_cwd(),
                                     file:set_cwd(Directory),
                                     RebarCommands = proplists:get_value(rebar_commands, Spec,["get-deps","compile"]),
+                                    rebar_config:set_global(shutdown_agner, false), %% prevents rebar from shutting down agner
                                     rebar:main(RebarCommands),
                                     file:set_cwd(Cwd);
                                 _ ->
