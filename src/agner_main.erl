@@ -237,45 +237,44 @@ handle_command(list, Opts) ->
     ShowDescriptions = proplists:get_value(descriptions, Opts),
     Search = proplists:get_value(search, Opts),
     Properties = lists:map(fun list_to_atom/1, string:tokens(proplists:get_value(properties, Opts,""),",")),
-    io:format("~s",[lists:usort(lists:map(fun (Name) ->
-                                                   Spec = agner:spec(Name),
-                                                   Searchable = string:to_lower(lists:flatten([Name,proplists:get_value(description,Spec,[])|proplists:get_value(keywords,Spec,[])])),
-                                                   Show = 
-                                                       case Search of
-                                                           undefined ->
-                                                                true;
-                                                           [_|_] ->
-                                                               string:rstr(Searchable, string:to_lower(Search)) > 0
-                                                       end,
-                                                   case Show of
-                                                       true ->
-                                                           Result0 = case ShowDescriptions of
-                                                                         true ->
-                                                                             io_lib:format("~-40s ~s",[Name, proplists:get_value(description, Spec)]);
-                                                                         false ->
-                                                                             io_lib:format("~s",[Name])
-                                                                     end,
-                                                           Result = case Properties of
-                                                                        [] ->
-                                                                            Result0;
-                                                                        [_|_] ->
-                                                                            [Result0|lists:map(fun (Prop) ->
-                                                                                                        case lists:keyfind(Prop, 1, Spec) of
-                                                                                                            false ->
-                                                                                                                [];
-                                                                                                            T ->
-                                                                                                                Val = list_to_tuple(tl(tuple_to_list(T))),
-                                                                                                                io_lib:format(" | ~s: ~p",[Prop,
-                                                                                                                                           Val])
-                                                                                                        end
-                                                                                               end, Properties)]
-                                                                    end,
-                                                           Result ++ [$\n];
-                                                        false ->
-                                                           ""
-                                                   end
-                                           end,agner:index()))
-                   ]);
+    lists:foreach(fun (Name) ->
+                          Spec = agner:spec(Name),
+                          Searchable = string:to_lower(lists:flatten([Name,proplists:get_value(description,Spec,[])|proplists:get_value(keywords,Spec,[])])),
+                          Show = 
+                              case Search of
+                                  undefined ->
+                                      true;
+                                  [_|_] ->
+                                      string:rstr(Searchable, string:to_lower(Search)) > 0
+                              end,
+                          case Show of
+                              true ->
+                                  case ShowDescriptions of
+                                      true ->
+                                          io:format("~-40s ~s",[Name, proplists:get_value(description, Spec)]);
+                                      false ->
+                                          io:format("~s",[Name])
+                                  end,
+                                  case Properties of
+                                      [] ->
+                                          ignore;
+                                      [_|_] ->
+                                          lists:foreach(fun (Prop) ->
+                                                                case lists:keyfind(Prop, 1, Spec) of
+                                                                    false ->
+                                                                        ignore;
+                                                                    T ->
+                                                                        Val = list_to_tuple(tl(tuple_to_list(T))),
+                                                                        io:format(" | ~s: ~p",[Prop,
+                                                                                               Val])
+                                                                end
+                                                        end, Properties)
+                                  end,
+                                  io:format("~n");
+                              false ->
+                                  ok
+                          end
+                  end,agner:index());
 
 handle_command(prefix, Opts) ->
     case proplists:get_value(package, Opts) of

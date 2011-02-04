@@ -243,7 +243,7 @@ handle_index(From, Acc, []) ->
                           {ok, Pid} = agner_repo_server:create(Name, {flavour, "master"}),
                           agner_repo_server:set_pushed_at(Pid, binary_to_list(proplists:get_value(Name, Repos)))
                   end, RepoNames),
-	gen_server:reply(From, RepoNames);
+	gen_server:reply(From, lists:usort(RepoNames));
 handle_index(From, Acc, [Mod0|Rest]) ->
 	Mod = index_module(Mod0),
 	case Mod:repositories() of
