@@ -26,7 +26,7 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, [
+    {ok, { {one_for_all, 5, 10}, [
                                   ?SUP(agner_repo_server_sup, infinity),
 								  ?CHILD(agner_server, worker)
 								 ]} }.

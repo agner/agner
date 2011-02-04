@@ -199,7 +199,7 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, #state{ directory = Directory }) when is_list(Directory) ->
-    os:cmd("echo X >> deleted && rm -rf " ++ Directory),
+    os:cmd("rm -rf " ++ Directory),
     ok;
 terminate(_Reason, _State) ->
     ok.
