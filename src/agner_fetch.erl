@@ -111,14 +111,14 @@ handle_state(fetchable, #state{ opts = #opts_rec{ spec = Spec, package_path = un
     handle_state(fetchable, State#state{  opts = Opts#opts_rec{ package_path = filename:absname(".") }});
 
 %% Read specification if supplied with --spec
-handle_state(fetchable, #state{ opts = #opts_rec{ spec = Spec, package_path = PackagePath }
+handle_state(fetchable, #state{ opts = #opts_rec{ spec = Spec, package_path = PackagePath } = Opts
                               } = State) when is_list(Spec) andalso is_list(PackagePath) ->
     {ok, Spec0} = file:consult(Spec),
-    handle_state(fetchable, State#state{ opts = #opts_rec{ spec = {spec, Spec0} }, repo_dir = PackagePath } );
+    handle_state(fetchable, State#state{ opts = Opts#opts_rec{ spec = {spec, Spec0} }, repo_dir = PackagePath } );
 
 %% Everything is ready to go, fetch
 handle_state(fetchable, #state{ opts = #opts_rec{spec = {spec, Spec}, version = Version, directory = Directory }
-                              } = State) ->
+                              } = State) when is_list(Directory) andalso is_list(Version) ->
     agner:fetch(Spec, Version, Directory),
     gen_fsm2:send_event(self(), next),
     {ok, State};
