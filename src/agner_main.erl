@@ -344,18 +344,15 @@ handle_command(fetch, Opts) ->
                     io:format("ERROR: No version satisfy criteria of ~s~n",[proplists:get_value(version, Opts)]);
                 Version ->
                     Directory = filename:absname(proplists:get_value(directory, Opts, Package)),
-                    Spec = 
+                    {Spec, PackageRepo} =
                         case proplists:get_value(spec, Opts) of
                             undefined ->
                                 Spec0 = agner:spec(Package, Version),
                                 {ok, RepoServer} = agner_repo_server:create(Package, agner_spec:list_to_version(Package, Version)),
-                                
-                                os:putenv("AGNER_PACKAGE_REPO",agner_repo_server:file(RepoServer,"")),
-                                Spec0;
+                                {Spec0, agner_repo_server:file(RepoServer, "")};
                             File ->
                                 {ok, T} = file:consult(File),
-                                os:putenv("AGNER_PACKAGE_REPO",proplists:get_value(package_path, Opts, filename:absname("."))),
-                                T
+                                {T, proplists:get_value(package_path, Opts, filename:absname("."))}
                         end,
                     
                     io:format("~p~n",[agner:fetch(Spec,Version,
@@ -410,6 +407,7 @@ handle_command(fetch, Opts) ->
                     
                     case proplists:get_value(build, Opts) of
                         true ->
+                            os:putenv("AGNER_PACKAGE_REPO", PackageRepo),
                             case proplists:get_value(rebar_compatible, Spec) of
                                 true ->
                                     io:format("[Building...]~n"),
