@@ -151,6 +151,8 @@ main(Args) ->
                     case Result of
                         {'EXIT', {{agner_failure, Reason},_}} ->
                             io:format("ERROR: ~s~n",[Reason]);
+                        {'EXIT', Error} ->
+                            io:format("FAILURE: ~p~n",[Error]);
                         _ ->
                             ignore
                     end,
