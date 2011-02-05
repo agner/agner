@@ -405,6 +405,8 @@ handle_command(fetch, Opts) ->
                         Caveats when is_list(Caveats) ->
                     io:format("=== CAVEATS ===~n~n~s~n~n",[Caveats])
                     end,
+                    InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
+                    os:putenv("AGNER_INSTALL_PREFIX", InstallPrefix),
                     
                     case proplists:get_value(build, Opts) of
                         true ->
@@ -449,10 +451,8 @@ handle_command(fetch, Opts) ->
                                     ignore;
                                 true ->
                                     filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
-                                    InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
                                     os:cmd("rm -rf " ++ InstallPrefix),
                                     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
-                                    os:putenv("AGNER_INSTALL_PREFIX", InstallPrefix),
                                     case proplists:get_value(install_command, Spec) of
                                         undefined ->
                                             io:format("ERROR: No install_command specified, can't install this package~n");
