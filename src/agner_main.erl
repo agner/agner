@@ -138,7 +138,7 @@ usage() ->
     OptSpec = [
                {command, undefined, undefined, string, "Command to be executed (e.g. spec)"}
                ],
-	io:format("*** Agner: ~s~n", [agner_backcronym()]),
+	io:format("Agner: ~s~n", [agner_backcronym()]),
     getopt:usage(OptSpec, "agner", "[options ...]"),
 	io:format("Valid commands are:~n", []),
 	[io:format("   ~-10s ~s~n", [Cmd, Desc]) || {Cmd, Desc} <- command_descriptions()].
