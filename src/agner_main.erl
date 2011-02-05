@@ -432,7 +432,7 @@ handle_command(fetch, Opts) ->
                                     end;
                                 Command ->
                                     io:format("[Building (output will be shown when done)...]~n"),
-                            {ok, Cwd0} = file:get_cwd(),
+                                    {ok, Cwd0} = file:get_cwd(),
                                     file:set_cwd(Directory),
                                     io:format("~s~n",[os:cmd(Command)]),
                                     file:set_cwd(Cwd0)
