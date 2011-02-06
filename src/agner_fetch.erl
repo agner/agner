@@ -99,6 +99,10 @@ handle_state(ready, #state{  opts = #opts_rec{ version = Version, directory = Di
     gen_fsm:send_event(self(), next),
     {ok, State#state{ opts = Opts#opts_rec{ directory = Directory } }};
 
+%% If specification was not found, stop
+handle_state(fetchable, #state{ opts = #opts_rec{ spec = {spec, {error, not_found}} }} = State) ->
+    {stop, {error, {package_not_found, "Package not found"}}, State};
+
 %% Retrieve specification from the index
 handle_state(fetchable, #state{ opts = #opts_rec{ spec = undefined, package = Package, version = Version } = Opts} = State) ->
     Spec0 = agner:spec(Package, Version),
