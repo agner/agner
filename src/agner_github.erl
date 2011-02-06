@@ -176,14 +176,17 @@ spec(Name, Version) ->
 spec_1(RepoServer,  AtFilename) ->
     case file:read_file_info(AtFilename) of
         {error, enoent} ->
-            ok = agner_repo_server:clone(RepoServer, fun (Name) -> "git://github.com/" ++ proper_repo_name(Name) ++ ".git" end),
-            
-            Config = agner_repo_server:file(RepoServer, "agner.config"),
-            {ok, S} = file:consult(Config),
-            {ok, _} = file:copy(Config, AtFilename),
-            {ok, #file_info{mode = Mode}} = file:read_file_info(AtFilename),
-            file:change_mode(AtFilename, Mode bor 8#00444),
-            S;
+            case agner_repo_server:clone(RepoServer, fun (Name) -> "git://github.com/" ++ proper_repo_name(Name) ++ ".git" end) of
+                ok ->
+                    Config = agner_repo_server:file(RepoServer, "agner.config"),
+                    {ok, S} = file:consult(Config),
+                    {ok, _} = file:copy(Config, AtFilename),
+                    {ok, #file_info{mode = Mode}} = file:read_file_info(AtFilename),
+                    file:change_mode(AtFilename, Mode bor 8#00444),
+                    S;
+                _ ->
+                    {error, not_found}
+            end;
         {ok, _} ->
             {ok, S} = file:consult(AtFilename),
             S
