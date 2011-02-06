@@ -162,7 +162,8 @@ main(Args) ->
                     end,
 					stop();
 			    {error, {missing_option_arg, Arg}} ->
-					io:format("Error: Missing option argument for '~p'~n", [Arg])
+					io:format("Error: Missing option argument for '~p'~n", [Arg]),
+                    erlang:halt(1)
 			end;
 		no_parse ->
 			usage()
