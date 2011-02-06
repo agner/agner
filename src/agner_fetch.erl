@@ -355,9 +355,10 @@ code_change(_OldVsn, StateName, State, _Extra) ->
 %%%===================================================================
 rec_to_opts(Rec) ->
     Fields = record_info(fields, opts_rec),
-    lists:foldl(fun (Field, {I, L}) ->
-                        {I+1, [{Field, element(I+2, Rec)}|L]}
-                end, {0, []}, Fields).
+    {_, Result} = lists:foldl(fun (Field, {I, L}) ->
+                                      {I+1, [{Field, element(I+2, Rec)}|L]}
+                              end, {0, []}, Fields),
+    Result.
 
 opts_to_rec(Opts) ->
     Fields = record_info(fields, opts_rec),
