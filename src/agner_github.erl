@@ -52,27 +52,102 @@ repository(Name) ->
 	
 	
 tags(Name) ->
-	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/tags") of
-		{struct, Object} ->
-			{struct, Tags} = proplists:get_value(<<"tags">>, Object),
-			lists:map(fun({Tag, SHA1}) ->
-							  {binary_to_list(Tag),
-							   binary_to_list(SHA1)}
-					  end, Tags)
-	end.
+    {ok, RepoServer} = agner_repo_server:create(Name, {flavour, "master"}),
+    ok = agner_repo_server:clone(RepoServer, fun (N) -> "git://github.com/" ++ proper_repo_name(N) ++ ".git" end),
+    Path = agner_repo_server:file(RepoServer, []),
+    Port = agner_download:git(["tag", "-l"], [{cd, Path}, use_stdio, stderr_to_stdout, {line, 255}]),
+    PortHandler = fun (F,Acc) ->
+                          receive
+                              {'EXIT', Port, _} ->
+                                  error;
+                              {Port,{exit_status,0}} ->
+                                  {ok, Acc};
+                              {Port,{exit_status,_}} ->
+                                  error;
+                              {Port, {data, {_, D}}} when is_list(D) ->
+                                  Tag = string:strip(D, right, $\n),
+                                  F(F,[Tag|Acc]);
+                              _ ->
+                                  F(F,Acc)
+                          end
+                  end,
+    Result = PortHandler(PortHandler,[]),
+    case Result of
+        error ->
+            [];
+        {ok, Tags} ->
+            lists:map(fun (Tag) ->
+                              RevParsePort = agner_download:git(["rev-parse",Tag], 
+                                                                [{cd, Path}, use_stdio, stderr_to_stdout, {line, 255}]),
+                              RevParsePortHandler = fun (F1,Acc1) ->
+                                                            receive 
+                                                                {'EXIT', RevParsePort, _} ->
+                                                                    "";
+                                                                {RevParsePort,{exit_status,0}} ->
+                                                                    Acc1;
+                                                                {RevParsePort, {exit_status, _}} ->
+                                                                    "";
+                                                                {RevParsePort, {data, {_, D1}}} when is_list (D1) ->
+                                                                    F1(F1,D1);
+                                                                _ ->
+                                                                    F1(F1,Acc1)
+                                                            end
+                                                    end,
+                              SHA1 = RevParsePortHandler(RevParsePortHandler,""),
+                              {Tag, SHA1}
+                      end, Tags)
+    end.
 
 
 branches(Name) ->
-	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name) ++  "/branches") of
-		{error, _Reason} = Error ->
-			Error;
-		{struct, Object} ->
-			{struct, Branches} = proplists:get_value(<<"branches">>, Object),
-			lists:map(fun({Branch, SHA1}) ->
-							  {binary_to_list(Branch),
-							   binary_to_list(SHA1)}
-					  end, Branches)
-	end.
+    {ok, RepoServer} = agner_repo_server:create(Name, {flavour, "master"}),
+    ok = agner_repo_server:clone(RepoServer, fun (N) -> "git://github.com/" ++ proper_repo_name(N) ++ ".git" end),
+    Path = agner_repo_server:file(RepoServer, []),
+    Port = agner_download:git(["branch", "-r"], [{cd, Path}, use_stdio, stderr_to_stdout, {line, 255}]),
+    PortHandler = fun (F,Acc) ->
+                          receive
+                              {'EXIT', Port, _} ->
+                                  error;
+                              {Port,{exit_status,0}} ->
+                                  {ok, Acc};
+                              {Port,{exit_status,_}} ->
+                                  error;
+                              {Port, {data, {_, "  origin/HEAD" ++ _}}} -> %% ignore
+                                  F(F, Acc);
+                              {Port, {data, {_, "  origin/" ++ Branch}}} when is_list(Branch) ->
+                                  F(F,[Branch|Acc]);
+                              {Port, {data, {_, _}}} -> %% ignore as well
+                                  F(F,Acc);
+                              _ ->
+                                  F(F,Acc)
+                          end
+                  end,
+    Result = PortHandler(PortHandler,[]),
+    case Result of
+        error ->
+            [];
+        {ok, Branches} ->
+            lists:map(fun (Branch) ->
+                              RevParsePort = agner_download:git(["rev-parse",Branch], 
+                                                                [{cd, Path}, use_stdio, stderr_to_stdout, {line, 255}]),
+                              RevParsePortHandler = fun (F1,Acc1) ->
+                                                            receive 
+                                                                {'EXIT', RevParsePort, _} ->
+                                                                    "";
+                                                                {RevParsePort,{exit_status,0}} ->
+                                                                    Acc1;
+                                                                {RevParsePort, {exit_status, _}} ->
+                                                                    "";
+                                                                {RevParsePort, {data, {_, D1}}} when is_list (D1) ->
+                                                                    F1(F1,D1);
+                                                                _ ->
+                                                                    F1(F1,Acc1)
+                                                            end
+                                                    end,
+                              SHA1 = RevParsePortHandler(RevParsePortHandler,""),
+                              {Branch, SHA1}
+                      end, Branches)
+    end.
 
 spec(Name, Version) ->
     {ok, RepoServer} = agner_repo_server:create(Name, Version),
