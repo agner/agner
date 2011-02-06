@@ -212,19 +212,26 @@ handle_command(spec, Opts) ->
                         {ok, T} = file:consult(File),
                         T
                 end,
-            case proplists:get_value(homepage, Opts) of
-                true ->
-                    agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/#q=" ++ Package));
+            case Spec of
+                {error, not_found} ->
+                    format_error({not_found, "Package not found"}),
+                    {error, 1};
                 _ ->
-                    ignore
-            end,
-            case proplists:get_value(property, Opts) of
-                undefined ->
-                    lists:foreach(fun(Property) ->
-                                          io:format("~p.~n",[Property])
-                                  end, Spec);
-                Property ->
-                    io:format("~s~n",[agner_spec:property_to_list(lists:keyfind(list_to_atom(Property), 1, Spec))])
+                    case proplists:get_value(homepage, Opts) of
+                        true ->
+                            agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/#q=" ++ Package));
+                        _ ->
+                            ignore
+                    end,
+                    case proplists:get_value(property, Opts) of
+                        undefined ->
+                            lists:foreach(fun(Property) ->
+                                                  io:format("~p.~n",[Property])
+                                          end, Spec);
+                        Property ->
+                            io:format("~s~n",[agner_spec:property_to_list(lists:keyfind(list_to_atom(Property), 1, Spec))])
+                    end,
+                    ok
             end
     end;
 
