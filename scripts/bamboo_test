@@ -1,0 +1,81 @@
+#! /usr/bin/env escript
+-mode(compile). 
+-include_lib("eunit/include/eunit.hrl").
+
+test_fetching(Script, Package, Version) ->
+    Directory = test_server:temp_name("/tmp/agner"),
+    filelib:ensure_dir(Directory ++ "/"),
+    Port = open_port({spawn,Script ++ " fetch " ++ Package ++ " -v " ++ Version},
+                     [{cd, Directory},stream,use_stdio,stderr_to_stdout,
+                      exit_status]),
+    PortHandler = fun (F,Acc) ->
+                          receive
+                              {'EXIT', Port, _} ->
+                                  error;
+                              {Port,{exit_status,0}} ->
+                                  ok;
+                              {Port,{exit_status,_}} ->
+                                  error;
+                              {Port,{data, Data}} ->
+                                  F(F, Acc ++ Data);
+                              _ ->
+                                  F(F,Acc)
+                          end
+                  end,
+    ?assertEqual(ok, PortHandler(PortHandler,[])),
+    os:cmd("rm -rf " ++ Directory).
+
+test_building(Script, Package, Version) ->
+    Directory = test_server:temp_name("/tmp/agner"),
+    filelib:ensure_dir(Directory ++ "/"),
+    Port = open_port({spawn,Script ++ " build " ++ Package ++ " -v " ++ Version},
+                     [{cd, Directory},stream,use_stdio,stderr_to_stdout,
+                      exit_status]),
+    PortHandler = fun (F,Acc) ->
+                          receive
+                              {'EXIT', Port, _} ->
+                                  error;
+                              {Port,{exit_status,0}} ->
+                                  ok;
+                              {Port,{exit_status,_}} ->
+                                  error;
+                              {Port,{data, Data}} ->
+                                  F(F, Acc ++ Data);
+                              _ ->
+                                  F(F,Acc)
+                          end
+                  end,
+    ?assertEqual(ok, PortHandler(PortHandler,[])),
+    os:cmd("rm -rf " ++ Directory).
+
+tests_version_(Script, Package, Version) ->
+    [{"Fetching " ++ Package ++ " version " ++ Version , 
+      {timeout, 60*15,      
+       fun () ->
+               test_fetching(Script, Package, Version)
+       end}},
+     {"Building " ++ Package ++ " version " ++ Version , 
+      {timeout, 60*15,
+       fun () ->
+               test_building(Script, Package, Version)
+       end}}].
+
+    
+
+tests_(Script, Package) ->
+    Versions = string:tokens(os:cmd(Script ++ " versions " ++ Package),[$\n]),
+    lists:map(fun (Version) ->
+                      {Package ++ " version " ++ Version, {generator, fun () -> tests_version_(Script, Package, Version) end}}
+              end, Versions).
+                                                                             
+
+main([]) ->
+    eunit:start(),
+    Script = filename:absname(filename:join([filename:dirname(code:which(?MODULE)), "..", "agner"])),
+    Packages = string:tokens(os:cmd(Script ++ " list"),[$\n]),
+    lists:foreach(fun(Package) ->
+                          eunit:test([{Package, {generator, fun () ->
+                                                                    tests_(Script,Package)
+                                                            end}}], [{report,{eunit_surefire,[{dir,"."}]}}])
+                  end, Packages),
+    eunit:stop().

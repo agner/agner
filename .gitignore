@@ -3,3 +3,4 @@ ebin/*.app
 agner
 deps
 .eunit
+TEST-*.xml
