@@ -141,6 +141,7 @@ files to test their package.
     agner fetch PACKAGE [DESTDIR] [-v/--version VERSION] [-b/--build]
                                   [-a/--add-path] [-i/--install]
                                   [-s/--spec-file SPECFILE] [--package-path PACKAGEPATH]
+                                  [-q/--quiet]
 
 Fetch a given PACKAGE to either the current directory or,
 optionally, to the DESTDIR directory. Flags:
@@ -165,6 +166,9 @@ files to test their package. Can be used in conjunction with
 `--package-path` to point to a checkout copy of an `.agner` repo (will
 be used to set `$AGNER_PACKAGE_REPO` variable for shell commands,
 defaults to `.`)
+
+* `-q` or `--quiet`: A flag that will suppress output of `build_command` & `install_command` 
+(if present)
 
 For convenience, the following shortcuts are defined:
 

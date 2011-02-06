@@ -22,7 +22,8 @@
           addpath,
           install,
           spec,
-          package_path
+          package_path,
+          quiet
          }).
 
 -record(state, {
@@ -222,8 +223,12 @@ buildable(rebar, #state{ opts = #opts_rec{ build = true } = Opts} = State) ->
 
 buildable(build_command, #state{ opts = #opts_rec{ build = true } = Opts, repo_dir = RepoDir} = State) ->
     os:putenv("AGNER_PACKAGE_REPO", RepoDir),
-    build_command(Opts),
-    {next_state, buildable, State};
+    case build_command(Opts) of
+        ok ->
+            {next_state, buildable, State};
+        _ ->
+            {stop, {error, {build_failed, "Build failed"}}}
+    end;
 
 buildable(add_path, #state{ opts = #opts_rec{ build = true } = Opts} = State) ->
     add_path(Opts),
@@ -237,9 +242,12 @@ installable(_, #state{ opts = #opts_rec{ install = false }} = State) ->
 
 installable(install_command, #state{ opts = #opts_rec{ install = true } = Opts, repo_dir = RepoDir} = State) ->
     os:putenv("AGNER_PACKAGE_REPO", RepoDir),
-    install_command(Opts),
-    {next_state, installable, State}.
-
+    case install_command(Opts) of
+        ok ->
+            {next_state, installable, State};
+        _ ->
+            {stop, {error, {install_failed, "Installation failed"}}}
+    end.
 
 
 %%--------------------------------------------------------------------
@@ -413,22 +421,35 @@ rebar(#opts_rec{ spec = {spec, Spec}, directory = Directory }) ->
             ignore
     end.
 
-build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory } = Opts) ->
+build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet } = Opts) ->
     case proplists:get_value(build_command, Spec) of
         undefined ->
             case proplists:get_value(rebar_compatible, Spec, false) of
                 false ->
                     io:format("WARNING: No build_command specified, can't build this package~n");
                 _ ->
-                    ignore
+                    ok
             end;
         Command ->
             set_install_prefix(Opts),
-            io:format("[Building (output will be shown when done)...]~n"),
-            {ok, Cwd0} = file:get_cwd(),
-            file:set_cwd(Directory),
-            io:format("~s~n",[os:cmd(Command)]),
-            file:set_cwd(Cwd0)
+            io:format("[Building...]~n"),
+            Port = open_port({spawn,Command},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
+            PortHandler = fun (F) ->
+                                  receive
+                                      {'EXIT', Port, _} ->
+                                          error;
+                                      {Port,{exit_status,0}} ->
+                                          ok;
+                                      {Port,{exit_status,_}} ->
+                                          error;
+                                      {Port, {data, D}} when not Quiet andalso is_list(D) ->
+                                          io:format("~s",[D]),
+                                          F(F);
+                                      _ ->
+                                          F(F)
+                                  end
+                          end,
+            PortHandler(PortHandler)
     end.
 
 add_path(#opts_rec{ directory = Directory, package = Package, addpath = true }) ->
@@ -441,7 +462,7 @@ add_path(#opts_rec{ addpath = false }) ->
     ignore.
     
 
-install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory } = Opts) ->
+install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet } = Opts) ->
     filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
     os:cmd("rm -rf " ++ InstallPrefix),
@@ -449,24 +470,43 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory } = Opts) 
     case proplists:get_value(install_command, Spec) of
         undefined ->
             io:format("ERROR: No install_command specified, can't install this package~n");
-        ICommand ->
-            io:format("[Installing (output will be shown when done)...]~n"),
-            {ok, Cwd1} = file:get_cwd(),
-            file:set_cwd(Directory),
-            io:format("~s~n",[os:cmd(ICommand)]),
-            file:set_cwd(Cwd1),
-            case proplists:get_value(bin_files, Spec) of
-                undefined ->
-                    ignore;
-                Files ->
-                    lists:foreach(fun (File) ->
-                                          Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
-                                          File1 = filename:join([InstallPrefix,File]),
-                                          file:delete(Symlink),
-                                          {ok, #file_info{mode = Mode}} = file:read_file_info(File1),
-                                          file:change_mode(File1, Mode bor 8#00011),
-                                          ok = file:make_symlink(File1, Symlink)
-                                  end, Files)
+        Command ->
+            io:format("[Installing...]~n"),
+            Port = open_port({spawn,Command},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
+            PortHandler = fun (F) ->
+                                  receive
+                                      {'EXIT', Port, _} ->
+                                          error;
+                                      {Port,{exit_status,0}} ->
+                                          ok;
+                                      {Port,{exit_status,_}} ->
+                                          error;
+                                      {Port, {data, D}} when not Quiet andalso is_list(D) ->
+                                          io:format("~s",[D]),
+                                          F(F);
+                                      _ ->
+                                          F(F)
+                                  end
+                          end,
+            Result = PortHandler(PortHandler),
+            case Result of
+                ok ->
+                    case proplists:get_value(bin_files, Spec) of
+                        undefined ->
+                            ignore;
+                        Files ->
+                            lists:foreach(fun (File) ->
+                                                  Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
+                                                  File1 = filename:join([InstallPrefix,File]),
+                                                  file:delete(Symlink),
+                                                  {ok, #file_info{mode = Mode}} = file:read_file_info(File1),
+                                                  file:change_mode(File1, Mode bor 8#00011),
+                                                  ok = file:make_symlink(File1, Symlink)
+                                          end, Files)
+                    end,
+                    ok;
+                _ ->
+                    Result
             end
     end.
 
