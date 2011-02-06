@@ -11,18 +11,18 @@ test_fetching(Script, Package, Version) ->
     PortHandler = fun (F,Acc) ->
                           receive
                               {'EXIT', Port, _} ->
-                                  error;
+                                  {error, Acc};
                               {Port,{exit_status,0}} ->
-                                  ok;
+                                  {ok, Acc};
                               {Port,{exit_status,_}} ->
-                                  error;
+                                  {error, Acc};
                               {Port,{data, Data}} ->
                                   F(F, Acc ++ Data);
                               _ ->
                                   F(F,Acc)
                           end
                   end,
-    ?assertEqual(ok, PortHandler(PortHandler,[])),
+    ?assertMatch({ok,_}, PortHandler(PortHandler,[])),
     os:cmd("rm -rf " ++ Directory).
 
 test_building(Script, Package, Version) ->
@@ -34,18 +34,18 @@ test_building(Script, Package, Version) ->
     PortHandler = fun (F,Acc) ->
                           receive
                               {'EXIT', Port, _} ->
-                                  error;
+                                  {error, Acc};
                               {Port,{exit_status,0}} ->
-                                  ok;
+                                  {ok, Acc};
                               {Port,{exit_status,_}} ->
-                                  error;
+                                  {error, Acc};
                               {Port,{data, Data}} ->
                                   F(F, Acc ++ Data);
                               _ ->
                                   F(F,Acc)
                           end
                   end,
-    ?assertEqual(ok, PortHandler(PortHandler,[])),
+    ?assertMatch({ok,_}, PortHandler(PortHandler,[])),
     os:cmd("rm -rf " ++ Directory).
 
 tests_version_(Script, Package, Version) ->
