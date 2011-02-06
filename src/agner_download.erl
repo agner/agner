@@ -60,7 +60,7 @@ git(Args) ->
 
 git(Args, Opts) ->
     Git = os:find_executable("git"),
-    open_port({spawn_executable, Git},[{args, Args},
+    open_port({spawn_executable, Git},[{args, Args}, stderr_to_stdout,
                                        exit_status|Opts]).
 
 hg(Args) ->
