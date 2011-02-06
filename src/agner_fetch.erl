@@ -434,7 +434,7 @@ build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Qui
         Command ->
             set_install_prefix(Opts),
             io:format("[Building...]~n"),
-            Port = open_port({spawn,Command},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
+            Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
             PortHandler = fun (F) ->
                                   receive
                                       {'EXIT', Port, _} ->
@@ -473,7 +473,7 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
             io:format("ERROR: No install_command specified, can't install this package~n");
         Command ->
             io:format("[Installing...]~n"),
-            Port = open_port({spawn,Command},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
+            Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
             PortHandler = fun (F) ->
                                   receive
                                       {'EXIT', Port, _} ->
