@@ -21,7 +21,7 @@ If you want to install latest release instead of HEAD, use this one:
 
      curl https://github.com/agner/agner/raw/master/scripts/oneliner.release | sh
 
-If your `/usr/local` isn't writeable to your user, either set your AGNER_PREFIX variable
+If your `/usr/local` isn't writeable to your user, either set your `AGNER_PREFIX` variable
 to point to some writeable location or use `sudo sh`.
 
 Motivation
@@ -91,7 +91,7 @@ easy grepping to find relevant packages. It accepts the following flags:
 * `-p` or `--properties`: A comma, separated list of properties to be
 included in the listing (when present).
 * `-s` or `--search`: The packages name, description and keyword are
-searched, matched against SEARCH_TERM. Only matching items are shown.
+searched, matched against `SEARCH_TERM`. Only matching items are shown.
 
 A convenience command is:
 
@@ -154,7 +154,7 @@ Alias for `agner fetch --build PACKAGE`.
 
 Alias for `agner fetch --build --install PACKAGE /tmp/<uniq_filename>`. A typical example would be `agner install rebar`
 or `agner install rebar -v @agner` to get `rebar` binary in your PATH. It is assumed that `install_command`
-property will make use of AGNER_INSTALL_PREFIX OS environment variable.
+property will make use of `AGNER_INSTALL_PREFIX` OS environment variable.
 
 #### Uninstalling
 
