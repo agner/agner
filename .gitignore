@@ -2,3 +2,4 @@ ebin/*.beam
 ebin/*.app
 agner
 deps
+.eunit
