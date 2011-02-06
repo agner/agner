@@ -155,17 +155,23 @@ main(Args) ->
 				{ok, {Opts, _}} ->
 					start(),
 					Result = (catch handle_command(Command, Opts)),
-                    case Result of
-                        {'EXIT', {{agner_failure, Reason},_}} ->
-                            io:format("ERROR: ~s~n",[Reason]);
-                        {'EXIT', Error} ->
-                            io:format("FAILURE: ~p~n",[Error]);
-                        _ ->
-                            ignore
+                    Code =
+                        case Result of
+                            error ->
+                                1;
+                            {error, ErrorCode} when is_integer(ErrorCode) ->
+                                ErrorCode;
+                            {'EXIT', Error} ->
+                                io:format("FAILURE: ~p~n",[Error]),
+                                2;
+                            _ ->
+                                0
                     end,
-					stop();
+					stop(),
+                    erlang:halt(Code);
 			    {error, {missing_option_arg, Arg}} ->
-					io:format("Error: Missing option argument for '~p'~n", [Arg])
+					io:format("Error: Missing option argument for '~p'~n", [Arg]),
+                    erlang:halt(1)
 			end;
 		no_parse ->
 			usage()
@@ -349,11 +355,14 @@ handle_command(fetch, Opts) ->
         {'EXIT', Pid, shutdown} -> 
             ok;
         {'EXIT', Pid, {error, Errors}} when is_list(Errors) ->
-            [ format_error(Error) || Error <- Errors ];
+            [ format_error(Error) || Error <- Errors ],
+            error;
         {'EXIT', Pid, {error, Error}} ->
-            format_error(Error);
+            format_error(Error),
+            error;                                                        
         Other ->
-            io:format("FAILURE: ~p~n",[Other])
+            io:format("FAILURE: ~p~n",[Other]),
+            {error, 2}
     end;
 
 handle_command(create, Opts) ->
