@@ -194,7 +194,7 @@ fetched(fetch_requirements, #state{ opts = #opts_rec{ spec = {spec, Spec} } = Op
     lists:foreach(fun ({ReqName, ReqVersion}) ->
                           build_dep(ReqName, ReqVersion, Opts);
                       (ReqName) ->
-                          build_dep(ReqName, undefined, Opts)
+                          build_dep(ReqName, "@master", Opts)
                   end, Requirements),
     {next_state, fetched, State};
 
