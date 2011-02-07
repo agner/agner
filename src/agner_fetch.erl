@@ -31,7 +31,7 @@
           repo_dir,
           fetched_steps = [check_requirements, fetch_requirements, caveats],
           build_steps = [rebar, build_command, add_path],
-          install_steps = [install_command]
+          install_steps = [install_command, print_prefix]
          }).
 
 %%%===================================================================
@@ -251,7 +251,13 @@ installable(install_command, #state{ opts = #opts_rec{ install = true } = Opts, 
             {next_state, installable, State};
         _ ->
             {stop, {error, {install_failed, "Installation failed"}}}
-    end.
+    end;
+
+installable(print_prefix, #state{ opts = #opts_rec{ install = true, package = Package, version = Version } } = State) ->
+    io:format("Installed to:~n"),
+    agner_main:handle_command(prefix,[{package, Package}, {version, Version}]),
+    {next_state, installable, State}.
+
 
 
 %%--------------------------------------------------------------------
