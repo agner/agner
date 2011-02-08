@@ -60,6 +60,8 @@ Here's the current list of environmentvariables that will be available to build 
 * AGNER -- Absolute path to the agner script file
 * AGNER_PREFIX -- Root agner's directory (defaults to `/usr/local/agner`)
 * AGNER_PACKAGE_REPO -- Path to checked out .agner repo
+* AGNER_PACKAGE_NAME -- Name of the package
+* AGNER_PACKAGE_VERSION -- Version of the package
 * AGNER_INSTALL_PREFIX -- A place where install procedure should consider putting installable files to. Right now it equates to
   `AGNER_PREFIX/agner/packages/<package_name>-<package_version>`
 

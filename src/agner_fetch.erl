@@ -432,7 +432,10 @@ rebar(#opts_rec{ spec = {spec, Spec}, directory = Directory }) ->
             ignore
     end.
 
-build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet } = Opts) ->
+build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet, package = Package, version = Version } = Opts) ->
+    os:putenv("AGNER_PACKAGE_NAME", Package),
+    os:putenv("AGNER_PACKAGE_VERSION", Version),
+
     case proplists:get_value(build_command, Spec) of
         undefined ->
             case proplists:get_value(rebar_compatible, Spec, false) of
@@ -473,7 +476,10 @@ add_path(#opts_rec{ addpath = false }) ->
     ignore.
     
 
-install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet } = Opts) ->
+install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet, package = Package, version = Version } = Opts) ->
+    os:putenv("AGNER_PACKAGE_NAME", Package),
+    os:putenv("AGNER_PACKAGE_VERSION", Version),
+
     filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
     os:cmd("rm -rf " ++ InstallPrefix),
