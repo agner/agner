@@ -14,6 +14,7 @@
 
 -define(SERVER, ?MODULE).
 
+-define(TIMEOUT, 60000).
 
 -record(state, {
          }).
@@ -39,21 +40,21 @@ start_link() ->
 -spec spec(agner_package_name(), agner_package_version()) -> agner_spec().
                   
 spec(Name, Version) ->
-    gen_server:call(?SERVER, {spec, Name, Version}).
+    gen_server:call(?SERVER, {spec, Name, Version}, ?TIMEOUT).
 
 %% @doc Ask the server for a spec URL
 %% @end
 -spec spec_url(agner_package_name(), agner_package_version()) -> url().
 
 spec_url(Name, Version) ->
-    gen_server:call(?SERVER, {spec_url, Name, Version}).
+    gen_server:call(?SERVER, {spec_url, Name, Version}, ?TIMEOUT).
 
 %% @doc Ask the server for an index
 %% @end
 -spec index() -> list(agner_package_name()).
                    
 index() ->
-    gen_server:call(?SERVER, index).
+    gen_server:call(?SERVER, index, infinity).
 
 %% @doc Fetch a package/project to a directory
 %% @end
@@ -68,7 +69,7 @@ fetch(NameOrSpec, Version, Directory) ->
 -spec versions(agner_package_name()) -> list(agner_package_version()).
                       
 versions(Name) ->
-    gen_server:call(?SERVER, {versions, Name}).
+    gen_server:call(?SERVER, {versions, Name},?TIMEOUT).
 
 %%%===================================================================
 %%% gen_server callbacks
