@@ -17,6 +17,14 @@ please supply your account name using `--github-account NAME` option.
 The last step (opening an issue to include it into the central repository) is only necessary if you want this package to be published on a "central" index. 
 If you want to keep it semi-private, you can just use it from your own index.
 
+Help spreading the word!
+------------------------
+
+Success of Agner project relies on you, Erlang package authors && maintainers. If you can mention that
+Agner can be used to fetch, build or install your package, we'll be getting more attention to our central index
+of packages, which is beneficial for the entire community. Please consider including this information into your
+READMEs and/or web pages.
+
 Mastering specification
 -----------------------
 
