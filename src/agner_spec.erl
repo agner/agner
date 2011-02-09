@@ -1,7 +1,7 @@
 %% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_spec).
 -include_lib("agner.hrl").
--export([parse/1, list_to_version/2, version_to_list/1, property_to_list/1]).
+-export([parse/1, list_to_version/2, version_to_list/1, property_to_list/1, version_compare/3]).
 
 -type agner_spec_source() :: string().
 
@@ -25,8 +25,10 @@ parse(S) ->
 -spec list_to_version(agner_package_name(), string()) -> agner_package_version().
 
 list_to_version(Name, "atleast:" ++ Version) ->
-    case lists:reverse(lists:dropwhile(fun(V) ->
-                                               V < {release, Version}
+    case lists:reverse(lists:dropwhile(fun({release,V}) ->
+                                               version_compare('<',V,Version);
+                                          (_) ->
+                                               true
                                        end, lists:usort(agner:versions(Name)))) of
         [] ->
             no_such_version;
@@ -62,4 +64,22 @@ property_to_list(Prop) when is_tuple(Prop) ->
 property_to_list(undefined) ->
     "".
 
+-spec version_compare('>'|'<'|'>='|'=<'|'=='|'=:='|'/='|'=/=', agner_package_version_string(), agner_package_version_string()) -> boolean().
+
+version_compare(Op, Version1, Version2) ->
+    erlang:apply(erlang, Op, [version_components(Version1), version_components(Version2)]).
+
+version_components(Version) ->
+    Components = string:tokens(Version, "."),
+    lists:flatten(lists:map(fun (C) ->
+                                    case string:to_integer(C) of
+                                        {error, _} = Error ->
+                                            error(Error);                                        
+                                        {I, Rest} ->
+                                            [I, Rest]
+                                    end
+                            end, Components)).
+                              
     
+                              
+                             

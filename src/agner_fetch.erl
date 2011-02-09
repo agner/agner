@@ -392,7 +392,7 @@ unsatisfied_requirements(Spec) ->
     lists:filter(fun ("agner") ->
                          false;
                      ({"agner", "atleast:" ++ AgnerVersion}) ->
-                         AgnerVersion > current_agner_version();
+                         agner_spec:version_compare('>', AgnerVersion, current_agner_version());
                      ({"agner", AgnerVersion}) ->
                          AgnerVersion /= current_agner_version();
                      (_) ->
