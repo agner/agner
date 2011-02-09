@@ -231,7 +231,7 @@ buildable(build_command, #state{ opts = #opts_rec{ build = true } = Opts, repo_d
         ok ->
             {next_state, buildable, State};
         _ ->
-            {stop, {error, {build_failed, "Build failed"}}}
+            {stop, {error, {build_failed, "Build failed"}}, State}
     end;
 
 buildable(add_path, #state{ opts = #opts_rec{ build = true } = Opts} = State) ->
@@ -250,7 +250,7 @@ installable(install_command, #state{ opts = #opts_rec{ install = true } = Opts, 
         ok ->
             {next_state, installable, State};
         _ ->
-            {stop, {error, {install_failed, "Installation failed"}}}
+            {stop, {error, {install_failed, "Installation failed"}}, State}
     end;
 
 installable(print_prefix, #state{ opts = #opts_rec{ install = true, package = Package, version = Version } } = State) ->
