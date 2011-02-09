@@ -66,7 +66,7 @@ pushed_at(Pid) ->
 -spec clone(pid(), repo_url_function()) -> ok.
 
 clone(Pid, Fun) ->
-    gen_server:call(Pid, {clone, Fun}).
+    gen_server:call(Pid, {clone, Fun}, infinity).
 
 -spec file(pid(), file()) -> file() | not_found_error() | {error, not_cloned}.
                   
