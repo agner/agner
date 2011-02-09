@@ -448,8 +448,11 @@ build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Qui
             set_install_prefix(Opts),
             io:format("[Building...]~n"),
             Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
+            unlink(Port),
             PortHandler = fun (F) ->
                                   receive
+                                      {'EXIT', Port, normal} ->
+                                          ok;
                                       {'EXIT', Port, _} ->
                                           error;
                                       {Port,{exit_status,0}} ->
@@ -463,7 +466,14 @@ build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Qui
                                           F(F)
                                   end
                           end,
-            PortHandler(PortHandler)
+            Result = PortHandler(PortHandler),
+            receive
+                {'EXIT', Port, normal} -> %% flush port exit
+                    ok
+            after 0 ->
+                    ok
+            end,
+            Result
     end.
 
 add_path(#opts_rec{ directory = Directory, package = Package, addpath = true }) ->
@@ -492,6 +502,8 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
             Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
             PortHandler = fun (F) ->
                                   receive
+                                      {'EXIT', Port, normal} ->
+                                          ok;
                                       {'EXIT', Port, _} ->
                                           error;
                                       {Port,{exit_status,0}} ->
@@ -506,6 +518,12 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
                                   end
                           end,
             Result = PortHandler(PortHandler),
+            receive
+                {'EXIT', Port, normal} -> %% flush port exit
+                    ok
+            after 0 ->
+                    ok
+            end,
             case Result of
                 ok ->
                     case proplists:get_value(bin_files, Spec) of
