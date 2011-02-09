@@ -20,7 +20,7 @@ repositories(Page) ->
 	case request("https://github.com/api/v2/json/repos/show/" ++ Account ++ "?page=" ++ integer_to_list(Page))  of
 		{error, _Reason} = Error ->
 			Error;
-		{struct, Object} ->
+		Object ->
 			case proplists:get_value(<<"repositories">>, Object) of
                 [] ->
                     [];
@@ -33,7 +33,7 @@ repositories(Page) ->
                                              (_) ->
                                                  true
                                          end,
-                                         lists:map(fun ({struct, RepObject}) ->
+                                         lists:map(fun (RepObject) ->
                                                            {repo_name(proplists:get_value(<<"name">>, RepObject)),
                                                             proplists:get_value(<<"pushed_at">>, RepObject)}
                                                    end, Repositories)),
@@ -45,9 +45,8 @@ repository(Name) ->
 	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name))  of
 		{error, _Reason} = Error ->
 			Error;
-		{struct, Object} ->
-			{struct, Repo} = proplists:get_value(<<"repository">>, Object),
-			Repo
+		Object ->
+			proplists:get_value(<<"repository">>, Object)
 	end.
 	
 	
@@ -217,11 +216,11 @@ httpc_request_1(URL, Opts) ->
 	httpc:request(get,{URL,
 					   []},
 				  [{timeout, 60000}],
-				  Opts,
+				  Opts ++ [{body_format, binary}],
 				  agner).
 
 parse_response({ok, {{"HTTP/1.1",200,_},_Headers,Body}}) ->
-	mochijson2:decode(Body);
+	jsx:json_to_term(Body);
 parse_response({ok, {{"HTTP/1.1",404,_},_Headers,_Body}}) ->
 	{error, not_found};
 parse_response({ok, {{"HTTP/1.1",403,_}, _Headers, _Body}}) ->
