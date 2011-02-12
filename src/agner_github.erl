@@ -154,6 +154,8 @@ spec(Name, Version) ->
         At when is_list(At) ->
             DotDir = filename:join("/tmp","agner"),
             filelib:ensure_dir(DotDir ++ "/"),
+            {ok, #file_info{mode = Mode}} = file:read_file_info(DotDir),
+            file:change_mode(DotDir, Mode bor 8#0222 bor 8#0444),
             AtFilename = filename:join([DotDir, "cache." ++ Name ++ integer_to_list(erlang:phash2(Version)) ++ 
                                             lists:map(fun ($/) ->
                                                               $_;
