@@ -218,7 +218,7 @@ httpc_request_1(URL, Opts) ->
 	httpc:request(get,{URL,
 					   []},
 				  [{timeout, 60000}],
-				  [{body_format, binary}] ++ Opts,
+				  [{body_format, binary}|Opts],
 				  agner).
 
 parse_response({ok, {{"HTTP/1.1",200,_},_Headers,Body}}) ->
