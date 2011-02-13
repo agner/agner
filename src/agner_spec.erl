@@ -104,6 +104,6 @@ defaults(Package) ->
      {homepage, "http://google.com/#q=" ++ Package},
      {description, ""},
      {keywords, []},
-     {code_paths, ["ebin"]}
+     {code_paths, ["ebin"]},
      {applications, []}].
                              
