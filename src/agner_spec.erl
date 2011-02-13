@@ -55,14 +55,22 @@ version_to_list({release, Version}) ->
 property_to_list(Prop) when is_tuple(Prop) ->
     property_to_list(tuple_to_list(Prop));
 property_to_list([_Name|Rest]) when is_list(Rest) ->
-    [ case io_lib:printable_list(V) of
-          true ->
-              io_lib:format("~s ", [V]);
-          false ->
-              io_lib:format("~p ", [V])
-      end || V <- Rest ];
+    [ property_to_list_1(V) || V <- Rest ];
 property_to_list(undefined) ->
     "".
+
+property_to_list_1(V) when is_list(V) ->
+    case io_lib:printable_list(V) of
+        true ->
+            io_lib:format("~s ", [V]);
+        false ->
+            [ property_to_list_1(V1) || V1 <- V ]
+    end;
+property_to_list_1(V) ->
+    io_lib:format("~p ", [V]).
+    
+
+    
 
 -spec version_compare('>'|'<'|'>='|'=<'|'=='|'=:='|'/='|'=/=', agner_package_version_string(), agner_package_version_string()) -> boolean().
 
