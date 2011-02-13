@@ -34,7 +34,7 @@
 -type agner_spec_property_url() :: {url, agner_download_url()}.
 -type agner_spec_property_deps_dir() :: {deps_dir, directory()}.
 -type agner_spec_property_requires() :: {requires, list(agner_spec_requirement())}.
--type agner_spec_code_paths() :: {code_paths, [directory()]}.
+-type agner_spec_property_code_paths() :: {code_paths, [directory()]}.
                                                              
 
 -type agner_spec_property() :: agner_spec_property_name() |
@@ -54,6 +54,6 @@
                                agner_spec_property_url() |
                                agner_spec_property_deps_dir() |
                                agner_spec_property_requires() |
-                               agner_spec_code_paths().
+                               agner_spec_property_code_paths().
 
 -type agner_spec() :: list(agner_spec_property()).
