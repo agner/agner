@@ -210,7 +210,7 @@ handle_command(spec, Opts) ->
                         agner:spec(Package, Version);
                     File ->
                         {ok, T} = file:consult(File),
-                        T
+                        agner_spec:normalize(T)
                 end,
             case Spec of
                 {error, not_found} ->
@@ -328,8 +328,8 @@ handle_command(uninstall, Opts) ->
                             undefined ->
                                 agner:spec(Package, Version);
                             File ->
-                        {ok, T} = file:consult(File),
-                                T
+                                {ok, T} = file:consult(File),
+                                agner_spec:normalize(T)
                         end,
                     os:cmd("rm -rf " ++ InstallPrefix),
                     case proplists:get_value(bin_files, Spec) of
@@ -389,7 +389,8 @@ handle_command(verify, Opts) ->
     case file:consult(SpecFile) of
         {error, Reason} ->
             io:format("ERROR: Can't read ~s: ~p~n",[SpecFile, Reason]);
-        {ok, Spec} ->
+        {ok, Spec0} ->
+            Spec = agner_spec:normalize(Spec0),
             URL = proplists:get_value(url, Spec),
 			TmpFile = temp_name(),
             case (catch agner_download:fetch(Spec,TmpFile)) of
