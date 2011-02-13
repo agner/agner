@@ -103,5 +103,6 @@ defaults(Package) ->
      {rebar_commands, ["get-deps","compile"]},
      {homepage, "http://google.com/#q=" ++ Package},
      {description, ""},
-     {keywords, []}].     
+     {keywords, []},
+     {code_paths, ["ebin"]}].
                              
