@@ -175,23 +175,25 @@ spec(Name, Version) ->
     end.
 
 spec_1(RepoServer,  AtFilename) ->
-    case file:read_file_info(AtFilename) of
-        {error, enoent} ->
-            case agner_repo_server:clone(RepoServer, fun (Name) -> "git://github.com/" ++ proper_repo_name(Name) ++ ".git" end) of
-                ok ->
-                    Config = agner_repo_server:file(RepoServer, "agner.config"),
-                    {ok, S} = file:consult(Config),
-                    {ok, _} = file:copy(Config, AtFilename),
-                    {ok, #file_info{mode = Mode}} = file:read_file_info(AtFilename),
-                    file:change_mode(AtFilename, Mode bor 8#00444),
-                    S;
-                _ ->
-                    {error, not_found}
-            end;
-        {ok, _} ->
-            {ok, S} = file:consult(AtFilename),
-            S
-    end.
+    Spec = 
+        case file:read_file_info(AtFilename) of
+            {error, enoent} ->
+                case agner_repo_server:clone(RepoServer, fun (Name) -> "git://github.com/" ++ proper_repo_name(Name) ++ ".git" end) of
+                    ok ->
+                        Config = agner_repo_server:file(RepoServer, "agner.config"),
+                        {ok, S} = file:consult(Config),
+                        {ok, _} = file:copy(Config, AtFilename),
+                        {ok, #file_info{mode = Mode}} = file:read_file_info(AtFilename),
+                        file:change_mode(AtFilename, Mode bor 8#00444),
+                        S;
+                    _ ->
+                        {error, not_found}
+                end;
+            {ok, _} ->
+                {ok, S} = file:consult(AtFilename),
+                S
+        end,
+    agner_spec:normalize(Spec).
 
 spec_url(Name, SHA1) ->
     "https://github.com/" ++ proper_repo_name(Name) ++ "/blob/" ++ SHA1 ++ "/agner.config".

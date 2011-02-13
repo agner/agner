@@ -219,7 +219,7 @@ handle_command(spec, Opts) ->
                 _ ->
                     case proplists:get_value(homepage, Opts) of
                         true ->
-                            agner_utils:launch_browser(proplists:get_value(homepage, Spec, "http://google.com/#q=" ++ Package));
+                            agner_utils:launch_browser(proplists:get_value(homepage, Spec));
                         _ ->
                             ignore
                     end,
@@ -261,7 +261,7 @@ handle_command(list, Opts) ->
     Properties = lists:map(fun list_to_atom/1, string:tokens(proplists:get_value(properties, Opts,""),",")),
     lists:foreach(fun (Name) ->
                           Spec = agner:spec(Name),
-                          Searchable = string:to_lower(lists:flatten([Name,proplists:get_value(description,Spec,[])|proplists:get_value(keywords,Spec,[])])),
+                          Searchable = string:to_lower(lists:flatten([Name,proplists:get_value(description,Spec)|proplists:get_value(keywords,Spec)])),
                           Show = 
                               case Search of
                                   undefined ->

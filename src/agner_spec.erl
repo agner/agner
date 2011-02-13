@@ -1,7 +1,7 @@
 %% -*- Mode: Erlang; tab-width: 4 -*-
 -module(agner_spec).
 -include_lib("agner.hrl").
--export([parse/1, list_to_version/2, version_to_list/1, property_to_list/1, version_compare/3]).
+-export([parse/1, list_to_version/2, version_to_list/1, property_to_list/1, version_compare/3, normalize/1]).
 
 -type agner_spec_source() :: string().
 
@@ -80,6 +80,20 @@ version_components(Version) ->
                                     end
                             end, Components)).
                               
-    
-                              
+
+-spec normalize(agner_spec()) -> agner_spec().
+
+normalize(Spec) ->    
+    lists:ukeysort(1,Spec ++ defaults(proplists:get_value(name, Spec, ""))).
+
+-spec defaults(agner_package_name()) -> agner_spec().
+
+defaults(Package) ->                              
+    [{rebar_compatible, false},
+     {requires, []},
+     {deps_dir, "deps"},
+     {rebar_commands, ["get-deps","compile"]},
+     {homepage, "http://google.com/#q=" ++ Package},
+     {description, ""},
+     {keywords, []}].     
                              

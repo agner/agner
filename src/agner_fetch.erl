@@ -383,10 +383,10 @@ requires(Spec) ->
                        true;
                    (A,B) ->
                        A =< B
-               end, proplists:get_value(requires, Spec, [])).
+               end, proplists:get_value(requires, Spec)).
 
 deps_dir(Spec, Directory) ->
-    filename:join(Directory, proplists:get_value(deps_dir, Spec, "deps")).
+    filename:join(Directory, proplists:get_value(deps_dir, Spec)).
 
 unsatisfied_requirements(Spec) ->
     lists:filter(fun ("agner") ->
@@ -425,7 +425,7 @@ rebar(#opts_rec{ spec = {spec, Spec}, directory = Directory }) ->
             {ok, Cwd} = file:get_cwd(),
             file:set_cwd(Directory),
             rebar_config:set_global(shutdown_agner, false), %% prevents rebar from shutting down agner
-            RebarCommands = proplists:get_value(rebar_commands, Spec, ["get-deps","compile"]),
+            RebarCommands = proplists:get_value(rebar_commands, Spec),
             rebar:main(RebarCommands),
             file:set_cwd(Cwd);
         _ ->
@@ -438,7 +438,7 @@ build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Qui
 
     case proplists:get_value(build_command, Spec) of
         undefined ->
-            case proplists:get_value(rebar_compatible, Spec, false) of
+            case proplists:get_value(rebar_compatible, Spec) of
                 false ->
                     io:format("WARNING: No build_command specified, can't build this package~n");
                 _ ->
