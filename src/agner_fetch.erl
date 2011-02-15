@@ -496,7 +496,7 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
     case proplists:get_value(install_command, Spec) of
         undefined ->
-            io:format("ERROR: No install_command specified, can't install this package. May you want to use just `agner build ~s`?~n", [Package]);
+            io:format("ERROR: No install_command specified, can't install this package. Maybe you want to use just `agner build ~s`?~n", [Package]);
         Command ->
             io:format("[Installing...]~n"),
             Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
