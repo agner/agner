@@ -21,12 +21,6 @@ If you want to install latest release instead of HEAD, use this one:
 
      curl https://github.com/agner/agner/raw/master/scripts/oneliner.release | sh
 
-### Configuration
-
-If your `/usr/local` isn't writeable to your user, either set your
-`AGNER_PREFIX` variable to point to some writeable location or use
-`sudo sh`.
-
 Motivation
 ----------
 
