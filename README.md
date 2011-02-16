@@ -10,8 +10,8 @@ capabilities such as versioning, downloads, installation and so on.
 Agner is a shorthand for *A Giant Nebula of Erlang Repositories*. It
 also pays homage to the Danish statistician Agner Krarup Erlang.
 
-Installation and Configuration
-------------------------------
+Installation
+------------
 
 It is just a matter of a simple oneliner to get Agner installed:
 
