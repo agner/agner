@@ -4,6 +4,7 @@
 
 test_fetching(Script, Package, Version) ->
     Directory = test_server:temp_name("/tmp/agner"),
+    os:cmd("rm -rf " ++ Directory),
     filelib:ensure_dir(Directory ++ "/"),
     Port = open_port({spawn,Script ++ " fetch " ++ Package ++ " -v " ++ Version},
                      [{cd, Directory},stream,use_stdio,stderr_to_stdout,
@@ -27,6 +28,7 @@ test_fetching(Script, Package, Version) ->
 
 test_building(Script, Package, Version) ->
     Directory = test_server:temp_name("/tmp/agner"),
+    os:cmd("rm -rf " ++ Directory),
     filelib:ensure_dir(Directory ++ "/"),
     Port = open_port({spawn,Script ++ " build " ++ Package ++ " -v " ++ Version},
                      [{cd, Directory},stream,use_stdio,stderr_to_stdout,
@@ -49,16 +51,18 @@ test_building(Script, Package, Version) ->
     os:cmd("rm -rf " ++ Directory).
 
 tests_version_(Script, Package, Version) ->
-    [{"Fetching " ++ Package ++ " version " ++ Version , 
-      {timeout, 60*15,      
-       fun () ->
-               test_fetching(Script, Package, Version)
-       end}},
-     {"Building " ++ Package ++ " version " ++ Version , 
-      {timeout, 60*15,
-       fun () ->
-               test_building(Script, Package, Version)
-       end}}].
+    {inorder, 
+     [
+      {"Fetching " ++ Package ++ " version " ++ Version , 
+       {timeout, 60*15,      
+        fun () ->
+                test_fetching(Script, Package, Version)
+        end}},
+      {"Building " ++ Package ++ " version " ++ Version , 
+       {timeout, 60*15,
+        fun () ->
+                test_building(Script, Package, Version)
+        end}}]}.
 
     
 
