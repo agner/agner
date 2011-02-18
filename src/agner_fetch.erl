@@ -90,7 +90,8 @@ handle_state(ready, #state{ opts = #opts_rec{ version = ("atleast:" ++ VersionCo
 %% By default, if directory is not specified, it should assume its value from package name
 handle_state(ready, #state{ opts = #opts_rec{ version = Version, directory = undefined, 
                                               package = Package } = Opts} = State) when is_list(Version) ->
-    handle_state(ready, State#state{ opts = Opts#opts_rec { directory = Package } });
+    PackageName = hd(lists:reverse(string:tokens(Package, "/"))),
+    handle_state(ready, State#state{ opts = Opts#opts_rec { directory = PackageName } });
 
 %% Everything is ready to go
 handle_state(ready, #state{  opts = #opts_rec{ version = Version, directory = Directory0 } = Opts
