@@ -41,6 +41,18 @@ fetch_1({hg, URL, Rev}, Directory) ->
         true -> %% existing
             PortClone = hg(["pull", "-u", "-r", Rev],[{cd, Directory}]),
             process_port(PortClone, fun () -> ok end)
+    end;
+
+fetch_1({svn, Url, Rev}, Directory) ->
+    io:format("[Fetching svn repository...]~n"),
+    case filelib:is_dir(Directory) of
+        false -> %% new
+            PortCheckout = svn(["checkout", "-r", Rev, Url, filename:basename(Directory)],
+                               [{cd, filename:dirname(Directory)}]),
+            process_port(PortCheckout, fun () -> ok  end);
+        true -> %% existing
+            PortUp = svn(["up", "-r", Rev],[{cd, Directory}]),
+            process_port(PortUp, fun () -> ok end)
     end.
 
 %%
@@ -70,6 +82,11 @@ hg(Args, Opts) ->
     Hg = os:find_executable("hg"),
     open_port({spawn_executable, Hg},[{args, Args},
                                       exit_status|Opts]).
+
+svn(Args, Opts) ->
+    Svn = os:find_executable("svn"),
+    open_port({spawn_executable, Svn},[{args, Args},
+                                       exit_status|Opts]).
 
 process_port(Port, Fun) ->
     receive 

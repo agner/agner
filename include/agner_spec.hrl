@@ -4,13 +4,16 @@
 
 -type hg_rev() :: string().
 
+-type svn_rev() :: string().
+
 -type agner_named_download_url() :: 
         {string(), agner_download_url()}.
 
 -type agner_download_url() ::
         {all, list(agner_named_download_url())} |
         {git, url(), git_ref()} |
-        {hg, url(), hg_rev()}.
+        {hg, url(), hg_rev()} |
+        {svn, url(), svn_rev()}.
 
 -type agner_spec_requirement() :: {agner_package_name(), agner_package_version_string()} |
                                   agner_package_name().
