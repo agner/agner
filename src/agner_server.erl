@@ -210,9 +210,9 @@ code_change(_OldVsn, State, _Extra) ->
 -spec handle_spec(agner_package_name(), agner_package_version(), gen_server_from(), agner_indices()) -> any().
 handle_spec(_,_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
-handle_spec(Name, Version, From, [Mod0|Rest]) ->
+handle_spec(Name, Version, From, [{Mod0, Params}|Rest]) ->
 	Mod = index_module(Mod0),
-    case Mod:spec(Name, Version) of
+    case Mod:spec(Params, Name, Version) of
         {error, not_found} ->
             handle_spec(Name, Version, From, Rest);
         Data ->
@@ -222,11 +222,11 @@ handle_spec(Name, Version, From, [Mod0|Rest]) ->
 -spec handle_spec_url(agner_package_name(), agner_package_version(), gen_server_from(), agner_indices()) -> any().
 handle_spec_url(_,_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
-handle_spec_url(Name, Version, From, [Mod0|Rest]) ->
+handle_spec_url(Name, Version, From, [{Mod0, Params}|Rest]) ->
 	Mod = index_module(Mod0),
-    case sha1(Mod, Name, Version) of
+    case sha1(Mod, Params, Name, Version) of
         SHA1 when is_list(SHA1) ->
-            case Mod:spec_url(Name, SHA1) of
+            case Mod:spec_url(Params, Name, SHA1) of
                 {error, not_found} ->
                     handle_spec_url(Name, Version, From, Rest);
                 URL ->
@@ -245,13 +245,13 @@ handle_index(From, Acc, []) ->
                           agner_repo_server:set_pushed_at(Pid, binary_to_list(proplists:get_value(Name, Repos)))
                   end, RepoNames),
 	gen_server:reply(From, lists:usort(RepoNames));
-handle_index(From, Acc, [Mod0|Rest]) ->
+handle_index(From, Acc, [{Mod0, Params}|Rest]) ->
 	Mod = index_module(Mod0),
-	case Mod:repositories() of
+	case Mod:repositories(Params) of
 		{error, not_found} ->
 			handle_index(From, Acc, Rest);
 		Repos ->
-            handle_index(From, lists:map(fun (Repo) -> indexize(Mod0, Repo) end, Repos) ++ Acc, Rest)
+            handle_index(From, lists:map(fun (Repo) -> indexize(Mod0, Params, Repo) end, Repos) ++ Acc, Rest)
 	end.
 
 -spec handle_fetch(agner_package_name() | agner_spec(), agner_package_version(), directory(), gen_server_from()) -> any().
@@ -273,9 +273,9 @@ handle_fetch(NameOrSpec, Version, Directory, From) ->
 -spec handle_versions(agner_package_name(), gen_server_from(), agner_indices()) -> any().
 handle_versions(_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
-handle_versions(Name, From, [Mod0|Rest]) ->
+handle_versions(Name, From, [{Mod0, Params}|Rest]) ->
 	Mod = index_module(Mod0),
-	case Mod:repository(Name) of
+	case Mod:repository(Params, Name) of
 		{error, not_found} ->
 			handle_versions(Name, From, Rest);
 		_ ->
@@ -283,21 +283,21 @@ handle_versions(Name, From, [Mod0|Rest]) ->
                                      ({[$%|_],_}) -> undefined;
                                      ({"gh-pages",_}) -> undefined;
                                      ({Branch, _}) -> {flavour, Branch} end,
-                                  Mod:branches(Name)),
+                                  Mod:branches(Params, Name)),
             Tags = lists:map(fun ({[$%|_],_}) -> undefined;
                                  ({Tag, _}) -> {release, Tag} end,
-                                  Mod:tags(Name)),
+                                  Mod:tags(Params, Name)),
             gen_server:reply(From, lists:filter(fun (undefined) -> false; (_) -> true end, Branches ++ Tags))
 	end.
 
--spec sha1(agner_index(), agner_package_name(), agner_package_version()) -> sha1().
+-spec sha1(agner_index(), agner_account(), agner_package_name(), agner_package_version()) -> sha1().
                   
-sha1(Mod, Name, Version) ->
+sha1(Mod, Params, Name, Version) ->
     case Version of
         {flavour, Branch} ->
             Branch;
         {release, Tag} ->
-            Tags = Mod:tags(Name),
+            Tags = Mod:tags(Params, Name),
             proplists:get_value(Tag, Tags);
         no_such_version ->
             no_such_version
@@ -307,14 +307,14 @@ sha1(Mod, Name, Version) ->
 index_module(T) ->
     case application:get_env(index_modules) of
         {ok, Modules} ->
-            setelement(1,T,proplists:get_value(element(1,T), Modules));
+            proplists:get_value(T, Modules);
         _ ->
             T
     end.
 
-indexize({github, "agner"}, Name) ->
+indexize(github, "agner", Name) ->
     Name;
-indexize({github, Account}, Name) ->
+indexize(github, Account, Name) ->
     Account ++ "/" ++ Name.
 
 indices() ->

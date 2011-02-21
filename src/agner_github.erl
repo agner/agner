@@ -1,22 +1,22 @@
 %% -*- Mode: Erlang; tab-width: 4 -*-
--module(agner_github, [Account]).
+-module(agner_github).
 -behaviour(agner_index).
 -include_lib("agner.hrl").
 -include_lib("agner_index.hrl").
 -include_lib("kernel/include/file.hrl").
 
--export([repositories/0,
-		 repository/1,
-		 tags/1,
-		 branches/1,
-		 spec/2,
-         spec_url/2
+-export([repositories/1,
+		 repository/2,
+		 tags/2,
+		 branches/2,
+		 spec/3,
+         spec_url/3
 		]).
 
-repositories() ->
-    repositories(1).
+repositories(Account) ->
+    repositories(Account, 1).
 
-repositories(Page) ->
+repositories(Account, Page) ->
 	case request("https://github.com/api/v2/json/repos/show/" ++ Account ++ "?page=" ++ integer_to_list(Page))  of
 		{error, _Reason} = Error ->
 			Error;
@@ -37,12 +37,12 @@ repositories(Page) ->
                                                            {repo_name(proplists:get_value(<<"name">>, RepObject)),
                                                             proplists:get_value(<<"pushed_at">>, RepObject)}
                                                    end, Repositories)),
-                    Repos ++ repositories(Page + 1)
+                    Repos ++ repositories(Account, Page + 1)
             end
 	end.
 
-repository(Name) ->
-	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Name))  of
+repository(Account, Name) ->
+	case request("https://github.com/api/v2/json/repos/show/" ++ proper_repo_name(Account, Name))  of
 		{error, _Reason} = Error ->
 			Error;
 		Object ->
@@ -50,9 +50,9 @@ repository(Name) ->
 	end.
 	
 	
-tags(Name) ->
+tags(Account, Name) ->
     {ok, RepoServer} = agner_repo_server:create(Name, {flavour, "master"}),
-    ok = agner_repo_server:clone(RepoServer, fun (N) -> "git://github.com/" ++ proper_repo_name(N) ++ ".git" end),
+    ok = agner_repo_server:clone(RepoServer, fun (N) -> "git://github.com/" ++ proper_repo_name(Account, N) ++ ".git" end),
     Path = agner_repo_server:file(RepoServer, []),
     Port = agner_download:git(["tag", "-l"], [{cd, Path}, use_stdio, stderr_to_stdout, {line, 255}]),
     PortHandler = fun (F,Acc) ->
@@ -98,9 +98,9 @@ tags(Name) ->
     end.
 
 
-branches(Name) ->
+branches(Account, Name) ->
     {ok, RepoServer} = agner_repo_server:create(Name, {flavour, "master"}),
-    ok = agner_repo_server:clone(RepoServer, fun (N) -> "git://github.com/" ++ proper_repo_name(N) ++ ".git" end),
+    ok = agner_repo_server:clone(RepoServer, fun (N) -> "git://github.com/" ++ proper_repo_name(Account, N) ++ ".git" end),
     Path = agner_repo_server:file(RepoServer, []),
     Port = agner_download:git(["branch", "-r"], [{cd, Path}, use_stdio, stderr_to_stdout, {line, 255}]),
     PortHandler = fun (F,Acc) ->
@@ -148,7 +148,7 @@ branches(Name) ->
                       end, Branches)
     end.
 
-spec(Name, Version) ->
+spec(Account, Name, Version) ->
     {ok, RepoServer} = agner_repo_server:create(Name, Version),
     case agner_repo_server:pushed_at(RepoServer) of
         At when is_list(At) ->
@@ -164,21 +164,21 @@ spec(Name, Version) ->
                                                           (C) ->
                                                               C
                                                       end, At)]),
-            spec_1(RepoServer, AtFilename);
+            spec_1(Account, RepoServer, AtFilename);
         undefined ->
             {A,B,C} = now(),
             N = node(),
             TmpFile = lists:flatten(io_lib:format("/tmp/agner-~p-~p.~p.~p",[N,A,B,C])),
-            Result = spec_1(RepoServer, TmpFile),
+            Result = spec_1(Account, RepoServer, TmpFile),
             file:delete(TmpFile),
             Result
     end.
 
-spec_1(RepoServer,  AtFilename) ->
+spec_1(Account, RepoServer,  AtFilename) ->
     Spec = 
         case file:read_file_info(AtFilename) of
             {error, enoent} ->
-                case agner_repo_server:clone(RepoServer, fun (Name) -> "git://github.com/" ++ proper_repo_name(Name) ++ ".git" end) of
+                case agner_repo_server:clone(RepoServer, fun (Name) -> "git://github.com/" ++ proper_repo_name(Account, Name) ++ ".git" end) of
                     ok ->
                         Config = agner_repo_server:file(RepoServer, "agner.config"),
                         {ok, S} = file:consult(Config),
@@ -195,12 +195,12 @@ spec_1(RepoServer,  AtFilename) ->
         end,
     agner_spec:normalize(Spec).
 
-spec_url(Name, SHA1) ->
-    "https://github.com/" ++ proper_repo_name(Name) ++ "/blob/" ++ SHA1 ++ "/agner.config".
+spec_url(Account, Name, SHA1) ->
+    "https://github.com/" ++ proper_repo_name(Account, Name) ++ "/blob/" ++ SHA1 ++ "/agner.config".
 
 %%%
 
-proper_repo_name(Name) ->
+proper_repo_name(Account, Name) ->
     case string:tokens(Name,"/") of
         [_, _]=L ->
             string:join(L,"/") ++ ".agner";

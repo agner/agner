@@ -9,8 +9,9 @@
 
 -type sha1() :: string().
 
--type agner_index() :: {github, string()}.
--type agner_indices() :: list(agner_index()).
+-type agner_index() :: github.
+-type agner_account() :: string().
+-type agner_indices() :: list({agner_index(), agner_account()}).
 
 -type not_found_error() :: {error, not_found}.
 

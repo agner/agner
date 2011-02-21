@@ -5,8 +5,7 @@
 -spec behaviour_info(atom()) -> undefined | list({atom(), arity()}).
 
 behaviour_info(callbacks) ->
-    [{repositories,0}, {repository, 1}, {tags,1}, {branches, 1}, {spec, 2},
-     {spec_url, 2}];
+    [{repositories,1}, {repository, 2}, {tags,2}, {branches, 2}, {spec, 3},
+     {spec_url, 3}];
 behaviour_info(_Other) ->
     undefined.
-
