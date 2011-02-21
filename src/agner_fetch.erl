@@ -18,6 +18,7 @@
           package,
           directory,
           version,
+          app,
           build,
           addpath,
           install,
@@ -73,6 +74,30 @@ init(Opts) ->
           }}.
 
 
+handle_state(ready, #state{ opts = #opts_rec { package = undefined,
+                                               app = App } = Opts } = State) when is_list(App) ->
+    AgnerKey =
+        case file:consult(App) of
+            {ok, [{application, _, Terms}]} ->
+                proplists:get_value(agner, Terms);
+            _ ->
+                not_found
+        end,
+    case AgnerKey of
+        not_found ->
+            {stop, {error, {app_missing, "Can't find application " ++ App ++ " or its `agner' key"}}, State};
+        _ ->
+            Spec = agner_spec:normalize(AgnerKey),
+            handle_state(ready, State#state{ opts = Opts#opts_rec{ package = App,
+                                                                   app = undefined,
+                                                                   spec = {spec, Spec},
+                                                                   directory = "."
+                                                                 },
+                                             fetched_steps = [fetch_requirements],
+                                             build_steps = [],
+                                             install_steps = [] })
+    end;
+                    
 %% Stop if no package name is specified
 handle_state(ready,  #state{ opts = #opts_rec{ package = undefined }} = State) ->
     {stop, {error, {package_missing, "Package name required"}}, State};
@@ -94,7 +119,7 @@ handle_state(ready, #state{ opts = #opts_rec{ version = Version, directory = und
     handle_state(ready, State#state{ opts = Opts#opts_rec { directory = PackageName } });
 
 %% Everything is ready to go
-handle_state(ready, #state{  opts = #opts_rec{ version = Version, directory = Directory0 } = Opts
+handle_state(ready, #state{  opts = #opts_rec{ version = Version, directory = Directory0, app = undefined } = Opts
                           } = State) when is_list(Version) ->
     Directory = filename:absname(Directory0),
     gen_fsm:send_event(self(), next),

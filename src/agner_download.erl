@@ -6,12 +6,19 @@
 
 fetch(Spec, Directory) ->
     Fetch = fetch_1(proplists:get_value(url, Spec), Directory),
-    {ok, F} = file:open(filename:join(Directory,".agner.config"),[write]),
-    lists:foreach(fun (Term) ->
-                          io:fwrite(F,"~p.~n",[Term])
-                  end, Spec),
-    file:close(F),
+    case file:open(filename:join(Directory,".agner.config"),[write]) of
+        {ok, F} ->
+            lists:foreach(fun (Term) ->
+                                  io:fwrite(F,"~p.~n",[Term])
+                          end, Spec),
+            file:close(F);
+        _ ->
+            ignore
+    end,
     Fetch.
+
+fetch_1(undefined, _) -> %% if no url is defined, don't download anything
+    ok;
 
 fetch_1({all, []}, _) ->
     ok;

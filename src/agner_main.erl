@@ -63,6 +63,7 @@ arg_proplist() ->
 		{package, undefined, undefined, string, "Package name"},
 		{directory, undefined, undefined, string, "Directory to check package out to"},
 		{version, $v, "version", {string, "@master"}, "Version"},
+        {app, undefined, "app", string, "Fetch dependencies from .app"},
         {build, $b, "build", {boolean, false}, "Build fetched package"},
         {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"},
         {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
@@ -75,6 +76,7 @@ arg_proplist() ->
 	   [
 		{package, undefined, undefined, string, "Package name"},
 		{version, $v, "version", {string, "@master"}, "Version"},
+        {app, undefined, "app", string, "Fetch dependencies from .app"},
         {spec, $s, "spec-file", string, "Use local specification file"},
         {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"}
 	   ]}},
@@ -99,6 +101,7 @@ arg_proplist() ->
 	   [
 		{package, undefined, undefined, string, "Package name"},
 		{version, $v, "version", {string, "@master"}, "Version"},
+        {app, undefined, "app", string, "Fetch dependencies from .app"},
         {spec, $s, "spec-file", string, "Use local specification file"},
         {package_path, undefined, "package-path", string, "Path to the package repo contents (used in conjunction with --spec-file only, defaults to '.')"},
         {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"},
