@@ -15,6 +15,8 @@
         {hg, url(), hg_rev()} |
         {svn, url(), svn_rev()}.
 
+-type agner_install_dir() :: otp | directory().
+
 -type agner_spec_requirement() :: {agner_package_name(), agner_package_version_string()} |
                                   agner_package_name().
 
@@ -28,6 +30,7 @@
 -type agner_spec_property_rebar_commands() :: {rebar_commands, list(string())}.
 -type agner_spec_property_build_command() :: {build_command, string()}.
 -type agner_spec_property_install_command() :: {install_command, string()}.
+-type agner_spec_property_install_dirs() :: {install_dirs, list(agner_install_dir())}.
 -type agner_spec_property_bin_files() :: {bin_files, list(string())}.
 -type agner_spec_property_license() :: {license, string(), file()} |
                                        {license, string()}.

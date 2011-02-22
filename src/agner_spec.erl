@@ -92,7 +92,25 @@ version_components(Version) ->
 -spec normalize(agner_spec()) -> agner_spec().
 
 normalize(Spec) ->    
-    lists:ukeysort(1,Spec ++ defaults(proplists:get_value(name, Spec, ""))).
+    lists:map(fun normalize_property/1, lists:ukeysort(1,Spec ++ defaults(proplists:get_value(name, Spec, "")))).
+
+-spec normalize_property(agner_spec_property()) -> agner_spec_property().
+
+-define(OTP_DIRS,"doc","ebin","include","priv").
+
+normalize_property({install_dirs, []}) ->
+    {install_dirs, []};
+
+normalize_property({install_dirs, [otp|Rest]}) ->
+    {install_dirs, Rest1} = normalize_property({install_dirs, Rest}),
+    {install_dirs, [?OTP_DIRS|Rest1]};
+
+normalize_property({install_dirs, [Any|Rest]}) ->
+    {install_dirs, Rest1} = normalize_property({install_dirs, Rest}),
+    {install_dirs, [Any|Rest1]};
+
+normalize_property(Property) ->
+    Property.
 
 -spec defaults(agner_package_name()) -> agner_spec().
 
@@ -105,5 +123,6 @@ defaults(Package) ->
      {description, ""},
      {keywords, []},
      {code_paths, ["ebin"]},
-     {applications, []}].
+     {applications, []},
+     {install_dirs, [otp]}].
                              

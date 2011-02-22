@@ -32,7 +32,7 @@
           repo_dir,
           fetched_steps = [check_requirements, fetch_requirements, caveats],
           build_steps = [rebar, build_command, add_path],
-          install_steps = [install_command, print_prefix]
+          install_steps = [install_dirs, install_command, print_prefix]
          }).
 
 %%%===================================================================
@@ -269,6 +269,14 @@ installable(next, State) ->
 
 installable(_, #state{ opts = #opts_rec{ install = false }} = State) ->
     {next_state, installable, State};
+
+installable(install_dirs, #state{ opts = #opts_rec{ install = true } = Opts } = State) ->
+    case install_dirs(Opts) of
+        ok ->
+            {next_state, installable, State};
+        _ ->
+            {stop, {error, {install_failed, "Installation failed"}}, State}
+    end;
 
 installable(install_command, #state{ opts = #opts_rec{ install = true } = Opts, repo_dir = RepoDir} = State) ->
     os:putenv("AGNER_PACKAGE_REPO", RepoDir),
@@ -512,19 +520,34 @@ add_path(#opts_rec{ addpath = false }) ->
     ignore.
     
 
+
+install_dirs(#opts_rec{ spec = {spec, Spec} } = Opts) ->
+    io:format("[Installing...]~n"),
+    Spec1 = [{install_command,"cp -R " ++ string:join(proplists:get_value(install_dirs, Spec, [])," ") ++
+                  " $AGNER_INSTALL_PREFIX 2>/dev/null && true || true"}|
+             Spec],
+
+    filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
+    InstallPrefix = set_install_prefix(Opts),
+
+    os:cmd("rm -rf " ++ InstallPrefix),
+
+    install_command(Opts#opts_rec{ spec = {spec, Spec1} }),
+    ok.
+
 install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet, package = Package, version = Version } = Opts) ->
     os:putenv("AGNER_PACKAGE_NAME", Package),
     os:putenv("AGNER_PACKAGE_VERSION", Version),
 
     filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
-    os:cmd("rm -rf " ++ InstallPrefix),
+
     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
     case proplists:get_value(install_command, Spec) of
         undefined ->
-            io:format("ERROR: No install_command specified, can't install this package. Maybe you want to use just `agner build ~s`?~n", [Package]);
+            ok;
         Command ->
-            io:format("[Installing...]~n"),
+            io:format("[Running installation command...]~n"),
             Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
             PortHandler = fun (F) ->
                                   receive
