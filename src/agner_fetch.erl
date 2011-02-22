@@ -529,8 +529,8 @@ install_dirs(#opts_rec{ spec = {spec, Spec} } = Opts) ->
 
     filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
-
     os:cmd("rm -rf " ++ InstallPrefix),
+    ok = filelib:ensure_dir(InstallPrefix ++ "/"),
 
     install_command(Opts#opts_rec{ spec = {spec, Spec1} }),
     ok.
