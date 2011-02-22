@@ -524,8 +524,8 @@ add_path(#opts_rec{ addpath = false }) ->
 install_dirs(#opts_rec{ spec = {spec, Spec} } = Opts) ->
     io:format("[Installing...]~n"),
     Spec1 = [{install_command,"cp -R " ++ string:join(proplists:get_value(install_dirs, Spec, [])," ") ++
-                  " $AGNER_INSTALL_PREFIX 2>/dev/null && true || true"}|
-             Spec],
+                  " $AGNER_INSTALL_PREFIX 2>/dev/null && true || true"},
+             {bin_files, []}|Spec],
 
     filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
@@ -533,6 +533,7 @@ install_dirs(#opts_rec{ spec = {spec, Spec} } = Opts) ->
     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
 
     install_command(Opts#opts_rec{ spec = {spec, Spec1} }),
+
     ok.
 
 install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet, package = Package, version = Version } = Opts) ->
@@ -543,11 +544,11 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
     InstallPrefix = set_install_prefix(Opts),
 
     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
+    
     case proplists:get_value(install_command, Spec) of
         undefined ->
             ok;
         Command ->
-            io:format("[Running installation command...]~n"),
             Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
             PortHandler = fun (F) ->
                                   receive
