@@ -42,7 +42,7 @@ fetch_1({hg, URL, Rev}, Directory) ->
         false -> %% new
             PortClone = hg(["clone", "-U", URL, Directory]),
             process_port(PortClone, fun () -> 
-                                            PortUpdate = hg(["update", Rev]),
+                                            PortUpdate = hg(["update", Rev], [{cd, Directory}]),
                                             process_port(PortUpdate, fun () -> ok end)
                                     end);
         true -> %% existing
