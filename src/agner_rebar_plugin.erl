@@ -1,8 +1,12 @@
 -module(agner_rebar_plugin).
 
--export(['get-deps'/2,
+-export(['check-deps'/2,
+         'get-deps'/2,
          compile/2]).
 
+
+'check-deps'(Config, AppFile) ->
+    compile(Config, AppFile).
 
 'get-deps'(Config, AppFile) ->
     agner:start(),
