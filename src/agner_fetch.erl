@@ -447,7 +447,7 @@ current_agner_version() ->
     CurrentAgnerVersion.
 
 build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Directory } = Opts) ->
-    io:format("[Building dependency: ~s]~n", [ReqName]),
+    io:format("[Processing dependency: ~s]~n", [ReqName]),
     agner_main:handle_command(fetch, [{package, ReqName},{version, ReqVersion},
                                       {directory, filename:join(deps_dir(Spec, Directory),ReqName)}|
                                       proplists:delete(spec,rec_to_opts(Opts))]).
