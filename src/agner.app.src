@@ -9,6 +9,9 @@
 				  inets,
                   gproc
                  ]},
+  {agner, [
+           {requires, ["typespecs","getopt","gproc","plists","gen_fsm2","jsx","rebar"]}
+          ]},
   {env, [
          {indices, [{github, "agner"}]},
          {index_modules, [{github, agner_github}]},

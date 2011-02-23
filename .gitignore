@@ -4,3 +4,4 @@ agner
 deps
 .eunit
 TEST-*.xml
+.agner.config
