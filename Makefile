@@ -17,6 +17,7 @@ build-plt:
 
 compile: deps
 	@./rebar compile
+	@./rebar escriptize
 
 install:
 	@install ./agner /usr/local/bin
