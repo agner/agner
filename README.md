@@ -392,21 +392,26 @@ committing and pushing their updated specifications.
 Rebar
 -----
 
-Agner-compatible rebar is available at
-[agner branch](https://github.com/agner/rebar/tree/agner) of
-[agner/rebar](https://github.com/agner/rebar). Or you can download
-ready-made rebar from
-[agner itself](https://github.com/agner/agner/raw/master/rebar). We
-hope to get rebar integration in the upstream with time.
+Agner-compatible rebar can be installed by `agner install rebar -v @agner` or
+you can download ready-made rebar from [agner itself](https://github.com/agner/agner/raw/master/rebar). We hope to get rebar integration in the upstream with time.
 
-Using it with rebar is fairly simple, it uses rebar's deps feature:
+Using it with rebar is fairly simple, it makes use of rebar's plugin system. 
+Just include our plugin in your rebar.config and reference default `deps` directory:
 
-    {deps, [
-              {typespecs, "0.1", {agner, "typespecs"}},
-              {getopt, "0.3.0", {agner, "getopt"}}
-           ]}.
+    {rebar_plugins, [agner_rebar_plugin]}.
+    {lib_dirs, ["deps"]}.
 
-You can also specify your own indices:
+then, in your .app or .app.src file, add something like this as one of your `application keys`:
+
+     ...
+     {agner, [
+           {requires, ["typespecs","getopt","gproc","plists","gen_fsm2","jsx","rebar"]}
+          ]}
+     ...
+
+An example can be found in [agner itself](https://github.com/agner/agner/blob/master/src/agner.app.src)
+
+Also, you can also specify your own indices in rebar.config
 
     {agner_indices, [{github, "yourgithubusername"},{github,"agner"}].
 
