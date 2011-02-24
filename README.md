@@ -392,8 +392,7 @@ committing and pushing their updated specifications.
 Rebar
 -----
 
-Agner-compatible rebar can be installed by `agner install rebar -v @agner` or
-you can download ready-made rebar from [agner itself](https://github.com/agner/agner/raw/master/rebar). We hope to get rebar integration in the upstream with time.
+Agner-compatible rebar can be installed by `agner install rebar -v @agner`. We hope to get rebar integration in the upstream with time.
 
 Using it with rebar is fairly simple, it makes use of rebar's plugin system. 
 Just include our plugin in your rebar.config and reference default `deps` directory:
