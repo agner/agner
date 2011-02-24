@@ -458,7 +458,7 @@ rebar(#opts_rec{ spec = {spec, Spec}, quiet = Quiet, directory = Directory }) ->
             io:format("[Building...]~n"),
             RebarCommands = proplists:get_value(rebar_commands, Spec),
 
-            Port = open_port({spawn_executable,escript:script_name()},[{cd, Directory},{arg0, "rebar"}, {args, RebarCommands}, exit_status,stderr_to_stdout,use_stdio, stream]),
+            Port = open_port({spawn_executable,escript:script_name()},[{cd, Directory},{arg0, filename:join(filename:dirname(escript:script_name()), "rebar")}, {args, RebarCommands}, exit_status,stderr_to_stdout,use_stdio, stream]),
             unlink(Port),
             PortHandler = fun (F) ->
                                   receive
