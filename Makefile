@@ -17,7 +17,7 @@ build-plt:
 
 compile: deps
 	@./rebar compile
-	@cp -f deps/*/ebin/* ebin/
+	@cp deps/rebar/ebin/rebar* ebin/
 	@./rebar escriptize
 
 install:
