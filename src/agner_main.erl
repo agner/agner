@@ -128,7 +128,7 @@ arg_proplist() ->
        [
         {variable, undefined, undefined, string, "Variable name, omit to list all of them"}
        ]}}].
-       
+      
 
 command_descriptions() ->
 	[{Cmd, Desc} || {Cmd, {_Atom, Desc, _Opts}} <- arg_proplist()].
@@ -149,6 +149,9 @@ usage() ->
     getopt:usage(OptSpec, "agner", "[options ...]"),
 	io:format("Valid commands are:~n", []),
 	[io:format("   ~-10s ~s~n", [Cmd, Desc]) || {Cmd, Desc} <- command_descriptions()].
+
+main(["rebar"|Args]) ->
+    rebar:main(Args);
 
 main(Args) ->
     os:putenv("AGNER", filename:absname(escript:script_name())),
@@ -418,6 +421,7 @@ handle_command(config, [{variable, "prefix"}]) ->
     io:format("~s~n",[os:getenv("AGNER_PREFIX")]);
 handle_command(config, [{variable, "bin"}]) ->
     io:format("~s~n",[os:getenv("AGNER_BIN")]).
+    
   
 %%%
 

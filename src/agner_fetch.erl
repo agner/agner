@@ -452,38 +452,20 @@ build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Direc
                                       {directory, filename:join(deps_dir(Spec, Directory),ReqName)}|
                                       proplists:delete(spec,rec_to_opts(Opts))]).
 
-rebar(#opts_rec{ spec = {spec, Spec}, quiet = Quiet, directory = Directory }) ->
+rebar(#opts_rec{ spec = {spec, Spec} } = Opts) ->
     case proplists:get_value(rebar_compatible, Spec) of
         true ->
-            io:format("[Building...]~n"),
             RebarCommands = proplists:get_value(rebar_commands, Spec),
+            ScriptName = filename:absname(escript:script_name()),
 
-            Port = open_port({spawn_executable,escript:script_name()},[{cd, Directory},{arg0, filename:join(filename:dirname(escript:script_name()), "rebar")}, {args, RebarCommands}, exit_status,stderr_to_stdout,use_stdio, stream]),
-            unlink(Port),
-            PortHandler = fun (F) ->
-                                  receive
-                                      {'EXIT', Port, normal} ->
-                                          ok;
-                                      {'EXIT', Port, _} ->
-                                          error;
-                                      {Port,{exit_status,0}} ->
-                                          ok;
-                                      {Port,{exit_status,_}} ->
-                                          error;
-                                      {Port, {data, D}} when not Quiet andalso is_list(D) ->
-                                          io:format("~s",[D]),
-                                          F(F);
-                                      _ ->
-                                          F(F)
-                                  end
-                          end,
-            Result = PortHandler(PortHandler),
-            receive
-                {'EXIT', Port, normal} -> %% flush port exit
-                    ok
-            after 0 ->
-                    ok
-            end,
+            Spec1 = 
+                case filename:basename(ScriptName) of 
+                    "agner" ->
+                        [{build_command, ScriptName ++ " rebar " ++ string:join(RebarCommands," ")}|Spec];
+                    "rebar" ->
+                        [{build_command, ScriptName ++ " " ++ string:join(RebarCommands," ")}|Spec]
+                end,
+            Result = build_command(Opts#opts_rec{ spec = {spec, Spec1} }),
             Result;
         _ ->
             ignore
