@@ -73,7 +73,6 @@ clone(Pid, Fun) ->
 file(Pid, Filename) ->
     gen_server:call(Pid, {file, Filename}).
 
-
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -139,7 +138,12 @@ handle_call({clone, Fun}, _From, #state{ directory = undefined, name = Name, ver
                                                                                                    ok
                                                                                            end)
                                          end),
-    {reply, Result, State#state{ directory = Directory }};
+    case Result of 
+        ok ->
+            {reply, ok, State#state{ directory = Directory }};
+        _ ->
+            {reply, Result, State}
+    end;
 
 handle_call({clone, _Fun}, _From, #state{} = State) -> %% already cloned
     {reply, ok, State};

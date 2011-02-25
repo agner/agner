@@ -193,7 +193,12 @@ spec_1(Account, RepoServer,  AtFilename) ->
                 {ok, S} = file:consult(AtFilename),
                 S
         end,
-    agner_spec:normalize(Spec).
+    case Spec of
+        {error, _} = Error ->
+            Error;
+        _ ->
+            agner_spec:normalize(Spec)
+    end.
 
 spec_url(Account, Name, SHA1) ->
     "https://github.com/" ++ proper_repo_name(Account, Name) ++ "/blob/" ++ SHA1 ++ "/agner.config".
