@@ -587,6 +587,7 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
                         Files ->
                             lists:foreach(fun (File) ->
                                                   Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
+                                                  ok = filelib:ensure_dir(os:getenv("AGNER_BIN") ++ "/"),
                                                   File1 = filename:join([InstallPrefix,File]),
                                                   file:delete(Symlink),
                                                   io:format("[Symlinking ~s -> ~s]~n",[File1, Symlink]),
