@@ -530,14 +530,14 @@ install_dirs(#opts_rec{ spec = {spec, Spec} } = Opts) ->
     io:format("[Installing...]~n"),
     Spec1 = [{install_command,"cp -R " ++ string:join(proplists:get_value(install_dirs, Spec, [])," ") ++
                   " $AGNER_INSTALL_PREFIX 2>/dev/null && true || true"},
-             {bin_files, []}|Spec],
-
+             {bin_files, undefined}|Spec],
+    
     filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
     os:cmd("rm -rf " ++ InstallPrefix),
     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
 
-    install_command(Opts#opts_rec{ spec = {spec, Spec1} }),
+    install_command(Opts#opts_rec{ spec = {spec, agner_spec:normalize(Spec1)} }),
 
     ok.
 
@@ -590,9 +590,13 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
                                                   File1 = filename:join([InstallPrefix,File]),
                                                   file:delete(Symlink),
                                                   io:format("[Symlinking ~s -> ~s]~n",[File1, Symlink]),
-                                                  {ok, #file_info{mode = Mode}} = file:read_file_info(File1),
-                                                  file:change_mode(File1, Mode bor 8#00011),
-                                                  ok = file:make_symlink(File1, Symlink)
+                                                  case file:read_file_info(File1) of
+                                                      {ok, #file_info{mode = Mode}} ->
+                                                          file:change_mode(File1, Mode bor 8#00011),
+                                                          ok = file:make_symlink(File1, Symlink);
+                                                      {error, Error} ->
+                                                          io:format("[ERROR: ~p]~n",[Error])
+                                                  end
                                           end, Files)
                     end,
                     ok;
