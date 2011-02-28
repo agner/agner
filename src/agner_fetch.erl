@@ -589,6 +589,7 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
                                                   Symlink = filename:join(os:getenv("AGNER_BIN"),filename:basename(File)),
                                                   File1 = filename:join([InstallPrefix,File]),
                                                   file:delete(Symlink),
+                                                  io:format("[Symlinking ~s -> ~s]~n",[File1, Symlink]),
                                                   {ok, #file_info{mode = Mode}} = file:read_file_info(File1),
                                                   file:change_mode(File1, Mode bor 8#00011),
                                                   ok = file:make_symlink(File1, Symlink)
