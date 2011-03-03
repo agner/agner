@@ -253,14 +253,20 @@ handle_command(versions, Opts) ->
         Package ->
             NoFlavours = proplists:get_value(no_flavours, Opts),
             NoReleases = proplists:get_value(no_releases, Opts),
-            io:format("~s",[lists:usort(plists:map(fun ({flavour, _} = Version) when not NoFlavours ->
-                                                           io_lib:format("~s~n",[agner_spec:version_to_list(Version)]);
-                                                       ({release, _} = Version) when not NoReleases ->
-                                                           io_lib:format("~s~n",[agner_spec:version_to_list(Version)]);
-                                                       (_) ->
-                                                           ""
-                                                   end,
-                                                   agner:versions(Package)))])
+            case agner:versions(Package) of
+                {error, not_found} ->
+                    format_error({not_found, "Package not found"}),
+                    {error, 1};
+                Versions ->
+                    io:format("~s",[lists:usort(plists:map(fun ({flavour, _} = Version) when not NoFlavours ->
+                                                                   io_lib:format("~s~n",[agner_spec:version_to_list(Version)]);
+                                                               ({release, _} = Version) when not NoReleases ->
+                                                                   io_lib:format("~s~n",[agner_spec:version_to_list(Version)]);
+                                                               (_) ->
+                                                                   ""
+                                                           end,
+                                                          Versions))])
+            end
     end;
 
 handle_command(search, Opts) ->
