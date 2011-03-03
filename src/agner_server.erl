@@ -212,11 +212,16 @@ handle_spec(_,_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
 handle_spec(Name, Version, From, [{Mod0, Params}|Rest]) ->
 	Mod = index_module(Mod0),
-    case Mod:spec(Params, Name, Version) of
-        {error, not_found} ->
-            handle_spec(Name, Version, From, Rest);
-        Data ->
-            gen_server:reply(From, Data)
+    case Mod:exists(Params, Name) of
+        true ->
+            case Mod:spec(Params, Name, Version) of
+                {error, not_found} ->
+                    handle_spec(Name, Version, From, Rest);
+                Data ->
+                    gen_server:reply(From, Data)
+            end;
+        false ->
+            handle_spec(Name, Version, From, Rest)
     end.
 
 -spec handle_spec_url(agner_package_name(), agner_package_version(), gen_server_from(), agner_indices()) -> any().
@@ -226,11 +231,16 @@ handle_spec_url(Name, Version, From, [{Mod0, Params}|Rest]) ->
 	Mod = index_module(Mod0),
     case sha1(Mod, Params, Name, Version) of
         SHA1 when is_list(SHA1) ->
-            case Mod:spec_url(Params, Name, SHA1) of
-                {error, not_found} ->
-                    handle_spec_url(Name, Version, From, Rest);
-                URL ->
-                    gen_server:reply(From, URL)
+            case Mod:exists(Params, Name) of
+                true ->
+                    case Mod:spec_url(Params, Name, SHA1) of
+                        {error, not_found} ->
+                            handle_spec_url(Name, Version, From, Rest);
+                        URL ->
+                            gen_server:reply(From, URL)
+                    end;
+                false ->
+                    handle_spec_url(Name, Version, From, Rest)
             end;
         _ ->
             gen_server:reply(From, {error, bad_version})
@@ -275,20 +285,25 @@ handle_versions(_,From,[]) ->
 	gen_server:reply(From, {error, not_found});
 handle_versions(Name, From, [{Mod0, Params}|Rest]) ->
 	Mod = index_module(Mod0),
-	case Mod:repository(Params, Name) of
-		{error, not_found} ->
-			handle_versions(Name, From, Rest);
-		_ ->
-            Branches = lists:map(fun
-                                     ({[$%|_],_}) -> undefined;
-                                     ({"gh-pages",_}) -> undefined;
-                                     ({Branch, _}) -> {flavour, Branch} end,
-                                  Mod:branches(Params, Name)),
-            Tags = lists:map(fun ({[$%|_],_}) -> undefined;
-                                 ({Tag, _}) -> {release, Tag} end,
-                                  Mod:tags(Params, Name)),
-            gen_server:reply(From, lists:filter(fun (undefined) -> false; (_) -> true end, Branches ++ Tags))
-	end.
+    case Mod:exists(Params, Name) of
+        true ->
+            case Mod:repository(Params, Name) of
+                {error, not_found} ->
+                    handle_versions(Name, From, Rest);
+                _ ->
+                    Branches = lists:map(fun
+                                             ({[$%|_],_}) -> undefined;
+                                             ({"gh-pages",_}) -> undefined;
+                                             ({Branch, _}) -> {flavour, Branch} end,
+                                         Mod:branches(Params, Name)),
+                    Tags = lists:map(fun ({[$%|_],_}) -> undefined;
+                                         ({Tag, _}) -> {release, Tag} end,
+                                     Mod:tags(Params, Name)),
+                    gen_server:reply(From, lists:filter(fun (undefined) -> false; (_) -> true end, Branches ++ Tags))
+            end;
+        false ->
+            handle_versions(Name, From, Rest)
+    end.
 
 -spec sha1(agner_index(), agner_account(), agner_package_name(), agner_package_version()) -> sha1().
                   

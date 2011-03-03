@@ -10,7 +10,8 @@
 		 tags/2,
 		 branches/2,
 		 spec/3,
-         spec_url/3
+         spec_url/3,
+         exists/2
 		]).
 
 repositories(Account) ->
@@ -156,6 +157,25 @@ spec_1(Account, RepoServer,  AtFilename) ->
 
 spec_url(Account, Name, SHA1) ->
     "https://github.com/" ++ proper_repo_name(Account, Name) ++ "/blob/" ++ SHA1 ++ "/agner.config".
+
+exists(Account, Name) ->
+    Port = agner_download:git(["ls-remote", "-h",  "git://github.com/" ++ proper_repo_name(Account, Name) ++ ".git"],
+                              [use_stdio, stderr_to_stdout, {line, 255}]),
+    PortHandler = fun (F) ->
+                          receive
+                              {'EXIT', Port, _} ->
+                                  false;
+                              {Port,{exit_status,0}} ->
+                                  true;
+                              {Port,{exit_status,_}} ->
+                                  false;
+                              {Port, {data, _}} ->
+                                  F(F);
+                              _ ->
+                                  F(F)
+                          end
+                  end,
+    PortHandler(PortHandler).
 
 %%%
 

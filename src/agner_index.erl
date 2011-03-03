@@ -6,6 +6,6 @@
 
 behaviour_info(callbacks) ->
     [{repositories,1}, {repository, 2}, {tags,2}, {branches, 2}, {spec, 3},
-     {spec_url, 3}];
+     {spec_url, 3},{exists, 2}];
 behaviour_info(_Other) ->
     undefined.

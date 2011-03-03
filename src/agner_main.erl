@@ -206,7 +206,12 @@ handle_command(spec, Opts) ->
             Version = proplists:get_value(version, Opts),
             case proplists:get_value(browser, Opts) of
                 true ->
-                    agner_utils:launch_browser(agner:spec_url(Package, Version));
+                    case agner:spec_url(Package, Version) of
+                        {error, not_found} ->
+                            ignore; %% error will be reported later
+                        URL ->
+                            agner_utils:launch_browser(URL)
+                    end;
                 _ ->
                     ignore
             end,
