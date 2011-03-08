@@ -1,0 +1,17 @@
+#! /usr/bin/env escript
+
+main([]) ->
+    {ok, [{shebang,_}, {comment,_}, {emu_args,_},
+          {archive, RebarArch}]} = escript:extract("deps/rebar/rebar",[]),
+    {ok, RebarFileList0} = zip:extract(RebarArch,[memory]),
+    RebarFileList = lists:filter(fun ({"priv/" ++ _, _}) ->
+                                      true;
+                                     (_) ->
+                                      false
+                                 end, RebarFileList0),
+    {ok, [Shebang, Comment, EmuArgs,
+          {archive, AgnerArch}]} = escript:extract("./agner",[]),
+    {ok, AgnerFileList} = zip:extract(AgnerArch,[memory]),
+    {ok, {_, Arch}} = zip:create("agner",lists:ukeysort(1,AgnerFileList ++ RebarFileList),[memory]),
+  escript:create("agner", [Shebang, Comment, EmuArgs, {archive, Arch}]).
+

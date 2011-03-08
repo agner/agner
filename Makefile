@@ -19,6 +19,7 @@ compile: deps
 	@./rebar compile
 	@cp deps/rebar/ebin/rebar* ebin/
 	@./rebar escriptize
+	@./scripts/add_rebar_templates
 
 install:
 	@install ./agner /usr/local/bin
