@@ -52,9 +52,8 @@ The build command will be invoked in checked out directory containing target rep
 
 ### Install command
 
-If your target repository can't be built by simply invoking `rebar get-deps && rebar compile` then you need to supply
-a `install_command` property, for example:
-
+If your target package can't be installed by simply copying otp directories then you need to supply
+an `install_command` property, for example:
 
      {install_command, "make install"}.
 
