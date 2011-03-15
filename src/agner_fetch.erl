@@ -446,11 +446,23 @@ current_agner_version() ->
     {agner,_,CurrentAgnerVersion} = lists:keyfind(agner,1,application:which_applications()),
     CurrentAgnerVersion.
 
-build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Directory } = Opts) ->
+build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Directory0 } = Opts) ->
+    Directory =
+        case os:getenv("__AGNER_DEP_DIRECTORY") of
+            false ->
+                os:putenv("__AGNER_DEP_DIRECTORY", Directory0),
+                Directory0;
+            [] ->
+                os:putenv("__AGNER_DEP_DIRECTORY", Directory0),
+                Directory0;
+            Directory1 ->
+                Directory1
+        end,
     io:format("[Processing dependency: ~s]~n", [ReqName]),
     agner_main:handle_command(fetch, [{package, ReqName},{version, ReqVersion},
                                       {directory, filename:join(deps_dir(Spec, Directory),ReqName)}|
-                                      proplists:delete(spec,rec_to_opts(Opts))]).
+                                      proplists:delete(spec,rec_to_opts(Opts))]),
+    os:putenv("__AGNER_DEP_DIRECTORY","").
 
 rebar(#opts_rec{ spec = {spec, Spec} } = Opts) ->
     case proplists:get_value(rebar_compatible, Spec) of
