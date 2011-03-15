@@ -226,6 +226,7 @@ fetched(fetch_requirements, #state{ opts = #opts_rec{ spec = {spec, Spec} } = Op
                       (ReqName) ->
                           build_dep(ReqName, "@master", Opts)
                   end, Requirements),
+    os:putenv("__AGNER_DEP_DIRECTORY", ""),
     {next_state, fetched, State};
 
 fetched(caveats, #state{ opts = #opts_rec{spec = {spec, Spec} }} = State) ->
@@ -461,9 +462,7 @@ build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Direc
     io:format("[Processing dependency: ~s]~n", [ReqName]),
     agner_main:handle_command(fetch, [{package, ReqName},{version, ReqVersion},
                                       {directory, filename:join(deps_dir(Spec, Directory),ReqName)}|
-                                      proplists:delete(spec,rec_to_opts(Opts))]),
-    os:putenv("__AGNER_DEP_DIRECTORY","").
-
+                                      proplists:delete(spec,rec_to_opts(Opts))]).
 rebar(#opts_rec{ spec = {spec, Spec} } = Opts) ->
     case proplists:get_value(rebar_compatible, Spec) of
         true ->
