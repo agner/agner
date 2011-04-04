@@ -22,7 +22,13 @@ start() ->
         [_|_] ->
             ignore
     end,
-    filelib:ensure_dir(os:getenv("AGNER_PREFIX") ++ "/"),
+    case os:getenv("AGNER_EXACT_PREFIX") of
+        false ->
+            os:putenv("AGNER_EXACT_PREFIX",filename:join(os:getenv("AGNER_PREFIX"),"packages"));
+        [_|_] ->
+            ignore
+    end,
+    filelib:ensure_dir(os:getenv("AGNER_EXACT_PREFIX") ++ "/"),
 	inets:start(),
 	ssl:start(),
     inets:start(httpc,[{profile, agner}]),

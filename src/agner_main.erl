@@ -321,7 +321,7 @@ handle_command(prefix, Opts) ->
             io:format("ERROR: Package name required.~n");
         Package ->
             Version = proplists:get_value(version, Opts),
-            InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
+            InstallPrefix = filename:join([os:getenv("AGNER_EXACT_PREFIX"),Package ++ "-" ++ Version]),
             case filelib:is_dir(InstallPrefix) of
                 true ->
                     io:format("~s~n",[InstallPrefix]);
@@ -336,7 +336,7 @@ handle_command(uninstall, Opts) ->
             io:format("ERROR: Package name required.~n");
         Package ->
             Version = proplists:get_value(version, Opts),
-            InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
+            InstallPrefix = filename:join([os:getenv("AGNER_EXACT_PREFIX"),Package ++ "-" ++ Version]),
             case filelib:is_dir(InstallPrefix) of
                 true ->
                     io:format("Uninstalling...~n"),
@@ -427,9 +427,12 @@ handle_command(version, _) ->
 
 handle_command(config, []) ->
     io:format("prefix="), handle_command(config,[{variable, "prefix"}]),
+    io:format("exact_prefix="), handle_command(config,[{variable, "exact_prefix"}]),
     io:format("bin="), handle_command(config,[{variable, "bin"}]);
 handle_command(config, [{variable, "prefix"}]) ->
     io:format("~s~n",[os:getenv("AGNER_PREFIX")]);
+handle_command(config, [{variable, "exact_prefix"}]) ->
+    io:format("~s~n",[os:getenv("AGNER_EXACT_PREFIX")]);
 handle_command(config, [{variable, "bin"}]) ->
     io:format("~s~n",[os:getenv("AGNER_BIN")]).
     
