@@ -539,9 +539,15 @@ add_path(#opts_rec{ addpath = false }) ->
 
 install_dirs(#opts_rec{ spec = {spec, Spec} } = Opts) ->
     io:format("[Installing...]~n"),
+    BinFiles = case proplists:get_value(install_command, Spec) of
+                   undefined ->
+                       proplists:get_value(bin_files, Spec);
+                   _ ->
+                       undefined
+               end,
     Spec1 = [{install_command,"cp -R " ++ string:join(proplists:get_value(install_dirs, Spec, [])," ") ++
                   " $AGNER_INSTALL_PREFIX 2>/dev/null && true || true"},
-             {bin_files, undefined}|Spec],
+             {bin_files, BinFiles}|Spec],
     
     filelib:ensure_dir(os:getenv("AGNER_EXACT_PREFIX") ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
