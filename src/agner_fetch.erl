@@ -532,7 +532,7 @@ install_dirs(#opts_rec{ spec = {spec, Spec} } = Opts) ->
                   " $AGNER_INSTALL_PREFIX 2>/dev/null && true || true"},
              {bin_files, undefined}|Spec],
     
-    filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
+    filelib:ensure_dir(os:getenv("AGNER_EXACT_PREFIX") ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
     os:cmd("rm -rf " ++ InstallPrefix),
     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
@@ -545,7 +545,7 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
     os:putenv("AGNER_PACKAGE_NAME", Package),
     os:putenv("AGNER_PACKAGE_VERSION", Version),
 
-    filelib:ensure_dir(filename:join([os:getenv("AGNER_PREFIX"),"packages"]) ++ "/"),
+    filelib:ensure_dir(os:getenv("AGNER_EXACT_PREFIX") ++ "/"),
     InstallPrefix = set_install_prefix(Opts),
 
     ok = filelib:ensure_dir(InstallPrefix ++ "/"),
@@ -607,6 +607,6 @@ install_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Q
     end.
 
 set_install_prefix(#opts_rec{ package = Package, version = Version }) ->
-    InstallPrefix = filename:join([os:getenv("AGNER_PREFIX"),"packages",Package ++ "-" ++ Version]),
+    InstallPrefix = filename:join([os:getenv("AGNER_EXACT_PREFIX"), Package ++ "-" ++ Version]),
     os:putenv("AGNER_INSTALL_PREFIX", InstallPrefix),
     InstallPrefix.
