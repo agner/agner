@@ -79,7 +79,7 @@ handle_state(ready, #state{ opts = #opts_rec { package = undefined,
     AgnerKey =
         case file:consult(App) of
             {ok, [{application, _, Terms}]} ->
-                proplists:get_value(agner, Terms);
+                proplists:get_value(agner, Terms, []);
             _ ->
                 not_found
         end,
