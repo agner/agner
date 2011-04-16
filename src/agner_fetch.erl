@@ -30,7 +30,7 @@
 -record(state, {
           opts = #opts_rec{},
           repo_dir,
-          fetched_steps = [check_requirements, fetch_requirements, caveats],
+          fetched_steps = [check_requirements, fetch_requirements, fetch_deps, caveats],
           build_steps = [rebar, build_command, add_path],
           install_steps = [install_dirs, install_command, print_prefix]
          }).
@@ -229,6 +229,12 @@ fetched(fetch_requirements, #state{ opts = #opts_rec{ spec = {spec, Spec} } = Op
     os:putenv("__AGNER_DEP_DIRECTORY", ""),
     {next_state, fetched, State};
 
+fetched(fetch_deps, #state{ opts = #opts_rec{ spec = {spec, Spec} } = Opts } = State) ->
+    RebarCommands = proplists:get_value(rebar_fetch_deps_commands, Spec),
+    rebar(RebarCommands, Opts),
+    fetch_deps_command(Opts),
+    {next_state, fetched, State};
+
 fetched(caveats, #state{ opts = #opts_rec{spec = {spec, Spec} }} = State) ->
     case proplists:get_value(caveats, Spec) of
         undefined ->
@@ -248,8 +254,10 @@ buildable(next, State) ->
 buildable(_, #state{ opts = #opts_rec{ build = false }} = State) ->
     {next_state, buildable, State};
 
-buildable(rebar, #state{ opts = #opts_rec{ build = true } = Opts} = State) ->
-    rebar(Opts),
+buildable(rebar, #state{ opts = #opts_rec{ build = true, spec = {spec, Spec} } = Opts } = State) ->
+    io:format("[Building...]~n"),
+    RebarCommands = proplists:get_value(rebar_commands, Spec),
+    rebar(RebarCommands, Opts),
     {next_state, buildable, State};
 
 buildable(build_command, #state{ opts = #opts_rec{ build = true } = Opts, repo_dir = RepoDir} = State) ->
@@ -463,10 +471,9 @@ build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Direc
     agner_main:handle_command(fetch, [{package, ReqName},{version, ReqVersion},
                                       {directory, filename:join(deps_dir(Spec, Directory),ReqName)}|
                                       proplists:delete(spec,rec_to_opts(Opts))]).
-rebar(#opts_rec{ spec = {spec, Spec} } = Opts) ->
+rebar(RebarCommands, #opts_rec{ spec = {spec, Spec} } = Opts) ->
     case proplists:get_value(rebar_compatible, Spec) of
         true ->
-            RebarCommands = proplists:get_value(rebar_commands, Spec),
             ScriptName = filename:absname(escript:script_name()),
 
             Spec1 = 
@@ -480,6 +487,45 @@ rebar(#opts_rec{ spec = {spec, Spec} } = Opts) ->
             Result;
         _ ->
             ignore
+    end.
+
+fetch_deps_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet, package = Package, version = Version } = Opts) ->
+    os:putenv("AGNER_PACKAGE_NAME", Package),
+    os:putenv("AGNER_PACKAGE_VERSION", Version),
+
+    case proplists:get_value(fetch_deps_command, Spec) of
+        undefined ->
+            ignore;
+        Command ->
+            set_install_prefix(Opts),
+            io:format("[Fetching dependencies...]~n"),
+            Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
+            unlink(Port),
+            PortHandler = fun (F) ->
+                                  receive
+                                      {'EXIT', Port, normal} ->
+                                          ok;
+                                      {'EXIT', Port, _} ->
+                                          error;
+                                      {Port,{exit_status,0}} ->
+                                          ok;
+                                      {Port,{exit_status,_}} ->
+                                          error;
+                                      {Port, {data, D}} when not Quiet andalso is_list(D) ->
+                                          io:format("~s",[D]),
+                                          F(F);
+                                      _ ->
+                                          F(F)
+                                  end
+                          end,
+            Result = PortHandler(PortHandler),
+            receive
+                {'EXIT', Port, normal} -> %% flush port exit
+                    ok
+            after 0 ->
+                    ok
+            end,
+            Result
     end.
 
 build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Quiet, package = Package, version = Version } = Opts) ->
@@ -496,7 +542,6 @@ build_command(#opts_rec{ spec = {spec, Spec}, directory = Directory, quiet = Qui
             end;
         Command ->
             set_install_prefix(Opts),
-            io:format("[Building...]~n"),
             Port = open_port({spawn,"sh -c \"" ++ Command ++ "\""},[{cd, Directory},exit_status,stderr_to_stdout,use_stdio, stream]),
             unlink(Port),
             PortHandler = fun (F) ->

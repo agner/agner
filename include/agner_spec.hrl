@@ -27,7 +27,9 @@
 -type agner_spec_property_authors() :: {authors, list(string())}.
 -type agner_spec_property_homepage() :: {homepage, string()}.
 -type agner_spec_property_rebar_compatible() :: {rebar_compatible, boolean()}.
+-type agner_spec_property_rebar_fetch_deps_commands() :: {rebar_commands, list(string())}.
 -type agner_spec_property_rebar_commands() :: {rebar_commands, list(string())}.
+-type agner_spec_property_fetch_deps_command() :: {fetch_deps_command, string()}.
 -type agner_spec_property_build_command() :: {build_command, string()}.
 -type agner_spec_property_install_command() :: {install_command, string()}.
 -type agner_spec_property_install_dirs() :: {install_dirs, list(agner_install_dir())}.
@@ -49,7 +51,9 @@
                                agner_spec_property_authors() |
                                agner_spec_property_homepage() |
                                agner_spec_property_rebar_compatible() |
+                               agner_spec_property_rebar_fetch_deps_commands() |
                                agner_spec_property_rebar_commands() |
+                               agner_spec_property_fetch_deps_command() |
                                agner_spec_property_build_command() |
                                agner_spec_property_install_command() |
                                agner_spec_property_bin_files() |
