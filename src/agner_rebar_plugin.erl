@@ -19,6 +19,7 @@ compile(Config, AppFile) ->
     agner:start(),
     set_indices(Config),
     agner_main:handle_command(build,[{app, AppFile},{version, "@master"},{quiet, false},
+                                     {nofetch, true},
                                      {addpath, false},
                                      {install, false}]),
     agner:stop().
