@@ -24,7 +24,8 @@
           install,
           spec,
           package_path,
-          quiet
+          quiet,
+          nofetch
          }).
 
 -record(state, {
@@ -148,14 +149,14 @@ handle_state(fetchable, #state{ opts = #opts_rec{ spec = Spec, package_path = Pa
     handle_state(fetchable, State#state{ opts = Opts#opts_rec{ spec = {spec, agner_spec:normalize(Spec0)} }, repo_dir = PackagePath } );
 
 %% Everything is ready to go, fetch
+handle_state(fetchable, #state{ opts = #opts_rec{version = Version, directory = Directory, nofetch = true }
+                              } = State) when is_list(Directory) andalso is_list(Version) ->
+    gen_fsm2:send_event(self(), next),
+    {ok, State};
+
 handle_state(fetchable, #state{ opts = #opts_rec{spec = {spec, Spec}, version = Version, directory = Directory }
                               } = State) when is_list(Directory) andalso is_list(Version) ->
-    case proplists:get_value(nofetch, Spec, false) of
-        true ->
-            ignore;
-        false ->
-            agner:fetch(Spec, Version, Directory)
-    end,
+    agner:fetch(Spec, Version, Directory),
     gen_fsm2:send_event(self(), next),
     {ok, State};
 
