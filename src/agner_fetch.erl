@@ -86,7 +86,7 @@ handle_state(ready, #state{ opts = #opts_rec { package = undefined,
         end,
     case AgnerKey of
         not_found ->
-            {stop, {error, {app_missing, "Can't find application " ++ App ++ " or its `agner' key"}}, State};
+            {stop, shutdown, State};
         _ ->
             Spec = agner_spec:normalize(AgnerKey),
             handle_state(ready, State#state{ opts = Opts#opts_rec{ package = App,
