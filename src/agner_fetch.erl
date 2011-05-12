@@ -150,7 +150,12 @@ handle_state(fetchable, #state{ opts = #opts_rec{ spec = Spec, package_path = Pa
 %% Everything is ready to go, fetch
 handle_state(fetchable, #state{ opts = #opts_rec{spec = {spec, Spec}, version = Version, directory = Directory }
                               } = State) when is_list(Directory) andalso is_list(Version) ->
-    agner:fetch(Spec, Version, Directory),
+    case proplists:get_value(nofetch, Spec, false) of
+        true ->
+            ignore;
+        false ->
+            agner:fetch(Spec, Version, Directory)
+    end,
     gen_fsm2:send_event(self(), next),
     {ok, State};
 
