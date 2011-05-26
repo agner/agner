@@ -111,7 +111,7 @@ versions(Name) ->
 %%% private
 %%%===================================================================
 ensure_crypto_loaded() ->
-    case code:load_file(crypto) of
+    case code:ensure_loaded(crypto) of
         {module, crypto} ->
             ignore;
         {error, _Err} ->
