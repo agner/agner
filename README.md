@@ -15,11 +15,11 @@ Installation
 
 It is just a matter of a simple oneliner to get Agner installed:
 
-     curl https://github.com/agner/agner/raw/master/scripts/oneliner | sh
+     curl https://raw.github.com/agner/agner/master/scripts/oneliner | sh
 
 If you want to install latest release instead of HEAD, use this one:
 
-     curl https://github.com/agner/agner/raw/master/scripts/oneliner.release | sh
+     curl https://raw.github.com/agner/agner/aster/scripts/oneliner.release | sh
 
 Motivation
 ----------
