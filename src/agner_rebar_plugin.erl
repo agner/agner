@@ -2,11 +2,11 @@
 
 -export(['check-deps'/2,
          'get-deps'/2,
-         compile/2]).
+         pre_compile/2]).
 
 
 'check-deps'(Config, AppFile) ->
-    compile(Config, AppFile).
+    pre_compile(Config, AppFile).
 
 'get-deps'(Config, AppFile) ->
     agner:start(),
@@ -15,7 +15,7 @@
                                      {install, false},{build, false}]),
     agner:stop().
 
-compile(Config, AppFile) ->
+pre_compile(Config, AppFile) ->
     agner:start(),
     set_indices(Config),
     agner_main:handle_command(build,[{app, AppFile},{version, "@master"},{quiet, false},
