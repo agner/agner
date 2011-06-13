@@ -1,7 +1,7 @@
 {application, agner,
  [
   {description, ""},
-  {vsn, "0.4.17"},       
+  {vsn, "0.4.18"},       
   {registered, []},
   {applications, [
                   kernel,
