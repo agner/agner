@@ -10,7 +10,7 @@
                   gproc
                  ]},
   {agner, [
-           {requires, ["typespecs","getopt","gproc","plists","gen_fsm2","jsx","rebar"]}
+           {requires, ["typespecs","getopt","gproc","plists","gen_fsm2","jsx",{"rebar","@original"}]}
           ]},
   {env, [
          {indices, [{github, "agner"}]},
