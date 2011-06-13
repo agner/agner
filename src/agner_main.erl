@@ -78,7 +78,8 @@ arg_proplist() ->
 		{version, $v, "version", {string, "@master"}, "Version"},
         {app, undefined, "app", string, "Fetch dependencies from .app"},
         {spec, $s, "spec-file", string, "Use local specification file"},
-        {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"}
+        {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"},
+        {nofetch, undefined, "no-fetch", {boolean, false}, "Don't (re)-fetch the source code"}
 	   ]}},
      {"uninstall",
       {uninstall,
@@ -107,7 +108,8 @@ arg_proplist() ->
         {addpath, $a, "add-path", {boolean, false}, "Add path to compiled package to .erlang"},
         {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
 		{directory, undefined, undefined, string, "Directory to check package out to"},
-        {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"}
+        {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"},
+        {nofetch, undefined, "no-fetch", {boolean, false}, "Don't (re)-fetch the source code"}
 	   ]}},      
      {"create",
       {create,

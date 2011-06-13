@@ -15,11 +15,11 @@ Installation
 
 It is just a matter of a simple oneliner to get Agner installed:
 
-     curl https://github.com/agner/agner/raw/master/scripts/oneliner | sh
+     curl https://raw.github.com/agner/agner/master/scripts/oneliner | sh
 
 If you want to install latest release instead of HEAD, use this one:
 
-     curl https://github.com/agner/agner/raw/master/scripts/oneliner.release | sh
+     curl https://raw.github.com/agner/agner/aster/scripts/oneliner.release | sh
 
 Motivation
 ----------
@@ -166,17 +166,20 @@ defaults to `.`)
 
 For convenience, the following shortcuts are defined:
 
-    agner build PACKAGE [DESTDIR] [-v/--version VERSION] [-s/--spec-file SPECFILE] [-a/--add-path] [-i/--install]
+    agner build PACKAGE [DESTDIR] [-v/--version VERSION] [-s/--spec-file SPECFILE] [-a/--add-path] [-i/--install] [--no-fetch]
 
 Alias for `agner fetch --build PACKAGE`.
 
-    agner install PACKAGE [-v/--version VERSION] [-s/--spec-file SPECFILE]
+    agner install PACKAGE [-v/--version VERSION] [-s/--spec-file SPECFILE] [--no-fetch]
 
 Alias for `agner fetch --build --install PACKAGE
 /tmp/<uniq_filename>`. A typical example would be `agner install
 rebar` or `agner install rebar -v @agner` to get `rebar` binary in
 your `PATH`. It is assumed that `install_command` property will make use
 of `AGNER_INSTALL_PREFIX` OS environment variable.
+
+`--no-fetch` option could be useful when you don't want to update already 
+fetched repository, but just build or install it.
 
 ### Uninstalling
 

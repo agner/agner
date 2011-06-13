@@ -28,6 +28,7 @@ start() ->
         [_|_] ->
             ignore
     end,
+    ensure_crypto_loaded(),
     filelib:ensure_dir(os:getenv("AGNER_EXACT_PREFIX") ++ "/"),
 	inets:start(),
 	ssl:start(),
@@ -104,3 +105,20 @@ fetch(Name, Version, Directory) ->
 
 versions(Name) ->
     agner_server:versions(Name).
+
+
+%%%===================================================================
+%%% private
+%%%===================================================================
+ensure_crypto_loaded() ->
+    case code:ensure_loaded(crypto) of
+        {module, crypto} ->
+            ignore;
+        {error, _Err} ->
+            [io:format("~s~n", [Msg])
+             || Msg <- ["Your local Erlang installation doesn't include the crypto module",
+                        "Make sure you have erlang-crypto and erlang-dev if on Debian",
+                        "   have erlang-crypto and erlang-devel if on Redhat/Fedora",
+                        "   sudo port install erlang +ssl if on OS X",
+                        "Or, let kerl (https://github.com/evax/kerl) take care of those for you"]]
+    end.
