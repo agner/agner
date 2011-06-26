@@ -31,7 +31,7 @@ arg_proplist() ->
 		{version, $v, "version", {string, "@master"}, "Version"},
         {property, $p, "property", string, "Particular property to render instead of a full spec"},
         {spec, $s, "spec-file", string, "Use local specification file"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}].'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
 	   ]}},
 	 {"versions",
 	  {versions,
@@ -40,7 +40,7 @@ arg_proplist() ->
 		{package, undefined, undefined, string, "Package name"},
         {no_flavours, undefined, "no-flavours", {boolean, false}, "Don't show flavour versions"},
         {no_releases, undefined, "no-releases", {boolean, false}, "Don't show release versions"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}].'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
 	   ]}},
 	 {"list",
 	  {list,
@@ -49,7 +49,7 @@ arg_proplist() ->
 		{descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"},
 		{properties, $p, "properties", string, "Comma-separated list of properties to show"},
         {search, $s, "search", string, "Keyword to search"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}].'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
 	   ]}},
      {"search",
       {search,
@@ -58,7 +58,7 @@ arg_proplist() ->
         {search, undefined, undefined, string, "Keyword to search"},
 		{descriptions, $d, "descriptions", {boolean, false}, "Show package descriptions"},
 		{properties, $p, "properties", string, "Comma-separated list of properties to show"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}].'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
        ]}},
 	 {"fetch",
 	  {fetch,
@@ -73,7 +73,7 @@ arg_proplist() ->
         {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
         {spec, $s, "spec-file", string, "Use local specification file"},
         {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}].'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
 	   ]}},
      {"install",
       {install,
@@ -85,7 +85,7 @@ arg_proplist() ->
         {spec, $s, "spec-file", string, "Use local specification file"},
         {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"},
         {nofetch, undefined, "no-fetch", {boolean, false}, "Don't (re)-fetch the source code"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}].'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
 	   ]}},
      {"uninstall",
       {uninstall,
@@ -116,7 +116,7 @@ arg_proplist() ->
 		{directory, undefined, undefined, string, "Directory to check package out to"},
         {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"},
         {nofetch, undefined, "no-fetch", {boolean, false}, "Don't (re)-fetch the source code"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}].'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
 	   ]}},      
      {"create",
       {create,
@@ -171,7 +171,7 @@ main(Args) ->
 					start(),
                     case proplists:get_value(indices, Opts) of
                         Indices when is_list(Indices) ->
-                            {ok, Ts, _} = erl_scan:string(Indices),
+                            {ok, Ts, _} = erl_scan:string(Indices ++ "."),
                             {ok, IndicesTerm} = erl_parse:parse_term(Ts),
                             application:set_env(agner, indices, IndicesTerm);
                         _ ->
