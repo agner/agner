@@ -36,7 +36,7 @@ pre_compile(Config, AppFile) ->
     
 
 set_indices(Config) ->
-        application:set_env(agner, indices, rebar_config:get_local(Config, agner_indices, [{github,"agner"}])).
+    application:set_env(agner, indices, rebar_config:get_local(Config, agner_indices, [{github,"agner"}])).
 
 ensure_agner_started() ->
     case proplists:get_value(agner, application:loaded_applications()) of
