@@ -73,7 +73,8 @@ arg_proplist() ->
         {install, $i, "install", {boolean, false}, "Install package (if install_command is available)"},
         {spec, $s, "spec-file", string, "Use local specification file"},
         {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"},
+        {nodeps, undefined, "no-deps", {boolean, false}, "Don't fetch dependencies"}
 	   ]}},
      {"install",
       {install,
@@ -116,7 +117,8 @@ arg_proplist() ->
 		{directory, undefined, undefined, string, "Directory to check package out to"},
         {quiet, $q, "quiet", {boolean, false}, "Don't render build/install scripts output"},
         {nofetch, undefined, "no-fetch", {boolean, false}, "Don't (re)-fetch the source code"},
-        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"}
+        {indices, undefined, "indices", string, "Custom list of indices, as an Erlang term, followed by a dot. Example: '[{github,\"yrashk\"}]'"},
+        {nodeps, undefined, "no-deps", {boolean, false}, "Don't fetch dependencies"}
 	   ]}},      
      {"create",
       {create,

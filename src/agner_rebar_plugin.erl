@@ -13,7 +13,7 @@
     set_indices(Config),
     {Pid, Ref} = erlang:spawn_monitor(fun () ->
                                        agner_main:handle_command(fetch,[{app, AppFile},{version, "@master"},{addpath, false},
-                                                                        {install, false},{build, false}])
+                                                                        {install, false},{build, false}, nodeps_flag()])
                                end),
     receive
         {'DOWN', Ref, process, Pid, normal} ->
@@ -27,7 +27,7 @@ pre_compile(Config, AppFile) ->
                                       agner_main:handle_command(build,[{app, AppFile},{version, "@master"},{quiet, false},
                                      {nofetch, true},
                                      {addpath, false},
-                                     {install, false}])
+                                     {install, false},nodeps_flag()])
                               end),
     receive
         {'DOWN', Ref, process, Pid, normal} ->
@@ -44,5 +44,13 @@ ensure_agner_started() ->
             agner:start();
         _ ->
             ok %% already started
+    end.
+
+nodeps_flag() ->            
+    case rebar_config:get_global(skip_deps, false) of
+        "true" ->
+            {nodeps, true};
+        _ ->
+            {nodeps, false}
     end.
             
