@@ -1,12 +1,16 @@
 -module(agner_rebar_plugin).
 
 -export(['check-deps'/2,
+         'update-deps'/2,
          'get-deps'/2,
          pre_compile/2]).
 
 
 'check-deps'(Config, AppFile) ->
     pre_compile(Config, AppFile).
+
+'update-deps'(Config, AppFile) ->
+    'get-deps'(Config, AppFile).
 
 'get-deps'(Config, AppFile) ->
     ensure_agner_started(),
