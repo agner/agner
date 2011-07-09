@@ -19,7 +19,7 @@ It is just a matter of a simple oneliner to get Agner installed:
 
 If you want to install latest release instead of HEAD, use this one:
 
-     curl https://raw.github.com/agner/agner/aster/scripts/oneliner.release | sh
+     curl https://raw.github.com/agner/agner/master/scripts/oneliner.release | sh
 
 Motivation
 ----------
