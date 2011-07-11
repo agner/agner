@@ -239,7 +239,7 @@ fetched(fetch_requirements, #state{ opts = #opts_rec{ spec = {spec, Spec} } = Op
 fetched(fetch_deps, #state{ opts = #opts_rec { nodeps = true } } = State) ->
     {next_state, fetched, State};
 
-fetched(fetch_deps, #state{ opts = #opts_rec{ spec = {spec, Spec}, nodeps = false } = Opts } = State) ->
+fetched(fetch_deps, #state{ opts = #opts_rec{ spec = {spec, Spec}, nodeps = undefined } = Opts } = State) ->
     RebarCommands = proplists:get_value(rebar_fetch_deps_commands, Spec),
     rebar(RebarCommands, Opts),
     fetch_deps_command(Opts),
@@ -467,7 +467,7 @@ current_agner_version() ->
 
 build_dep(_ReqName, _ReqVersion, #opts_rec{ nodeps = true }) ->
     ignore;
-build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Directory0, nodeps = false } = Opts) ->
+build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Directory0, nodeps = undefined } = Opts) ->
     Directory =
         case os:getenv("__AGNER_DEP_DIRECTORY") of
             false ->
@@ -484,8 +484,8 @@ build_dep(ReqName, ReqVersion, #opts_rec{ spec = {spec, Spec}, directory = Direc
                                       {directory, filename:join(deps_dir(Spec, Directory),ReqName)}|
                                       proplists:delete(spec,rec_to_opts(Opts))]).
 rebar(RebarCommands, #opts_rec{ nodeps = true } = Opts) ->
-    rebar(RebarCommands ++ ["skip_deps=true"], Opts#opts_rec{ nodeps = false });
-rebar(RebarCommands, #opts_rec{ spec = {spec, Spec}, nodeps = false } = Opts) ->
+    rebar(RebarCommands ++ ["skip_deps=true"], Opts#opts_rec{ nodeps = undefined });
+rebar(RebarCommands, #opts_rec{ spec = {spec, Spec}, nodeps = undefined } = Opts) ->
     case proplists:get_value(rebar_compatible, Spec) of
         true ->
             ScriptName = filename:absname(escript:script_name()),
