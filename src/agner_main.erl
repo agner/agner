@@ -384,7 +384,7 @@ handle_command(uninstall, Opts) ->
 
 handle_command(install, Opts) ->
     TmpFile = temp_name(),
-    handle_command(fetch, [{build, true},{directory, TmpFile},{install, true},{addpath, false}|Opts]),
+    handle_command(fetch, [{build, true},{directory, TmpFile},{install, true},{addpath, false},{nodeps, false}|Opts]),
     os:cmd("rm -rf " ++ TmpFile);
 
 handle_command(build, Opts) ->
