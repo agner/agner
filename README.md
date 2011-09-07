@@ -400,7 +400,7 @@ Agner-compatible rebar can be installed by `agner install rebar`.
 Using it with rebar is fairly simple, it makes use of rebar's plugin system. 
 Just include our plugin in your rebar.config and reference default `deps` directory:
 
-    {rebar_plugins, [agner_rebar_plugin]}.
+    {plugins, [agner_rebar_plugin]}.
     {lib_dirs, ["deps"]}.
 
 then, in your .app or .app.src file, add something like this as one of your `application keys`:
